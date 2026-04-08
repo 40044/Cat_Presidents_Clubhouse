@@ -10,18 +10,17 @@
             background-color: #e0f7fa; 
             margin: 0;
             padding: 20px;
-            display: none; /* Versteckt die Seite, bis das Passwort stimmt */
+            display: none; 
         }
         
         .header { text-align: center; padding: 20px; }
         h1 { color: #00838f; }
 
-        /* Das Regal-System (3 Spalten) */
         .main-container {
             display: flex;
             gap: 20px;
             justify-content: center;
-            flex-wrap: wrap; /* Damit es auf Handys untereinander rutscht */
+            flex-wrap: wrap; 
         }
 
         .column {
@@ -32,10 +31,10 @@
             border: 3px solid #00acc1;
         }
 
-        /* Breite der Spalten */
-        .left { flex: 1; min-width: 300px; }   /* Chat */
-        .middle { flex: 2; min-width: 350px; } /* Champis */
-        .right { flex: 1; min-width: 250px; }  /* Codes */
+        /* NEUE ORDNUNG */
+        .left { flex: 1; min-width: 250px; order: 1; }   /* Codes jetzt LINKS */
+        .middle { flex: 2; min-width: 350px; order: 2; } /* Champis MITTE */
+        .right { flex: 1; min-width: 300px; order: 3; }  /* Chat jetzt RECHTS */
 
         .status-box {
             background: #fff9c4;
@@ -45,9 +44,18 @@
             text-align: center;
         }
 
-        .code-list {
-            text-align: left;
-            font-size: 0.9em;
+        /* Gestaltung der Codes */
+        .code-item {
+            background: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 5px solid #8bc34a; /* Grün für "geht noch" */
+        }
+        .code-expired {
+            border-left: 5px solid #f44336; /* Rot für "abgelaufen" */
+            color: #999;
+            text-decoration: line-through;
         }
     </style>
 </head>
@@ -60,41 +68,42 @@
     <div class="main-container">
         
         <div class="column left">
-            <h3>💬 Club-Chat</h3>
-            <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed" data-style="width:100%; height:500px; border-radius:15px;" data-version="1.55">Chat</span>
+            <h3>🎁 SSO Codes</h3>
+            <p><small>Hier kommen unsere Fundstücke rein:</small></p>
+            
+            <div class="code-item"><strong>STARSTABLE2026</strong></div>
+            <div class="code-item"><strong>HAPPYCAT</strong></div>
+            <div class="code-item code-expired"><strong>OLDCODE123</strong> (Abgelaufen)</div>
+            
+            <hr>
+            <p><small>Um Codes zu ändern, schreib mir im Chat!</small></p>
         </div>
 
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>Nächstes Championat:</strong></p>
-                <h2 id="champi-name">Warte auf Daten...</h2>
+                <h2 id="champi-name">Warte auf SSD-Daten...</h2>
                 <p>Startet in: <span id="countdown">--:--</span></p>
             </div>
-            <p style="margin-top: 20px; font-size: 0.8em;">(Hier bauen wir den Algorithmus von der SSD ein!)</p>
+            <p><em>Tipp: Sobald wir den Adapter haben, füllt sich diese Box!</em></p>
         </div>
 
         <div class="column right">
-            <h3>🎁 Aktuelle Codes</h3>
-            <div class="code-list">
-                <ul>
-                    <li><strong>STARSTABLE2026</strong> (Beispiel)</li>
-                    <li><strong>CATLOVE</strong> (Beispiel)</li>
-                </ul>
-                <p><small>Tipp: Codes immer direkt im Spiel testen!</small></p>
-            </div>
+            <h3>💬 Club-Chat</h3>
+            <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed" data-style="width:100%; height:500px; border-radius:15px;" data-version="1.55">Chat</span>
         </div>
 
     </div>
 
     <script>
-        // PASSWORT-ABFRAGE
+        // PASSWORT-ABFRAGE (Bleibt gleich)
         let pw = prompt("Bitte gib das Club-Passwort ein:");
         if (pw === "CatPresidents2026") {
             document.body.style.display = "block";
         } else {
-            alert("Falsches Passwort! Bitte lade die Seite neu.");
+            alert("Falsches Passwort!");
         }
     </script>
 
