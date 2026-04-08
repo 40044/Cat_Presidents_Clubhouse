@@ -5,67 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse 🐱</title>
     <style>
-        /* Das Design der Seite */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #e0f7fa; 
-            color: #2c3e50; 
-            display: flex; 
-            justify-content: center; 
+            margin: 0;
             padding: 20px;
+            display: none; /* Versteckt die Seite, bis das Passwort stimmt */
         }
-        .card { 
-            background: white; 
-            max-width: 600px; 
-            width: 100%; 
-            padding: 40px; 
-            border-radius: 25px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 5px solid #00acc1;
+        
+        .header { text-align: center; padding: 20px; }
+        h1 { color: #00838f; }
+
+        /* Das Regal-System (3 Spalten) */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap; /* Damit es auf Handys untereinander rutscht */
+        }
+
+        .column {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 3px solid #00acc1;
+        }
+
+        /* Breite der Spalten */
+        .left { flex: 1; min-width: 300px; }   /* Chat */
+        .middle { flex: 2; min-width: 350px; } /* Champis */
+        .right { flex: 1; min-width: 250px; }  /* Codes */
+
+        .status-box {
+            background: #fff9c4;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px dashed #fbc02d;
             text-align: center;
         }
-        h1 { color: #00838f; font-size: 2.5em; margin-bottom: 10px; }
-        .status { 
-            background: #fff9c4; 
-            padding: 15px; 
-            border-radius: 15px; 
-            border: 2px dashed #fbc02d;
-            margin: 20px 0;
-        }
-        .chat-bereich {
-            margin-top: 30px;
-            padding: 10px;
-            background: #f1f8e9;
-            border-radius: 15px;
-            border: 2px solid #8bc34a;
+
+        .code-list {
+            text-align: left;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>🐾 Cat Presidents 🐾</h1>
-        <p>Willkommen im offiziellen Clubhouse!</p>
+    <div class="header">
+        <h1>🐾 Cat Presidents Clubhouse 🐾</h1>
+    </div>
 
-        <div class="status">
-            <h3>📊 Champy-Algorithmus</h3>
-            <p>Status: <strong>Daten werden gesammelt...</strong></p>
-            <p>Noch ca. 14 Tage bis zur Fertigstellung.</p>
-        </div>
+    <div class="main-container">
         
-        <div class="chat-bereich">
-            <h3>💬 Club-Chat (Zensurfrei)</h3>
-            <p>Willkommen in unserem eigenen Chat!</p>
-           
+        <div class="column left">
+            <h3>💬 Club-Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
             <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed" data-style="width:100%; height:500px; border-radius:15px;" data-version="1.55">Chat</span>
-            <p style="font-size: 0.7em;">Group chat provided by Minnit</p>
         </div>
 
-        <p style="margin-top: 30px; font-size: 0.8em; color: #999;">Erstellt für die besten Club-Leader.</p>
-    </div> 
+        <div class="column middle">
+            <h3>📊 Champi-Barometer</h3>
+            <div class="status-box">
+                <p><strong>Nächstes Championat:</strong></p>
+                <h2 id="champi-name">Warte auf Daten...</h2>
+                <p>Startet in: <span id="countdown">--:--</span></p>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.8em;">(Hier bauen wir den Algorithmus von der SSD ein!)</p>
+        </div>
+
+        <div class="column right">
+            <h3>🎁 Aktuelle Codes</h3>
+            <div class="code-list">
+                <ul>
+                    <li><strong>STARSTABLE2026</strong> (Beispiel)</li>
+                    <li><strong>CATLOVE</strong> (Beispiel)</li>
+                </ul>
+                <p><small>Tipp: Codes immer direkt im Spiel testen!</small></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // PASSWORT-ABFRAGE
+        let pw = prompt("Bitte gib das Club-Passwort ein:");
+        if (pw === "CatPresidents2026") {
+            document.body.style.display = "block";
+        } else {
+            alert("Falsches Passwort! Bitte lade die Seite neu.");
+        }
+    </script>
 
 </body>
 </html>
-
-        
