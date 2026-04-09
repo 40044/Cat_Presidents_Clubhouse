@@ -7,7 +7,6 @@
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            /* Ein gemütliches, dunkles Blau-Grau statt grellem Hellblau */
             background-color: #1a2634; 
             color: #e0e0e0; 
             margin: 0;
@@ -16,7 +15,6 @@
         }
         
         .header { text-align: center; padding: 20px; }
-        /* Ein schönes, sanftes Rosa/Pink für den Titel */
         h1 { color: #ff85a2; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 
         .main-container {
@@ -27,21 +25,21 @@
         }
 
         .column {
-            /* Dunkle Boxen statt weißer Boxen */
             background: #253341;
             padding: 20px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            /* Ein weicherer Rand in Beerenfarbe */
             border: 3px solid #ff85a2;
         }
 
-        .left { flex: 1; min-width: 250px; } 
+        .left { flex: 1; min-width: 280px; max-height: 700px; overflow-y: auto; } 
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
 
+        .left::-webkit-scrollbar { width: 8px; }
+        .left::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
+
         .status-box {
-            /* Die gelbe Box machen wir auch etwas dunkler und gemütlicher */
             background: #3d3d29;
             padding: 15px;
             border-radius: 15px;
@@ -51,23 +49,47 @@
         }
 
         .code-item {
-            /* Dunklere Hintergründe für die Codes */
             background: #2d3d4d;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
             border-radius: 10px;
             border-left: 5px solid #8bc34a;
             color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .code-expired {
-            border-left: 5px solid #f44336;
-            color: #777;
+        .code-item.expired {
+            border-left-color: #f44336;
+            opacity: 0.6;
             text-decoration: line-through;
-            background: #2a2a2a;
+        }
+
+        .reward-tag {
+            font-size: 0.8em;
+            background: #ff85a2;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            margin-left: 10px;
+            white-space: nowrap;
         }
 
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
+        
+        .edit-link {
+            display: block;
+            margin-top: 15px;
+            color: #ff85a2;
+            text-decoration: none;
+            font-size: 0.85em;
+            text-align: center;
+            background: rgba(255, 133, 162, 0.1);
+            padding: 8px;
+            border-radius: 10px;
+        }
+        .edit-link:hover { background: rgba(255, 133, 162, 0.2); }
     </style>
 </head>
 <body>
@@ -80,51 +102,93 @@
         
         <div class="column left">
             <h3>🎁 SSO Codes</h3>
-            <div class="code-item"><strong>STARSTABLE2026</strong></div>
-            <div class="code-item"><strong>HAPPYCAT</strong></div>
-            <div class="code-item code-expired"><strong>OLDCODE123</strong></div>
-            <p><small>Codes werden bald über Google-Tabelle verwaltet!</small></p>
+            <div id="code-list">Lade Codes aus der Tabelle...</div>
+            
+            <a href="LINK_ZUM_BEARBEITEN" target="_blank" class="edit-link">
+                ➕ Codes in Google Docs verwalten
+            </a>
         </div>
 
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>Nächstes Championat:</strong></p>
-                <h2 id="champi-name">Der Algorytmus wird noch erstellt... </h2>
+                <h2 id="champi-name">Der Algorytmus wird noch erstellt...</h2>
                 <p>Startet in: <span id="countdown">--:--</span></p>
             </div>
+            <p style="text-align:center; font-size:0.8em; margin-top:20px; color: #ff85a2;">
+                Nächster Meilenstein: 14.04. (SSD-Schatzsuche) 🗝️
+            </p>
         </div>
 
         <div class="column right">
             <h3>💬 Club-Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
             <span class="minnit-chat-sembed" 
-              data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" 
-              data-style="width:100%; height:500px; border-radius:15px;" 
-              data-version="1.55">Chat</span>
+                  data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" 
+                  data-style="width:100%; height:500px; border-radius:15px;" 
+                  data-version="1.55">Chat</span>
         </div>
 
     </div>
 
     <script>
-        // DAS GEDÄCHTNIS-SKRIPT
+        // 1. PASSWORT SCHUTZ
         function checkPassword() {
             let istEingeloggt = localStorage.getItem("club_zugang");
-
             if (istEingeloggt === "erfolgreich") {
                 document.body.style.display = "block";
+                loadCodes();
             } else {
                 let pw = prompt("Bitte gib das Club-Passwort ein:");
                 if (pw === "CatPresidents2026") {
                     localStorage.setItem("club_zugang", "erfolgreich");
                     document.body.style.display = "block";
+                    loadCodes();
                 } else {
-                    alert("Falsches Passwort! Bitte Seite neu laden.");
+                    alert("Falsches Passwort!");
                 }
             }
         }
-        
-        // Starte die Prüfung sofort
+
+        // 2. CODES LADEN
+        async function loadCodes() {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRlKQDgI4SCBqe8Kv0ZSvzDIfXW5YxyU3kLrR4h0LgK7vMdpNxgcpJfU0jP4xD0v9FOs7JQ74StZOHC/pub?gid=0&single=true&output=csv';
+            
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                // Zeilen trennen, dabei auf verschiedene Zeilenumbrüche achten
+                const rows = data.split(/\r?\n/).slice(1); 
+                
+                let html = '';
+                rows.forEach(row => {
+                    // Einfaches CSV-Parsing (trennt nach Komma)
+                    const columns = row.split(',');
+                    if (columns.length >= 3) {
+                        const code = columns[0].replace(/"/g, '').trim();
+                        const reward = columns[1].replace(/"/g, '').trim();
+                        const status = columns[2].replace(/"/g, '').trim().toLowerCase();
+                        
+                        const isExpired = status.includes('abgelaufen') ? 'expired' : '';
+                        
+                        if(code) {
+                            html += `
+                                <div class="code-item ${isExpired}">
+                                    <span><strong>${code}</strong></span>
+                                    <span class="reward-tag">${reward}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                });
+                document.getElementById('code-list').innerHTML = html || "Keine aktuellen Codes gefunden.";
+            } catch (error) {
+                document.getElementById('code-list').innerHTML = "Fehler beim Laden der Codes.";
+                console.error(error);
+            }
+        }
+
         checkPassword();
     </script>
 
