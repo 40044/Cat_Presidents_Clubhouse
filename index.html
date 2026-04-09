@@ -14,8 +14,18 @@
             display: none; 
         }
         
-        .header { text-align: center; padding: 20px; }
-        h1 { color: #ff85a2; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        /* DAS NEUE LOGO-DESIGN */
+        .header { text-align: center; padding: 30px 0; }
+        .logo-text { 
+            color: #ff85a2; 
+            font-size: 3em; 
+            font-weight: bold; 
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 133, 162, 0.5), 0 0 20px rgba(255, 133, 162, 0.3);
+            margin: 0;
+        }
+        .logo-sub { font-size: 0.9em; color: #5c7b8f; letter-spacing: 2px; }
 
         .main-container {
             display: flex;
@@ -36,16 +46,22 @@
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
 
+        /* SCROLLBALKEN LINKS */
         .left::-webkit-scrollbar { width: 8px; }
         .left::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
 
+        /* SCROLLBALKEN MITTE (Hier ist er jetzt!) */
+        #tages-plan::-webkit-scrollbar { width: 6px; }
+        #tages-plan::-webkit-scrollbar-thumb { background: #3d4d5d; border-radius: 10px; }
+
         .status-box {
             background: #3d3d29;
-            padding: 15px;
+            padding: 20px;
             border-radius: 15px;
             border: 2px dashed #fbc02d;
             text-align: center;
             color: #fff9c4;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
         }
 
         .code-item {
@@ -90,12 +106,22 @@
             border-radius: 10px;
         }
         .edit-link:hover { background: rgba(255, 133, 162, 0.2); }
+
+        /* Kleine Zeile für den Tagesplan */
+        .plan-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #2a3a4a;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🐾 Cat Presidents 🐾</h1>
+        <p class="logo-text">🐾 Cat Presidents 🐾</p>
+        <p class="logo-sub">OFFICIAL CLUBHOUSE</p>
     </div>
 
     <div class="main-container">
@@ -103,7 +129,6 @@
         <div class="column left">
             <h3>🎁 SSO Codes</h3>
             <div id="code-list">Lade Codes aus der Tabelle...</div>
-            
             <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit?pli=1&gid=0#gid=0" target="_blank" class="edit-link">
                 ➕ Codes in Google Docs verwalten
             </a>
@@ -111,14 +136,17 @@
 
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
+            
             <div class="status-box">
-                <p><strong>Nächstes Championat:</strong></p>
-                <h2 id="champi-name">Der Algorytmus wird noch erstellt...</h2>
-                <p>Startet in: <span id="countdown">--:--</span></p>
+                <p><strong>NÄCHSTER START:</strong></p>
+                <h2 id="champi-name" style="color: #ff85a2; font-size: 1.8em; margin: 10px 0;">Lade Plan...</h2>
+                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d;">--:--</span></p>
             </div>
-            <p style="text-align:center; font-size:0.8em; margin-top:20px; color: #ff85a2;">
-                Nächster Meilenstein: 14.04. (SSD-Schatzsuche) 🗝️
-            </p>
+
+            <h3 style="margin-top: 30px; font-size: 1.1em;">📅 Champis von heute</h3>
+            <div id="tages-plan" style="max-height: 300px; overflow-y: auto; background: #1d2b3a; border-radius: 10px; padding: 15px;">
+                <p style="text-align: center; color: #777;"><small>Hier erscheinen alle Zeiten für heute,<br>sobald wir den Algorithmus fertig haben! 🗝️</small></p>
+            </div>
         </div>
 
         <div class="column right">
@@ -133,7 +161,6 @@
     </div>
 
     <script>
-        // 1. PASSWORT SCHUTZ
         function checkPassword() {
             let istEingeloggt = localStorage.getItem("club_zugang");
             if (istEingeloggt === "erfolgreich") {
@@ -151,46 +178,32 @@
             }
         }
 
-        // 2. CODES LADEN
         async function loadCodes() {
             const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRlKQDgI4SCBqe8Kv0ZSvzDIfXW5YxyU3kLrR4h0LgK7vMdpNxgcpJfU0jP4xD0v9FOs7JQ74StZOHC/pub?gid=0&single=true&output=csv';
-            
             try {
                 const response = await fetch(csvUrl);
                 const data = await response.text();
-                // Zeilen trennen, dabei auf verschiedene Zeilenumbrüche achten
                 const rows = data.split(/\r?\n/).slice(1); 
-                
                 let html = '';
                 rows.forEach(row => {
-                    // Einfaches CSV-Parsing (trennt nach Komma)
                     const columns = row.split(',');
                     if (columns.length >= 3) {
                         const code = columns[0].replace(/"/g, '').trim();
                         const reward = columns[1].replace(/"/g, '').trim();
                         const status = columns[2].replace(/"/g, '').trim().toLowerCase();
-                        
                         const isExpired = status.includes('abgelaufen') ? 'expired' : '';
-                        
                         if(code) {
-                            html += `
-                                <div class="code-item ${isExpired}">
-                                    <span><strong>${code}</strong></span>
-                                    <span class="reward-tag">${reward}</span>
-                                </div>
-                            `;
+                            html += `<div class="code-item ${isExpired}"><span><strong>${code}</strong></span><span class="reward-tag">${reward}</span></div>`;
                         }
                     }
                 });
                 document.getElementById('code-list').innerHTML = html || "Keine aktuellen Codes gefunden.";
             } catch (error) {
-                document.getElementById('code-list').innerHTML = "Fehler beim Laden der Codes.";
-                console.error(error);
+                document.getElementById('code-list').innerHTML = "Fehler beim Laden.";
             }
         }
 
         checkPassword();
     </script>
-
 </body>
 </html>
