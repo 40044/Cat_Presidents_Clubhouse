@@ -149,6 +149,7 @@
         async function init() {
             await loadCodes();
             await loadChampiData();
+            updateDisplay(); // Sofort einmal ausführen
             setInterval(updateDisplay, 1000);
         }
 
@@ -161,12 +162,11 @@
                 const rows = data.split(/\r?\n/);
                 
                 const d = new Date();
-                let dayIdx = d.getDay(); 
-                const heuteName = tageNamen[dayIdx];
-                document.getElementById('heutiger-tag').innerText = `(${heuteName})`;
+                let dayIdx = d.getDay(); // 0=So, 1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr, 6=Sa
+                document.getElementById('heutiger-tag').innerText = `(${tageNamen[dayIdx]})`;
 
-                // Spaltenindex in deiner CSV (0=Uhrzeit, 1=Montag... 5=Freitag)
-                // Da in deiner CSV "Mitwoch" steht, passen wir das Mapping an:
+                // Das Mapping für deine CSV (Uhrzeit ist Spalte 0)
+                // Montag ist Index 1, Samstag ist Index 6, Sonntag ist Index 7
                 let csvColIdx = dayIdx === 0 ? 7 : dayIdx;
 
                 let tempChampis = [];
@@ -177,12 +177,14 @@
                         let formattedTime = convertTo24h(timeStr);
                         let name = cols[csvColIdx] ? cols[csvColIdx].trim() : "";
                         
-                        if (name && name !== "" && name !== ";") {
+                        // Validieren, dass es ein echter Name ist und keine leere Zelle
+                        if (name && name.length > 3) {
                             tempChampis.push({ time: formattedTime, name: name });
                         }
                     }
                 }
-                globaleChampis = tempChampis;
+                // Sortiere nach Zeit, damit 00:00 oben steht
+                globaleChampis = tempChampis.sort((a,b) => a.time.localeCompare(b.time));
             } catch (e) { console.error("CSV Fehler:", e); }
         }
 
@@ -201,13 +203,14 @@
         }
 
         function updateDisplay() {
+            if (globaleChampis.length === 0) return;
+
             const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
             let next = null;
             let planHtml = '';
 
-            // Sortieren nach Zeit
-            globaleChampis.sort((a,b) => a.time.localeCompare(b.time)).forEach(c => {
+            globaleChampis.forEach(c => {
                 const [h, m] = c.time.split(':').map(Number);
                 const cMin = h * 60 + m;
                 const isPast = cMin <= currentTime;
@@ -217,6 +220,7 @@
                                 <span class="time-tag">${c.time}</span>
                              </div>`;
 
+                // Findet das nächste Champi
                 if (!next && cMin > currentTime) {
                     let t = new Date();
                     t.setHours(h, m, 0);
@@ -224,7 +228,7 @@
                 }
             });
 
-            document.getElementById('tages-plan').innerHTML = planHtml || "Keine Champis gefunden.";
+            document.getElementById('tages-plan').innerHTML = planHtml || "Keine Champis für heute gefunden.";
 
             if (next) {
                 const diff = next.target - now;
