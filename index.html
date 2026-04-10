@@ -117,6 +117,269 @@
             </div>
 
             <h3 style="margin-top: 30px; font-size: 1.1em;">📅 Champis für Heute</h3>
+            <div id="tages-plan" style="max-height: 350px; overflow-y: auto; background: #1d2b3a; border-radius: 10px; padding: 15px;"></div>
+        </div>
+
+        <div class="column right">
+            <h3>💬 Club-Chat</h3>
+            <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:500px; border-radius:15px;" data-version="1.55">Chat</span>
+        </div>
+    </div>
+
+    <script>
+        let globaleChampis = [];
+        const tageNamen = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+        function checkPassword() {
+            let istEingeloggt = localStorage.getItem("club_zugang");
+            if (istEingeloggt === "erfolgreich") {
+                document.body.style.display = "block";
+                init();
+            } else {
+                let pw = prompt("Bitte gib das Club-Passwort ein:");
+                if (pw === "CatPresidents2026") {
+                    localStorage.setItem("club_zugang", "erfolgreich");
+                    document.body.style.display = "block";
+                    init();
+                }
+            }
+        }
+
+        async function init() {
+            await loadCodes();
+            await loadChampiData();
+            setInterval(updateDisplay, 1000);
+        }
+
+        async function loadChampiData() {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsN2swAhGSI-5FQyTFtiTi2Uvab6WFoXfOm-pz9N9X9G1TeGSyAI5yr1aiD_p0FdOSr78BATKXXtaB/pub?gid=0&single=true&output=csv';
+            
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                const rows = data.split(/\r?\n/);
+                
+                const d = new Date();
+                let dayIdx = d.getDay(); 
+                const heuteName = tageNamen[dayIdx];
+                document.getElementById('heutiger-tag').innerText = `(${heuteName})`;
+
+                // Spaltenindex in deiner CSV (0=Uhrzeit, 1=Montag... 5=Freitag)
+                // Da in deiner CSV "Mitwoch" steht, passen wir das Mapping an:
+                let csvColIdx = dayIdx === 0 ? 7 : dayIdx;
+
+                let tempChampis = [];
+                for (let i = 1; i < rows.length; i++) {
+                    const cols = rows[i].split(';'); 
+                    if (cols.length > csvColIdx && cols[0].trim() !== "") {
+                        let timeStr = cols[0].trim();
+                        let formattedTime = convertTo24h(timeStr);
+                        let name = cols[csvColIdx] ? cols[csvColIdx].trim() : "";
+                        
+                        if (name && name !== "" && name !== ";") {
+                            tempChampis.push({ time: formattedTime, name: name });
+                        }
+                    }
+                }
+                globaleChampis = tempChampis;
+            } catch (e) { console.error("CSV Fehler:", e); }
+        }
+
+        function convertTo24h(timeStr) {
+            if (!timeStr.includes('M')) return timeStr.substring(0, 5);
+            let parts = timeStr.split(' ');
+            let timeParts = parts[0].split(':');
+            let hours = parseInt(timeParts[0]);
+            let minutes = timeParts[1];
+            let modifier = parts[1];
+
+            if (modifier === 'PM' && hours < 12) hours += 12;
+            if (modifier === 'AM' && hours === 12) hours = 0;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        }
+
+        function updateDisplay() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            let next = null;
+            let planHtml = '';
+
+            // Sortieren nach Zeit
+            globaleChampis.sort((a,b) => a.time.localeCompare(b.time)).forEach(c => {
+                const [h, m] = c.time.split(':').map(Number);
+                const cMin = h * 60 + m;
+                const isPast = cMin <= currentTime;
+
+                planHtml += `<div class="plan-entry" style="${isPast ? 'opacity:0.3' : ''}">
+                                <span>${c.name}</span>
+                                <span class="time-tag">${c.time}</span>
+                             </div>`;
+
+                if (!next && cMin > currentTime) {
+                    let t = new Date();
+                    t.setHours(h, m, 0);
+                    next = { ...c, target: t };
+                }
+            });
+
+            document.getElementById('tages-plan').innerHTML = planHtml || "Keine Champis gefunden.";
+
+            if (next) {
+                const diff = next.target - now;
+                const mins = Math.floor(diff/1000/60);
+                const secs = Math.floor((diff/1000)%60);
+                document.getElementById('champi-name').innerText = next.name;
+                document.getElementById('countdown').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            } else {
+                document.getElementById('champi-name').innerText = "Pause bis morgen!";
+                document.getElementById('countdown').innerText = "--:--";
+            }
+        }
+
+        async function loadCodes() {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRlKQDgI4SCBqe8Kv0ZSvzDIfXW5YxyU3kLrR4h0LgK7vMdpNxgcpJfU0jP4xD0v9FOs7JQ74StZOHC/pub?gid=0&single=true&output=csv';
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                const rows = data.split(/\r?\n/).slice(1);
+                let html = '';
+                rows.forEach(row => {
+                    const cols = row.split(',');
+                    if (cols.length >= 3) {
+                        const code = cols[0].replace(/"/g, '').trim();
+                        const reward = cols[1].replace(/"/g, '').trim();
+                        const expired = cols[2].toLowerCase().includes('abgelaufen') ? 'expired' : '';
+                        if(code) html += `<div class="code-item ${expired}"><span><strong>${code}</strong></span><span class="reward-tag">${reward}</span></div>`;
+                    }
+                });
+                document.getElementById('code-list').innerHTML = html;
+            } catch (e) { }
+        }
+
+        checkPassword();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Presidents Clubhouse 🐱</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #1a2634; 
+            color: #e0e0e0; 
+            margin: 0;
+            padding: 20px;
+            display: none; 
+        }
+        
+        .header { text-align: center; padding: 30px 0; }
+        .logo-text { 
+            color: #ff85a2; 
+            font-size: 3em; 
+            font-weight: bold; 
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 133, 162, 0.5), 0 0 20px rgba(255, 133, 162, 0.3);
+            margin: 0;
+        }
+        .logo-sub { font-size: 0.9em; color: #5c7b8f; letter-spacing: 2px; }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap; 
+        }
+
+        .column {
+            background: #253341;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 3px solid #ff85a2;
+        }
+
+        .left { flex: 1; min-width: 280px; max-height: 700px; overflow-y: auto; } 
+        .middle { flex: 2; min-width: 350px; } 
+        .right { flex: 1; min-width: 300px; }  
+
+        .left::-webkit-scrollbar, #tages-plan::-webkit-scrollbar { width: 8px; }
+        .left::-webkit-scrollbar-thumb, #tages-plan::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
+
+        .status-box {
+            background: #3d3d29;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #fbc02d;
+            text-align: center;
+            color: #fff9c4;
+        }
+
+        .code-item, .plan-entry {
+            background: #2d3d4d;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 5px solid #8bc34a;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-item.expired { border-left-color: #f44336; opacity: 0.6; text-decoration: line-through; }
+
+        .reward-tag, .time-tag {
+            font-size: 0.8em;
+            background: #ff85a2;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
+        
+        .edit-link {
+            display: block;
+            margin-top: 15px;
+            color: #ff85a2;
+            text-decoration: none;
+            font-size: 0.85em;
+            text-align: center;
+            background: rgba(255, 133, 162, 0.1);
+            padding: 8px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <p class="logo-text">🐾 Cat Presidents 🐾</p>
+        <p class="logo-sub">OFFICIAL CLUBHOUSE</p>
+    </div>
+
+    <div class="main-container">
+        <div class="column left">
+            <h3>🎁 SSO Codes</h3>
+            <div id="code-list">Lade Codes...</div>
+            <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit#gid=0" target="_blank" class="edit-link">➕ Codes verwalten</a>
+        </div>
+
+        <div class="column middle">
+            <h3>📊 Champi-Barometer</h3>
+            <div class="status-box">
+                <p><strong>NÄCHSTER START <span id="heutiger-tag"></span>:</strong></p>
+                <h2 id="champi-name" style="color: #ff85a2; font-size: 1.6em; margin: 10px 0;">Berechne...</h2>
+                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.4em;">--:--</span></p>
+            </div>
+
+            <h3 style="margin-top: 30px; font-size: 1.1em;">📅 Champis für Heute</h3>
             <div id="tages-plan" style="max-height: 350px; overflow-y: auto; background: #1d2b3a; border-radius: 10px; padding: 15px;">
                 </div>
         </div>
