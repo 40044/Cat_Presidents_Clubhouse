@@ -9,24 +9,23 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: none; 
         }
-        .header { text-align: center; padding: 30px 0; }
+        .header { text-align: center; padding: 20px 0; }
         .logo-text { 
             color: #ff85a2; font-size: 3em; font-weight: bold; letter-spacing: 4px;
             text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 133, 162, 0.5); margin: 0;
         }
         .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
         .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; }
-        .left { flex: 1; min-width: 280px; max-height: 700px; overflow-y: auto; } 
+        .left { flex: 1; min-width: 280px; max-height: 750px; overflow-y: auto; } 
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
         .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; }
-        .code-item, .plan-entry {
-            background: #2d3d4d; padding: 12px; margin-bottom: 10px; border-radius: 10px;
+        .plan-entry {
+            background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px;
             border-left: 5px solid #8bc34a; display: flex; justify-content: space-between; align-items: center;
         }
-        .code-item.expired { border-left-color: #f44336; opacity: 0.6; text-decoration: line-through; }
-        .time-tag { background: #ff85a2; color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.8em; }
-        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; }
+        .time-tag { background: #ff85a2; color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.85em; font-weight: bold; }
+        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -38,24 +37,24 @@
     <div class="main-container">
         <div class="column left">
             <h3>🎁 SSO Codes</h3>
-            <div id="code-list">Lade...</div>
+            <div id="code-list">Lade Codes...</div>
         </div>
 
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Suche...</h2>
-                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.4em;">--:--</span></p>
+                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0; font-size: 1.8em;">Lade...</h2>
+                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
             </div>
-            <h3 style="margin-top: 20px;">📅 Plan für Heute</h3>
-            <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
+            <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
+            <div id="tages-plan" style="max-height: 450px; overflow-y: auto; padding-right: 5px;"></div>
         </div>
 
         <div class="column right">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:500px;" data-version="1.55">Chat</span>
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;" data-version="1.55">Chat</span>
         </div>
     </div>
 
@@ -68,8 +67,7 @@
                 document.body.style.display = "block";
                 init();
             } else {
-                let pw = prompt("Passwort:");
-                if (pw === "CatPresidents2026") {
+                if (prompt("Club-Passwort:") === "CatPresidents2026") {
                     localStorage.setItem("club_zugang", "erfolgreich");
                     location.reload();
                 }
@@ -84,92 +82,78 @@
         }
 
         async function loadChampiData() {
-            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsN2swAhGSI-5FQyTFtiTi2Uvab6WFoXfOm-pz9N9X9G1TeGSyAI5yr1aiD_p0FdOSr78BATKXXtaB/pub?gid=0&single=true&output=csv';
+            // DEINEN LINK HIER EINSETZEN
+            const url = 'HIER_DEINEN_CSV_LINK_EINSETZEN';
+            
             try {
                 const res = await fetch(url);
                 const text = await res.text();
-                const rows = text.split(/\r?\n/).map(r => r.split(';'));
+                
+                // --- TRENNZEICHEN CHECK ---
+                // Falls es nicht klappt, ändere das ';' in der nächsten Zeile zu ',' oder '\t'
+                let separator = ';'; 
+                if (!text.includes(';') && text.includes(',')) separator = ',';
+                if (!text.includes(';') && !text.includes(',') && text.includes('\t')) separator = '\t';
+
+                const rows = text.split(/\r?\n/).map(r => r.split(separator));
                 
                 const d = new Date();
                 const dayIdx = d.getDay(); 
                 document.getElementById('heutiger-tag').innerText = tage[dayIdx];
 
-                const colIdx = (dayIdx === 0) ? 7 : dayIdx;
+                // Mo=1, Di=2, Mi=3, Do=4, Fr=5, Sa=6, So=7
+                let colIdx = dayIdx;
+                if (dayIdx === 0) colIdx = 7; 
 
                 let list = [];
-                // Wir fangen bei i=1 an (nach der Überschrift) und gehen JEDE Zeile durch
-                for(let i=1; i < rows.length; i++) {
-                    if (rows[i].length > colIdx) {
-                        let timeRaw = rows[i][0] ? rows[i][0].trim() : "";
-                        let name = rows[i][colIdx] ? rows[i][colIdx].trim() : "";
+                for(let i = 1; i < rows.length; i++) {
+                    let row = rows[i];
+                    if (row.length > colIdx) {
+                        let timeStr = row[0].trim();
+                        let name = row[colIdx].trim();
                         
-                        // Nur hinzufügen, wenn Zeit UND Name da sind
-                        if(timeRaw !== "" && name !== "" && name !== ";") {
+                        if(timeStr && name && name.length > 3) {
+                            let parts = timeStr.split(':');
+                            let h = parseInt(parts[0]);
+                            let m = parseInt(parts[1]);
                             list.push({ 
-                                time: convertTo24h(timeRaw), 
+                                min: h * 60 + m,
+                                display: (h < 10 ? '0'+h : h) + ":" + (m < 10 ? '0'+m : m),
                                 name: name 
                             });
                         }
                     }
                 }
-                // Sortieren, damit 00:00 Uhr oben steht und 23:00 Uhr unten
-                globaleChampis = list.sort((a,b) => a.time.localeCompare(b.time));
-                console.log("Geladene Champis:", globaleChampis);
-            } catch(e) { 
-                console.error("Fehler beim Laden:", e);
-                document.getElementById('champi-name').innerText = "Fehler beim Laden";
-            }
-        }
-
-        function convertTo24h(str) {
-            // Falls schon 24h Format (z.B. 13:00)
-            if(!str.includes('M')) return str.substring(0,5);
-            
-            // Falls AM/PM Format (z.B. 01:00:00 AM)
-            let parts = str.split(' ');
-            let timeParts = parts[0].split(':');
-            let hh = parseInt(timeParts[0]);
-            let mm = timeParts[1];
-            let mod = parts[1];
-
-            if(mod === 'PM' && hh < 12) hh += 12;
-            if(mod === 'AM' && hh === 12) hh = 0;
-            
-            return hh.toString().padStart(2, '0') + ':' + mm;
+                globaleChampis = list.sort((a,b) => a.min - b.min);
+            } catch(e) { console.error("Datenfehler"); }
         }
 
         function updateDisplay() {
             if (globaleChampis.length === 0) return;
-
             const now = new Date();
             const curMin = now.getHours() * 60 + now.getMinutes();
             let next = null;
             let html = '';
 
             globaleChampis.forEach(c => {
-                const [h, m] = c.time.split(':').map(Number);
-                const cMin = h * 60 + m;
-                const past = cMin <= curMin;
-                
+                const past = c.min <= curMin;
                 html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}">
-                            <span>${c.name}</span><span class="time-tag">${c.time}</span>
+                            <span>${c.name}</span><span class="time-tag">${c.display}</span>
                          </div>`;
-                
-                if(!next && cMin > curMin) {
+                if(!next && c.min > curMin) {
                     let target = new Date();
-                    target.setHours(h, m, 0, 0);
+                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
                     next = { ...c, target };
                 }
             });
 
             document.getElementById('tages-plan').innerHTML = html;
-            
             if(next) {
                 const diff = next.target - now;
                 const mins = Math.floor(diff/60000);
                 const secs = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = `${mins}:${secs.toString().padStart(2,'0')}`;
+                document.getElementById('countdown').innerText = mins + ":" + (secs < 10 ? '0' : '') + secs;
             } else {
                 document.getElementById('champi-name').innerText = "Pause bis morgen!";
                 document.getElementById('countdown').innerText = "--:--";
@@ -185,10 +169,7 @@
                 let html = '';
                 rows.forEach(r => {
                     const c = r.split(',');
-                    if(c[0]) {
-                        const exp = c[2]?.toLowerCase().includes('abgelaufen') ? 'expired' : '';
-                        html += `<div class="code-item ${exp}"><strong>${c[0]}</strong><span>${c[1]||''}</span></div>`;
-                    }
+                    if(c[0]) html += `<div class="plan-entry"><strong>${c[0].replace(/"/g,'')}</strong><span>${c[1]||''}</span></div>`;
                 });
                 document.getElementById('code-list').innerHTML = html;
             } catch(e) {}
