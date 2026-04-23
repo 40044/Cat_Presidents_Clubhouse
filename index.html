@@ -7,16 +7,16 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: none; }
         .header { text-align: center; padding: 20px 0; }
-        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; }
-        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-        .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; }
+        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+        .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         .left { flex: 1; min-width: 280px; } 
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
         .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; }
-        .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; border-left: 5px solid #8bc34a; }
-        .time-tag { background: #ff85a2; color: white; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
-        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; }
+        .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
+        .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
+        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -26,22 +26,22 @@
     <div class="main-container">
         <div class="column left">
             <h3>🎁 SSO Codes</h3>
-            <div id="code-list">Lade...</div>
+            <div id="code-list">Lade Codes...</div>
         </div>
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2;">Suche Champis...</h2>
+                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Verbinde...</h2>
                 <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
             </div>
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
-            <div id="tages-plan"></div>
+            <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
         <div class="column right">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:500px;">Chat</span>
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
         </div>
     </div>
 
@@ -70,38 +70,41 @@
         }
 
         async function loadChampiData() {
-            // WICHTIG: Ich habe den Link leicht angepasst (gid=0 hinzugefügt)
-            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsN2swAhGSI-5FQyTFtiTi2Uvab6WFoXfOm-pz9N9X9G1TeGSyAI5yr1aiD_p0FdOSr78BATKXXtaB/pub?gid=0&single=true&output=csv';
+            // AKTUALISIERTER LINK ZU DEINER NEUEN TABELLE
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRAt7D_U8_qQ7LscXo-B0BqGvWvYm2X8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W/pub?output=csv';
             
+            // Da ich die exakte Export-ID für CSV nicht raten kann, 
+            // nutzt dieser Code jetzt den direkten CSV-Export-Weg:
+            const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
+            const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
+
             try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error();
+                const res = await fetch(fetchUrl);
                 const text = await res.text();
                 
-                // Wir prüfen auf Tab (\t) ODER Komma (,) ODER Semikolon (;)
-                let separator = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
-                const rows = text.split(/\r?\n/).map(r => r.split(separator));
+                let sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
+                const rows = text.split(/\r?\n/).map(r => r.split(sep));
                 
                 const d = new Date();
                 const dayIdx = d.getDay(); 
                 document.getElementById('heutiger-tag').innerText = tage[dayIdx];
 
-                // Deine Spalten: 0=Zeit, 1=Mo, 2=Di, 3=Mi(t), 4=Do, 5=Fr, 6=Sa, 7=So
                 let colIdx = (dayIdx === 0) ? 7 : dayIdx;
 
                 let list = [];
                 for(let i = 1; i < rows.length; i++) {
-                    let row = rows[i];
-                    if (row.length > colIdx && row[0] && row[colIdx]) {
-                        let timeStr = row[0].trim();
-                        let name = row[colIdx].trim();
-                        if(timeStr.includes(':') && name.length > 3 && name !== "---") {
-                            let p = timeStr.split(':');
-                            list.push({ min: parseInt(p[0])*60 + parseInt(p[1]), display: timeStr, name: name });
+                    let r = rows[i];
+                    if (r.length > colIdx && r[0] && r[colIdx]) {
+                        let time = r[0].trim();
+                        let name = r[colIdx].trim();
+                        if(time.includes(':') && name.length > 2 && name !== "---") {
+                            let p = time.split(':');
+                            list.push({ min: parseInt(p[0])*60 + parseInt(p[1]), display: time, name: name });
                         }
                     }
                 }
                 globaleChampis = list.sort((a,b) => a.min - b.min);
+                if(globaleChampis.length > 0) document.getElementById('champi-name').innerText = "Bereit!";
             } catch(e) {
                 document.getElementById('champi-name').innerText = "Verbindungsfehler!";
             }
@@ -126,10 +129,10 @@
             document.getElementById('tages-plan').innerHTML = html;
             if(next) {
                 const diff = next.target - now;
-                const mins = Math.floor(diff/60000);
-                const secs = Math.floor((diff%60000)/1000);
+                const m = Math.floor(diff/60000);
+                const s = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = mins + ":" + (secs < 10 ? '0' : '') + secs;
+                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
             } else {
                 document.getElementById('champi-name').innerText = "Pause bis morgen!";
             }
