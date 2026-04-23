@@ -45,7 +45,7 @@
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0; font-size: 1.8em;">Lade Daten...</h2>
+                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0; font-size: 1.8em;">Suche Daten...</h2>
                 <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
             </div>
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="column right">
-            <h3>💬 Club-Chat</h3>
+            <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
             <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;" data-version="1.55">Chat</span>
         </div>
@@ -84,48 +84,36 @@
         }
 
         async function loadChampiData() {
-            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsN2swAhGSI-5FQyTFtiTi2Uvab6WFoXfOm-pz9N9X9G1TeGSyAI5yr1aiD_p0FdOSr78BATKXXtaB/pub?gid=0&single=true&output=csv';
+            // Wir nutzen genau deinen Link
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsN2swAhGSI-5FQyTFtiTi2Uvab6WFoXfOm-pz9N9X9G1TeGSyAI5yr1aiD_p0FdOSr78BATKXXtaB/pub?output=csv';
             
             try {
                 const res = await fetch(url);
                 const text = await res.text();
                 
-                // Erkennt Tabulator (\t) oder Semikolon (;)
-                let separator = text.includes('\t') ? '\t' : ';';
+                // Wir knacken die Google-CSV: Sie nutzt oft Tabs, auch wenn sie CSV heißt
+                let separator = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
                 const rows = text.split(/\r?\n/).map(r => r.split(separator));
                 
                 const d = new Date();
-                const heuteName = tage[d.getDay()]; 
-                document.getElementById('heutiger-tag').innerText = heuteName;
+                const dayIdx = d.getDay(); // 0=So, 1=Mo...
+                document.getElementById('heutiger-tag').innerText = tage[dayIdx];
 
-                // Spalten-Suche (Header)
-                let colIdx = -1;
-                if (rows.length > 0) {
-                    const header = rows[0];
-                    for(let i=0; i<header.length; i++) {
-                        let hName = header[i].trim().toLowerCase();
-                        if(hName.startsWith(heuteName.substring(0,3).toLowerCase())) {
-                            colIdx = i;
-                            break;
-                        }
-                    }
-                }
-
-                // Notfall-Fallback falls Header-Suche scheitert
-                if(colIdx === -1) colIdx = d.getDay() === 0 ? 7 : d.getDay();
+                // WICHTIG: Deine Tabelle hat Spalte 1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr, 6=Sa, 7=So
+                let colIdx = dayIdx === 0 ? 7 : dayIdx;
 
                 let list = [];
                 for(let i = 1; i < rows.length; i++) {
                     let row = rows[i];
-                    if (row[0] && row[colIdx]) {
+                    if (row.length > colIdx) {
                         let timeStr = row[0].trim();
-                        let name = row[colIdx].trim();
+                        let name = row[colIdx] ? row[colIdx].trim() : "";
                         
-                        if(timeStr && name && name.length > 2 && name !== "---") {
+                        if(timeStr && name && name.length > 3 && name !== "---") {
                             let parts = timeStr.split(':');
-                            let h = parseInt(parts[0]);
-                            let m = parseInt(parts[1]);
-                            if(!isNaN(h)) {
+                            if(parts.length >= 2) {
+                                let h = parseInt(parts[0]);
+                                let m = parseInt(parts[1]);
                                 list.push({ 
                                     min: h * 60 + m,
                                     display: (h < 10 ? '0'+h : h) + ":" + (m < 10 ? '0'+m : m),
@@ -136,6 +124,7 @@
                     }
                 }
                 globaleChampis = list.sort((a,b) => a.min - b.min);
+                if(globaleChampis.length === 0) document.getElementById('champi-name').innerText = "Keine Champis heute";
             } catch(e) { 
                 document.getElementById('champi-name').innerText = "Fehler beim Laden";
             }
