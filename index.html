@@ -17,6 +17,8 @@
         .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
         .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
+        .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
+        .edit-link:hover { background: rgba(255, 133, 162, 0.3); }
     </style>
 </head>
 <body>
@@ -27,6 +29,7 @@
         <div class="column left">
             <h3>🎁 SSO Codes</h3>
             <div id="code-list">Lade Codes...</div>
+            <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit" target="_blank" class="edit-link">➕ Codes bearbeiten</a>
         </div>
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
@@ -34,6 +37,7 @@
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
                 <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Verbinde...</h2>
                 <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
+                <p id="local-time" style="font-size: 0.8em; opacity: 0.6;"></p>
             </div>
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
             <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
@@ -70,23 +74,19 @@
         }
 
         async function loadChampiData() {
-            // AKTUALISIERTER LINK ZU DEINER NEUEN TABELLE
-            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRAt7D_U8_qQ7LscXo-B0BqGvWvYm2X8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W8z2W/pub?output=csv';
-            
-            // Da ich die exakte Export-ID für CSV nicht raten kann, 
-            // nutzt dieser Code jetzt den direkten CSV-Export-Weg:
             const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
             const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
 
             try {
                 const res = await fetch(fetchUrl);
                 const text = await res.text();
-                
                 let sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
                 const rows = text.split(/\r?\n/).map(r => r.split(sep));
                 
-                const d = new Date();
-                const dayIdx = d.getDay(); 
+                // Deutsche Zeit erzwingen
+                const jetzt = new Date();
+                const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
+                const dayIdx = deZeit.getDay(); 
                 document.getElementById('heutiger-tag').innerText = tage[dayIdx];
 
                 let colIdx = (dayIdx === 0) ? 7 : dayIdx;
@@ -112,8 +112,14 @@
 
         function updateDisplay() {
             if (globaleChampis.length === 0) return;
-            const now = new Date();
-            const curMin = now.getHours() * 60 + now.getMinutes();
+            
+            // Aktuelle Zeit in Deutschland berechnen
+            const jetzt = new Date();
+            const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
+            const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
+            
+            document.getElementById('local-time').innerText = "Club-Uhrzeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
+
             let next = null;
             let html = '';
 
@@ -121,20 +127,23 @@
                 const past = c.min <= curMin;
                 html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}"><span>${c.name}</span><span class="time-tag">${c.display}</span></div>`;
                 if(!next && c.min > curMin) {
-                    let target = new Date();
+                    let target = new Date(deZeit);
                     target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
                     next = { ...c, target };
                 }
             });
+            
             document.getElementById('tages-plan').innerHTML = html;
+            
             if(next) {
-                const diff = next.target - now;
+                const diff = next.target - deZeit;
                 const m = Math.floor(diff/60000);
                 const s = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
                 document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
             } else {
                 document.getElementById('champi-name').innerText = "Pause bis morgen!";
+                document.getElementById('countdown').innerText = "--:--";
             }
         }
 
