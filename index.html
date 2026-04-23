@@ -6,27 +6,40 @@
     <title>Cat Presidents Clubhouse 🐱</title>
     <style>
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: none; 
         }
         .header { text-align: center; padding: 20px 0; }
         .logo-text { 
             color: #ff85a2; font-size: 3em; font-weight: bold; letter-spacing: 4px;
-            text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 133, 162, 0.5); margin: 0;
+            text-transform: uppercase; text-shadow: 0 0 15px rgba(255, 133, 162, 0.4); margin: 0;
         }
-        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
         .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .left { flex: 1; min-width: 280px; max-height: 750px; overflow-y: auto; } 
-        .middle { flex: 2; min-width: 350px; } 
+        .left { flex: 1; min-width: 280px; max-height: 800px; overflow-y: auto; } 
+        .middle { flex: 1.5; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
-        .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; }
-        .plan-entry {
-            background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px;
-            border-left: 5px solid #8bc34a; display: flex; justify-content: space-between; align-items: center;
+        
+        .status-box { 
+            background: linear-gradient(145deg, #3d3d29, #2b2b1d); 
+            padding: 25px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; 
+            margin-bottom: 20px;
         }
-        .time-tag { background: #ff85a2; color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.85em; font-weight: bold; }
-        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
-        .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; }
+        .plan-entry {
+            background: #2d3d4d; padding: 12px; margin-bottom: 8px; border-radius: 10px;
+            border-left: 5px solid #8bc34a; display: flex; justify-content: space-between; align-items: center;
+            transition: transform 0.2s;
+        }
+        .plan-entry:hover { transform: translateX(5px); }
+        .time-tag { background: #ff85a2; color: white; padding: 3px 10px; border-radius: 6px; font-size: 0.9em; font-weight: bold; }
+        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 10px; border-radius: 10px; border: 1px solid transparent; }
+        .edit-link:hover { border-color: #ff85a2; background: rgba(255, 133, 162, 0.2); }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1a2634; }
+        ::-webkit-scrollbar-thumb { background: #ff85a2; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -37,25 +50,27 @@
 
     <div class="main-container">
         <div class="column left">
-            <h3>🎁 SSO Codes</h3>
+            <h3>🎁 Aktuelle SSO Codes</h3>
             <div id="code-list">Lade Codes...</div>
         </div>
 
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
-                <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0; font-size: 1.8em;">Suche Champis...</h2>
-                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
+                <p style="margin-top:0; color: #fbc02d;"><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
+                <h2 id="champi-name" style="color: #ff85a2; margin: 15px 0; font-size: 2em;">Suche...</h2>
+                <div style="font-size: 0.9em; color: #aaa;">Nächster Start in:</div>
+                <p id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 2.2em; margin: 5px 0;">--:--</p>
             </div>
-            <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
-            <div id="tages-plan" style="max-height: 450px; overflow-y: auto; padding-right: 5px;"></div>
+            
+            <h3 style="margin-top: 25px;">📅 Ganztages-Plan</h3>
+            <div id="tages-plan" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
         </div>
 
         <div class="column right">
-            <h3>💬 Chat</h3>
+            <h3>💬 Club-Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;" data-version="1.55">Chat</span>
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:600px;" data-version="1.55">Chat</span>
         </div>
     </div>
 
@@ -68,7 +83,7 @@
                 document.body.style.display = "block";
                 init();
             } else {
-                let pw = prompt("Club-Passwort:");
+                let pw = prompt("Willkommen im Clubhouse!\nBitte gib das Club-Passwort ein:");
                 if (pw === "CatPresidents2026") {
                     localStorage.setItem("club_zugang", "erfolgreich");
                     location.reload();
@@ -90,21 +105,16 @@
                 const res = await fetch(url);
                 const text = await res.text();
                 
-                // Erkennt ob die Datei Tabs oder Semikolons nutzt
-                let rows = [];
-                if (text.includes('\t')) {
-                    rows = text.split(/\r?\n/).map(r => r.split('\t'));
-                } else {
-                    rows = text.split(/\r?\n/).map(r => r.split(';'));
-                }
+                // Erkennt Tabulator (\t) oder Semikolon (;)
+                let separator = text.includes('\t') ? '\t' : ';';
+                const rows = text.split(/\r?\n/).map(r => r.split(separator));
                 
                 const d = new Date();
                 const dayIdx = d.getDay(); 
                 document.getElementById('heutiger-tag').innerText = tage[dayIdx];
 
-                // Mo=1, Di=2, Mi=3, Do=4, Fr=5, Sa=6, So=7
-                let colIdx = dayIdx;
-                if (dayIdx === 0) colIdx = 7; 
+                // Spaltenindex: 0=Uhrzeit, 1=Mo, 2=Di, 3=Mi, 4=Do, 5=Fr, 6=Sa, 7=So
+                let colIdx = dayIdx === 0 ? 7 : dayIdx;
 
                 let list = [];
                 for(let i = 1; i < rows.length; i++) {
@@ -128,7 +138,9 @@
                     }
                 }
                 globaleChampis = list.sort((a,b) => a.min - b.min);
-            } catch(e) { console.error("Fehler beim Laden der Champi-CSV"); }
+            } catch(e) { 
+                document.getElementById('champi-name').innerText = "Daten-Fehler";
+            }
         }
 
         function updateDisplay() {
@@ -139,10 +151,13 @@
             let html = '';
 
             globaleChampis.forEach(c => {
-                const past = c.min <= curMin;
-                html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}">
+                const isCurrent = (curMin >= c.min && curMin < c.min + 5); // Markiert laufendes Champi für 5 Min
+                const past = c.min < curMin && !isCurrent;
+                
+                html += `<div class="plan-entry" style="${past ? 'opacity:0.3; border-left-color: #555;' : (isCurrent ? 'border-left-color: #fbc02d; background: #3d3d29;' : '')}">
                             <span>${c.name}</span><span class="time-tag">${c.display}</span>
                          </div>`;
+                
                 if(!next && c.min > curMin) {
                     let target = new Date();
                     target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
@@ -151,6 +166,7 @@
             });
 
             document.getElementById('tages-plan').innerHTML = html;
+            
             if(next) {
                 const diff = next.target - now;
                 const mins = Math.floor(diff/60000);
