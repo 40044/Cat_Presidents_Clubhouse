@@ -19,7 +19,14 @@
         .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
         .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
-        #sound-status { font-size: 0.75em; color: #8bc34a; margin-top: 10px; font-style: italic; }
+        
+        /* Warn-Animation für inaktiven Sound */
+        #sound-status { 
+            font-size: 0.9em; padding: 5px; border-radius: 5px; margin-top: 10px; font-weight: bold;
+        }
+        .sound-off { background: #ff5252; color: white; animation: blinker 1.5s linear infinite; cursor: pointer; }
+        .sound-on { background: #4caf50; color: white; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
     </style>
 </head>
 <body onclick="enableAudio()">
@@ -40,7 +47,7 @@
                 <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Suche...</h2>
                 <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
                 <p id="local-time" style="font-size: 0.8em; opacity: 0.6;"></p>
-                <div id="sound-status">🔇 Klicke einmal für Miau-Alarm</div>
+                <div id="sound-status" class="sound-off">⚠️ KLICKEN: MIAU IST NOCH STUMM! ⚠️</div>
             </div>
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
             <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
@@ -53,8 +60,8 @@
         </div>
     </div>
 
-    <audio id="audio10" src="miau.mp3"></audio>
-    <audio id="audio5" src="song.mp3"></audio>
+    <audio id="audio10" src="miau.mp3" preload="auto"></audio>
+    <audio id="audio5" src="song.mp3" preload="auto"></audio>
 
     <script>
         let globaleChampis = [];
@@ -62,10 +69,19 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
+        // Diese Funktion MUSS durch einen Klick ausgelöst werden
         function enableAudio() {
             if(!audioEnabled) {
                 audioEnabled = true;
-                document.getElementById('sound-status').innerText = "🔊 Miau-Alarm aktiv!";
+                const status = document.getElementById('sound-status');
+                status.innerText = "🔊 MIAU-ALARM IST SCHARF!";
+                status.className = "sound-on";
+                
+                // Einmal kurz "anspielen" (lautlos), damit der Browser den Kanal öffnet
+                const a10 = document.getElementById('audio10');
+                const a5 = document.getElementById('audio5');
+                a10.play().then(() => { a10.pause(); a10.currentTime = 0; });
+                a5.play().then(() => { a5.pause(); a5.currentTime = 0; });
             }
         }
 
@@ -115,7 +131,7 @@
                     }
                 }
                 globaleChampis = list.sort((a,b) => a.min - b.min);
-            } catch(e) { console.error("Fehler"); }
+            } catch(e) { console.error("Datenfehler"); }
         }
 
         function updateDisplay() {
@@ -123,7 +139,7 @@
             const jetzt = new Date();
             const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
             const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
-            const sek = deZeit.getSeconds();
+            const s = deZeit.getSeconds();
             
             document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
 
@@ -143,16 +159,16 @@
             if(next) {
                 const diff = next.target - deZeit;
                 const m = Math.floor(diff/60000);
-                const s = Math.floor((diff%60000)/1000);
+                const sek = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
+                document.getElementById('countdown').innerText = m + ":" + (sek < 10 ? '0' : '') + sek;
 
                 if(audioEnabled) {
-                    if(m === 10 && s === 0 && lastPlayed !== "10m") {
+                    if(m === 10 && sek === 0 && lastPlayed !== "10m") {
                         document.getElementById('audio10').play();
                         lastPlayed = "10m";
                     }
-                    if(m === 5 && s === 0 && lastPlayed !== "5m") {
+                    if(m === 5 && sek === 0 && lastPlayed !== "5m") {
                         document.getElementById('audio5').play();
                         lastPlayed = "5m";
                     }
@@ -171,7 +187,6 @@
                 rows.forEach(r => {
                     const c = r.split(',');
                     if(c[0]) {
-                        // Wenn in der 3. Spalte (Index 2) IRGENDWAS steht (wie eine 0), wird die Klasse code-expired hinzugefügt
                         let isExpired = (c[2] && c[2].trim().length > 0) ? 'code-expired' : '';
                         html += `<div class="plan-entry ${isExpired}"><strong>${c[0].replace(/"/g,'')}</strong><span>${c[1]||''}</span></div>`;
                     }
