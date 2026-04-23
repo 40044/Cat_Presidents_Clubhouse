@@ -15,6 +15,7 @@
         .right { flex: 1; min-width: 300px; }  
         .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; position: relative; }
         .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
+        .code-expired { border-left: 5px solid #607d8b; opacity: 0.4; text-decoration: line-through; }
         .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
         .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
@@ -52,7 +53,10 @@
         </div>
     </div>
 
-    <audio id="audio10" src="miau.mp3"></audio> <audio id="audio5" src="song.mp3"></audio>   <script>
+    <audio id="audio10" src="miau.mp3"></audio>
+    <audio id="audio5" src="song.mp3"></audio>
+
+    <script>
         let globaleChampis = [];
         let audioEnabled = false;
         let lastPlayed = ""; 
@@ -62,12 +66,6 @@
             if(!audioEnabled) {
                 audioEnabled = true;
                 document.getElementById('sound-status').innerText = "🔊 Miau-Alarm aktiv!";
-                // Kurzer Silent-Play Check (manche Browser brauchen das)
-                document.getElementById('audio10').volume = 0;
-                document.getElementById('audio10').play().then(() => {
-                    document.getElementById('audio10').pause();
-                    document.getElementById('audio10').volume = 1;
-                });
             }
         }
 
@@ -125,7 +123,7 @@
             const jetzt = new Date();
             const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
             const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
-            const s = deZeit.getSeconds();
+            const sek = deZeit.getSeconds();
             
             document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
 
@@ -145,23 +143,19 @@
             if(next) {
                 const diff = next.target - deZeit;
                 const m = Math.floor(diff/60000);
-                const sek = Math.floor((diff%60000)/1000);
+                const s = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = m + ":" + (sek < 10 ? '0' : '') + sek;
+                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
 
-                // SOUND-ABFRAGE
                 if(audioEnabled) {
-                    // 10 Minuten vorher: MIAU
-                    if(m === 10 && sek === 0 && lastPlayed !== "10m") {
+                    if(m === 10 && s === 0 && lastPlayed !== "10m") {
                         document.getElementById('audio10').play();
                         lastPlayed = "10m";
                     }
-                    // 5 Minuten vorher: SONG
-                    if(m === 5 && sek === 0 && lastPlayed !== "5m") {
+                    if(m === 5 && s === 0 && lastPlayed !== "5m") {
                         document.getElementById('audio5').play();
                         lastPlayed = "5m";
                     }
-                    // Reset
                     if(m === 9 || m === 4) lastPlayed = ""; 
                 }
             }
@@ -176,7 +170,11 @@
                 let html = '';
                 rows.forEach(r => {
                     const c = r.split(',');
-                    if(c[0]) html += `<div class="plan-entry"><strong>${c[0]}</strong><span>${c[1]||''}</span></div>`;
+                    if(c[0]) {
+                        // Wenn in der 3. Spalte (Index 2) IRGENDWAS steht (wie eine 0), wird die Klasse code-expired hinzugefügt
+                        let isExpired = (c[2] && c[2].trim().length > 0) ? 'code-expired' : '';
+                        html += `<div class="plan-entry ${isExpired}"><strong>${c[0].replace(/"/g,'')}</strong><span>${c[1]||''}</span></div>`;
+                    }
                 });
                 document.getElementById('code-list').innerHTML = html;
             } catch(e) {}
