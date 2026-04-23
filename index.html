@@ -13,15 +13,15 @@
         .left { flex: 1; min-width: 280px; } 
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
-        .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; }
+        .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; position: relative; }
         .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
         .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
         .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
-        .edit-link:hover { background: rgba(255, 133, 162, 0.3); }
+        #sound-status { font-size: 0.75em; color: #8bc34a; margin-top: 10px; font-style: italic; }
     </style>
 </head>
-<body>
+<body onclick="enableAudio()">
 
     <div class="header"><p class="logo-text">🐾 Cat Presidents 🐾</p></div>
 
@@ -31,17 +31,20 @@
             <div id="code-list">Lade Codes...</div>
             <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit" target="_blank" class="edit-link">➕ Codes bearbeiten</a>
         </div>
+        
         <div class="column middle">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Verbinde...</h2>
+                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Suche...</h2>
                 <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
                 <p id="local-time" style="font-size: 0.8em; opacity: 0.6;"></p>
+                <div id="sound-status">🔇 Klicke einmal für Miau-Alarm</div>
             </div>
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
             <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
+
         <div class="column right">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
@@ -49,9 +52,24 @@
         </div>
     </div>
 
-    <script>
+    <audio id="audio10" src="miau.mp3"></audio> <audio id="audio5" src="song.mp3"></audio>   <script>
         let globaleChampis = [];
+        let audioEnabled = false;
+        let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+
+        function enableAudio() {
+            if(!audioEnabled) {
+                audioEnabled = true;
+                document.getElementById('sound-status').innerText = "🔊 Miau-Alarm aktiv!";
+                // Kurzer Silent-Play Check (manche Browser brauchen das)
+                document.getElementById('audio10').volume = 0;
+                document.getElementById('audio10').play().then(() => {
+                    document.getElementById('audio10').pause();
+                    document.getElementById('audio10').volume = 1;
+                });
+            }
+        }
 
         function checkPassword() {
             if (localStorage.getItem("club_zugang") === "erfolgreich") {
@@ -76,21 +94,16 @@
         async function loadChampiData() {
             const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
             const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
-
             try {
                 const res = await fetch(fetchUrl);
                 const text = await res.text();
                 let sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
                 const rows = text.split(/\r?\n/).map(r => r.split(sep));
-                
-                // Deutsche Zeit erzwingen
                 const jetzt = new Date();
                 const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
                 const dayIdx = deZeit.getDay(); 
                 document.getElementById('heutiger-tag').innerText = tage[dayIdx];
-
                 let colIdx = (dayIdx === 0) ? 7 : dayIdx;
-
                 let list = [];
                 for(let i = 1; i < rows.length; i++) {
                     let r = rows[i];
@@ -104,25 +117,20 @@
                     }
                 }
                 globaleChampis = list.sort((a,b) => a.min - b.min);
-                if(globaleChampis.length > 0) document.getElementById('champi-name').innerText = "Bereit!";
-            } catch(e) {
-                document.getElementById('champi-name').innerText = "Verbindungsfehler!";
-            }
+            } catch(e) { console.error("Fehler"); }
         }
 
         function updateDisplay() {
             if (globaleChampis.length === 0) return;
-            
-            // Aktuelle Zeit in Deutschland berechnen
             const jetzt = new Date();
             const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
             const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
+            const s = deZeit.getSeconds();
             
-            document.getElementById('local-time').innerText = "Club-Uhrzeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
+            document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
 
             let next = null;
             let html = '';
-
             globaleChampis.forEach(c => {
                 const past = c.min <= curMin;
                 html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}"><span>${c.name}</span><span class="time-tag">${c.display}</span></div>`;
@@ -132,18 +140,30 @@
                     next = { ...c, target };
                 }
             });
-            
             document.getElementById('tages-plan').innerHTML = html;
             
             if(next) {
                 const diff = next.target - deZeit;
                 const m = Math.floor(diff/60000);
-                const s = Math.floor((diff%60000)/1000);
+                const sek = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
-            } else {
-                document.getElementById('champi-name').innerText = "Pause bis morgen!";
-                document.getElementById('countdown').innerText = "--:--";
+                document.getElementById('countdown').innerText = m + ":" + (sek < 10 ? '0' : '') + sek;
+
+                // SOUND-ABFRAGE
+                if(audioEnabled) {
+                    // 10 Minuten vorher: MIAU
+                    if(m === 10 && sek === 0 && lastPlayed !== "10m") {
+                        document.getElementById('audio10').play();
+                        lastPlayed = "10m";
+                    }
+                    // 5 Minuten vorher: SONG
+                    if(m === 5 && sek === 0 && lastPlayed !== "5m") {
+                        document.getElementById('audio5').play();
+                        lastPlayed = "5m";
+                    }
+                    // Reset
+                    if(m === 9 || m === 4) lastPlayed = ""; 
+                }
             }
         }
 
