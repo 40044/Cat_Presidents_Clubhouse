@@ -19,11 +19,7 @@
         .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
         h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; }
         .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
-        
-        /* Warn-Animation für inaktiven Sound */
-        #sound-status { 
-            font-size: 0.9em; padding: 5px; border-radius: 5px; margin-top: 10px; font-weight: bold;
-        }
+        #sound-status { font-size: 0.9em; padding: 5px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
         .sound-off { background: #ff5252; color: white; animation: blinker 1.5s linear infinite; cursor: pointer; }
         .sound-on { background: #4caf50; color: white; }
         @keyframes blinker { 50% { opacity: 0.3; } }
@@ -64,24 +60,18 @@
     <audio id="audio5" src="song.mp3" preload="auto"></audio>
 
     <script>
-        let globaleChampis = [];
+        let alleTageDaten = {};
         let audioEnabled = false;
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // Diese Funktion MUSS durch einen Klick ausgelöst werden
         function enableAudio() {
             if(!audioEnabled) {
                 audioEnabled = true;
                 const status = document.getElementById('sound-status');
                 status.innerText = "🔊 MIAU-ALARM IST SCHARF!";
                 status.className = "sound-on";
-                
-                // Einmal kurz "anspielen" (lautlos), damit der Browser den Kanal öffnet
-                const a10 = document.getElementById('audio10');
-                const a5 = document.getElementById('audio5');
-                a10.play().then(() => { a10.pause(); a10.currentTime = 0; });
-                a5.play().then(() => { a5.pause(); a5.currentTime = 0; });
+                document.getElementById('audio10').play().then(() => { document.getElementById('audio10').pause(); document.getElementById('audio10').currentTime = 0; });
             }
         }
 
@@ -113,39 +103,42 @@
                 const text = await res.text();
                 let sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
                 const rows = text.split(/\r?\n/).map(r => r.split(sep));
-                const jetzt = new Date();
-                const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
-                const dayIdx = deZeit.getDay(); 
-                document.getElementById('heutiger-tag').innerText = tage[dayIdx];
-                let colIdx = (dayIdx === 0) ? 7 : dayIdx;
-                let list = [];
-                for(let i = 1; i < rows.length; i++) {
-                    let r = rows[i];
-                    if (r.length > colIdx && r[0] && r[colIdx]) {
-                        let time = r[0].trim();
-                        let name = r[colIdx].trim();
-                        if(time.includes(':') && name.length > 2 && name !== "---") {
-                            let p = time.split(':');
-                            list.push({ min: parseInt(p[0])*60 + parseInt(p[1]), display: time, name: name });
+
+                // Wir speichern jetzt alle Tage
+                for (let tIdx = 0; tIdx < 7; tIdx++) {
+                    let colIdx = (tIdx === 0) ? 7 : tIdx; 
+                    let list = [];
+                    for(let i = 1; i < rows.length; i++) {
+                        let r = rows[i];
+                        if (r.length > colIdx && r[0] && r[colIdx]) {
+                            let time = r[0].trim();
+                            let name = r[colIdx].trim();
+                            if(time.includes(':') && name.length > 2 && name !== "---") {
+                                let p = time.split(':');
+                                list.push({ min: parseInt(p[0])*60 + parseInt(p[1]), display: time, name: name });
+                            }
                         }
                     }
+                    alleTageDaten[tIdx] = list.sort((a,b) => a.min - b.min);
                 }
-                globaleChampis = list.sort((a,b) => a.min - b.min);
             } catch(e) { console.error("Datenfehler"); }
         }
 
         function updateDisplay() {
-            if (globaleChampis.length === 0) return;
             const jetzt = new Date();
             const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
             const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
-            const s = deZeit.getSeconds();
+            const curDay = deZeit.getDay();
             
+            document.getElementById('heutiger-tag').innerText = tage[curDay];
             document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
 
+            let heutigeChampis = alleTageDaten[curDay] || [];
             let next = null;
             let html = '';
-            globaleChampis.forEach(c => {
+
+            // 1. Liste für heute anzeigen
+            heutigeChampis.forEach(c => {
                 const past = c.min <= curMin;
                 html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}"><span>${c.name}</span><span class="time-tag">${c.display}</span></div>`;
                 if(!next && c.min > curMin) {
@@ -155,20 +148,33 @@
                 }
             });
             document.getElementById('tages-plan').innerHTML = html;
+
+            // 2. Wenn heute nichts mehr kommt, nimm das erste von MORGEN
+            if (!next) {
+                const morgenIdx = (curDay + 1) % 7;
+                let morgenChampis = alleTageDaten[morgenIdx] || [];
+                if (morgenChampis.length > 0) {
+                    let c = morgenChampis[0];
+                    let target = new Date(deZeit);
+                    target.setDate(target.getDate() + 1);
+                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
+                    next = { ...c, target };
+                }
+            }
             
             if(next) {
                 const diff = next.target - deZeit;
                 const m = Math.floor(diff/60000);
-                const sek = Math.floor((diff%60000)/1000);
+                const s = Math.floor((diff%60000)/1000);
                 document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = m + ":" + (sek < 10 ? '0' : '') + sek;
+                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
 
                 if(audioEnabled) {
-                    if(m === 10 && sek === 0 && lastPlayed !== "10m") {
+                    if(m === 10 && s === 0 && lastPlayed !== "10m") {
                         document.getElementById('audio10').play();
                         lastPlayed = "10m";
                     }
-                    if(m === 5 && sek === 0 && lastPlayed !== "5m") {
+                    if(m === 5 && s === 0 && lastPlayed !== "5m") {
                         document.getElementById('audio5').play();
                         lastPlayed = "5m";
                     }
