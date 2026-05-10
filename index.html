@@ -5,15 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse 🐱</title>
     <style>
-        /* Seite sofort anzeigen */
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: #1a2634; 
-            color: #e0e0e0; 
-            margin: 0; 
-            padding: 20px; 
-            display: block; 
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: block; }
         .header { text-align: center; padding: 20px 0; }
         .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
@@ -64,8 +56,8 @@
         </div>
     </div>
 
-    <audio id="audio10" src="miau.mp3" preload="auto"></audio>
-    <audio id="audio5" src="song.mp3" preload="auto"></audio>
+    <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
+    <audio id="audio-champi" preload="auto"></audio>
 
     <script>
         let alleTageDaten = {};
@@ -73,22 +65,18 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // Startet alles automatisch beim Laden
-        window.onload = function() {
-            init();
-        };
+        window.onload = function() { init(); };
 
         function enableAudio() {
             if(!audioEnabled) {
                 audioEnabled = true;
                 const status = document.getElementById('sound-status');
-                status.innerText = "🔊 MIAU-ALARM IST SCHARF!";
+                status.innerText = "🔊 SOUNDS AKTIV!";
                 status.className = "sound-on";
-                // Kurzer Testlauf für den Browser
-                document.getElementById('audio10').play().then(() => { 
-                    document.getElementById('audio10').pause(); 
-                    document.getElementById('audio10').currentTime = 0; 
-                }).catch(e => console.log("Audio braucht Klick"));
+                document.getElementById('audio-miau').play().then(() => { 
+                    document.getElementById('audio-miau').pause(); 
+                    document.getElementById('audio-miau').currentTime = 0; 
+                });
             }
         }
 
@@ -171,12 +159,18 @@
                 document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
 
                 if(audioEnabled) {
+                    // 10 MINUTEN VORHER: MIAU
                     if(m === 10 && s === 0 && lastPlayed !== "10m") {
-                        document.getElementById('audio10').play();
+                        document.getElementById('audio-miau').play();
                         lastPlayed = "10m";
                     }
+                    // 5 MINUTEN VORHER: SPEZIFISCHER SONG
                     if(m === 5 && s === 0 && lastPlayed !== "5m") {
-                        document.getElementById('audio5').play();
+                        // Dateiname generieren: z.B. "Moorland Championat" -> "moorlandchampionat.mp3"
+                        let soundFile = next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
+                        let player = document.getElementById('audio-champi');
+                        player.src = soundFile;
+                        player.play().catch(e => console.log("Datei nicht gefunden: " + soundFile));
                         lastPlayed = "5m";
                     }
                     if(m === 9 || m === 4) lastPlayed = ""; 
@@ -194,7 +188,6 @@
                 rows.forEach(r => {
                     const c = r.split(',');
                     if(c[0]) {
-                        // Reagiert auf die "0" in Spalte C
                         let isExpired = (c[2] && c[2].trim().length > 0) ? 'code-expired' : '';
                         html += `<div class="plan-entry ${isExpired}"><strong>${c[0].replace(/"/g,'')}</strong><span>${c[1]||''}</span></div>`;
                     }
