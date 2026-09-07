@@ -75,45 +75,62 @@
         <h3>🎵 Club-Jukebox</h3>
         <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 15px;">Wähle einen Song aus und klicke auf Play:</p>
 
-        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-            <strong>🐱 Lieber Lautt 2</strong>
-            <audio controls preload="none">
-                <source src="Lieber_Lautt-2.mp3" type="audio/mpeg">
-            </audio>
+        <!-- WIEDERGABE-EINSTELLUNGEN -->
+        <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+            <label for="loop-mode" style="font-weight: bold; color: #ff85a2;">🔁 Wiederholung / Loop:</label>
+            <select id="loop-mode" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
+                <option value="playlist">Ganze Playlist wiederholen</option>
+                <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
+            </select>
         </div>
 
-        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-            <strong>🐱 Drachenhexe</strong>
-            <audio controls preload="none">
-                <source src="Drachenhexe.mp3" type="audio/mpeg">
-            </audio>
-        </div>
+        <!-- SONG-LISTE CONTAINER -->
+        <div id="jukebox-playlist">
+            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                <strong>🐱 Lieber Lautt 2</strong>
+                <audio controls preload="none">
+                    <source src="Lieber_Lautt-2.mp3" type="audio/mpeg">
+                </audio>
+            </div>
 
-        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-            <strong>🐱 Märchengast</strong>
-            <audio controls preload="none">
-                <source src="Märchengast.mp3" type="audio/mpeg">
-            </audio>
-        </div>
+            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                <strong>🐱 Drachenhexe</strong>
+                <audio controls preload="none">
+                    <source src="Drachenhexe.mp3" type="audio/mpeg">
+                </audio>
+            </div>
 
-        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-            <strong>🐱 Verstecktes Dorf</strong>
-            <audio controls preload="none">
-                <source src="Verstecktes_Dorf.mp3" type="audio/mpeg">
-            </audio>
+            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                <strong>🐱 Märchengast</strong>
+                <audio controls preload="none">
+                    <source src="Märchengast.mp3" type="audio/mpeg">
+                </audio>
+            </div>
+
+            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                <strong>🐱 Verstecktes Dorf</strong>
+                <audio controls preload="none">
+                    <source src="Verstecktes_Dorf.mp3" type="audio/mpeg">
+                </audio>
+            </div>
         </div>
     </div>
 
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
     <audio id="audio-champi" preload="auto"></audio>
 
+    <!-- JAVASCRIPT LOGIK -->
     <script>
         let alleTageDaten = {};
         let audioEnabled = false;
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        window.onload = function() { init(); };
+        window.onload = function() { 
+            init(); 
+            setupJukebox();
+        };
 
         function enableAudio() {
             if(!audioEnabled) {
@@ -137,6 +154,47 @@
             setInterval(updateDisplay, 1000);
         }
 
+        /* JUKEBOX STEUERUNG */
+        function setupJukebox() {
+            const playlistContainer = document.getElementById('jukebox-playlist');
+            const loopSelect = document.getElementById('loop-mode');
+            
+            // Holt sich automatisch alle Audio-Player im Container
+            const audioPlayers = Array.from(playlistContainer.querySelectorAll('audio'));
+
+            audioPlayers.forEach((player, index) => {
+                // Wenn ein Song gestartet wird, alle anderen pausieren
+                player.addEventListener('play', () => {
+                    audioPlayers.forEach(otherPlayer => {
+                        if (otherPlayer !== player) {
+                            otherPlayer.pause();
+                            otherPlayer.currentTime = 0;
+                        }
+                    });
+                });
+
+                // Wenn ein Song zu Ende ist
+                player.addEventListener('ended', () => {
+                    const mode = loopSelect.value;
+
+                    if (mode === 'single') {
+                        player.currentTime = 0;
+                        player.play();
+                    } else {
+                        const nextIndex = index + 1;
+                        if (nextIndex < audioPlayers.length) {
+                            audioPlayers[nextIndex].currentTime = 0;
+                            audioPlayers[nextIndex].play();
+                        } else if (mode === 'playlist') {
+                            audioPlayers[0].currentTime = 0;
+                            audioPlayers[0].play();
+                        }
+                    }
+                });
+            });
+        }
+
+        /* GOOGLE SHEETS CHAMPIONAT-DATEN */
         async function loadChampiData() {
             const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
             const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
@@ -225,6 +283,7 @@
             }
         }
 
+        /* GOOGLE SHEETS SSO CODES */
         async function loadCodes() {
             const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRlKQDgI4SCBqe8Kv0ZSvzDIfXW5YxyU3kLrR4h0LgK7vMdpNxgcpJfU0jP4xD0v9FOs7JQ74StZOHC/pub?gid=0&single=true&output=csv';
             try {
