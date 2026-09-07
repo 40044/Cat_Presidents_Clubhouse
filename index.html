@@ -3,57 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Presidents Clubhouse</title>
+    <title>kDrive Audio Test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #1a1a1a;
             color: #ffffff;
-            margin: 0;
-            padding: 20px;
+            padding: 40px;
+            text-align: center;
         }
-        .column {
+        .test-box {
             background-color: #2a2a2a;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            margin: 20px auto;
-        }
-        h3 {
-            color: #ff9900;
-            margin-top: 0;
-        }
-        .plan-entry {
-            background-color: #333333;
-            border-radius: 8px;
-            border-left: 4px solid #ff9900;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 2px solid #ff9900;
         }
         audio {
-            border-radius: 5px;
+            width: 100%;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- CAT PRESIDENTS JUKEBOX (TEST-PLAYER)      -->
-    <!-- ========================================== -->
-    <div class="column" style="width: 100%; max-width: 1160px;">
-        <h3>🎵 Club-Jukebox (Test)</h3>
-        <p style="font-size: 0.9em; opacity: 0.8;">Klicke auf Play, um deinen Song von kDrive abzuspielen:</p>
-        
-        <div class="plan-entry" style="padding: 15px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;">
-            <div>
-                <strong>🐱 Test-Song aus kDrive</strong><br>
-                <small style="opacity: 0.7;">Quelle: Infomaniak kDrive</small>
-            </div>
-            
-            <!-- Der HTML5 Audio-Player mit deinem kDrive-Direktlink -->
-            <audio controls preload="none" style="width: 100%; height: 40px; margin-top: 5px;">
-                <source src="https://kdrive.infomaniak.com/app/share/3903098/55813479-1cfb-4023-95fb-2fce7c268e7f/files/download" type="audio/mpeg">
-                Dein Browser unterstützt diesen Audio-Player leider nicht.
-            </audio>
-        </div>
+    <div class="test-box">
+        <h2>🎵 kDrive Audio Test</h2>
+        <p>Klicke unten auf Play, um den Direkt-Stream zu testen:</p>
+
+        <!-- Test-Player mit /files/download URL -->
+        <audio controls preload="auto">
+            <source src="https://kdrive.infomaniak.com/app/share/3903098/55813479-1cfb-4023-95fb-2fce7c268e7f/files/download" type="audio/mpeg">
+            Dein Browser unterstützt diesen Player nicht.
+        </audio>
     </div>
 
 </body>
