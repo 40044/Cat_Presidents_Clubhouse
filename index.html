@@ -70,7 +70,7 @@
 
     </div>
 
-  <!-- UNTEN: CLUB-JUKEBOX -->
+    <!-- UNTEN: CLUB-JUKEBOX -->
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 15px;">Wähle einen Song aus und klicke auf Play:</p>
@@ -85,86 +85,35 @@
             </select>
         </div>
 
-        <!-- SONG-LISTE CONTAINER (ALLE 9 SONGS) -->
-        <div id="jukebox-playlist">
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Cat President</strong>
-                <audio controls preload="none">
-                    <source src="Cat President.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Drachenhexe</strong>
-                <audio controls preload="none">
-                    <source src="Drachenhexe.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Keine Geschenke</strong>
-                <audio controls preload="none">
-                    <source src="Keine Geschenke.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Lieber Lautt 2</strong>
-                <audio controls preload="none">
-                    <source src="Lieber_Lautt-2.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Märchengast</strong>
-                <audio controls preload="none">
-                    <source src="Märchengast.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Verstecktes Dorf</strong>
-                <audio controls preload="none">
-                    <source src="Verstecktes_Dorf.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Wind in den Haaren</strong>
-                <audio controls preload="none">
-                    <source src="Wind in den Haaren.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Wo sind die Wölfe</strong>
-                <audio controls preload="none">
-                    <source src="Wo sind die Wölfe.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                <strong>🐱 Zirkus von Pandoria</strong>
-                <audio controls preload="none">
-                    <source src="Zirkus von Pandoria.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-        </div>
+        <!-- SONG-CONTAINER (Wird per JavaScript aus dem Array befüllt) -->
+        <div id="jukebox-playlist"></div>
     </div>
+
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
     <audio id="audio-champi" preload="auto"></audio>
 
-    <!-- JAVASCRIPT LOGIK -->
     <script>
         let alleTageDaten = {};
         let audioEnabled = false;
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
+        // DAS SONG-ARRAY: Hier kannst du in Zukunft ganz einfach neue Songs hinzufügen!
+        const songListe = [
+            { titel: "Cat President", datei: "Cat_President.mp3" },
+            { titel: "Drachenhexe", datei: "Drachenhexe.mp3" },
+            { titel: "Keine Geschenke", datei: "Keine_Geschenke.mp3" },
+            { titel: "Lieber Lautt 2", datei: "Lieber_Lautt-2.mp3" },
+            { titel: "Märchengast", datei: "Märchengast.mp3" },
+            { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3" },
+            { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3" },
+            { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3" },
+            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3" }
+        ];
+
         window.onload = function() { 
             init(); 
+            renderJukebox();
             setupJukebox();
         };
 
@@ -190,16 +139,32 @@
             setInterval(updateDisplay, 1000);
         }
 
-        /* JUKEBOX STEUERUNG */
+        // 1. Baut das HTML dynamisch aus dem songListe-Array auf
+        function renderJukebox() {
+            const container = document.getElementById('jukebox-playlist');
+            let html = '';
+            
+            songListe.forEach(song => {
+                html += `
+                    <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                        <strong>🐱 ${song.titel}</strong>
+                        <audio controls preload="none">
+                            <source src="${song.datei}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 2. Kümmert sich um automatisches Weiterspielen und Loops
         function setupJukebox() {
             const playlistContainer = document.getElementById('jukebox-playlist');
             const loopSelect = document.getElementById('loop-mode');
-            
-            // Holt sich automatisch alle Audio-Player im Container
             const audioPlayers = Array.from(playlistContainer.querySelectorAll('audio'));
 
             audioPlayers.forEach((player, index) => {
-                // Wenn ein Song gestartet wird, alle anderen pausieren
                 player.addEventListener('play', () => {
                     audioPlayers.forEach(otherPlayer => {
                         if (otherPlayer !== player) {
@@ -209,7 +174,6 @@
                     });
                 });
 
-                // Wenn ein Song zu Ende ist
                 player.addEventListener('ended', () => {
                     const mode = loopSelect.value;
 
