@@ -30,6 +30,34 @@
         @keyframes blinker { 50% { opacity: 0.3; } }
         
         audio { width: 100%; margin-top: 5px; }
+
+        /* Styling für die Band-Filter-Box */
+        .filter-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: #2d3d4d;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-weight: bold;
+            color: #ff85a2;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .checkbox-group input {
+            cursor: pointer;
+            accent-color: #ff85a2;
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 <body onclick="enableAudio()">
@@ -73,7 +101,19 @@
     <!-- UNTEN: CLUB-JUKEBOX -->
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
-        <p style="font-size: 0.9em; opacity: 0.8; margin-bottom: 15px;">Wähle einen Song aus und klicke auf Play:</p>
+        
+        <!-- BAND-FILTER (NEU) -->
+        <div class="filter-container">
+            <span class="filter-label">🎸 Bands auswählen:</span>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-bpp" checked onchange="renderJukebox()"> 
+                <span>Baby Pink Panda (Punk)</span>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-js" checked onchange="renderJukebox()"> 
+                <span>Jorvik Sisters (Pop)</span>
+            </label>
+        </div>
 
         <!-- WIEDERGABE-EINSTELLUNGEN -->
         <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
@@ -85,7 +125,7 @@
             </select>
         </div>
 
-        <!-- SONG-CONTAINER (Wird per JavaScript aus dem Array befüllt) -->
+        <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
     </div>
 
@@ -98,30 +138,28 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // DAS SONG-ARRAY: Hier kannst du in Zukunft ganz einfach neue Songs hinzufügen!
+        // DAS SONG-ARRAY: Jetzt mit Zuweisung band: "js" (Jorvik Sisters) oder band: "bpp" (Baby Pink Panda)
         const songListe = [
-            { titel: "Keine Fahnen (Jorvik Sisters)", datei: "Keine_Fahnen.mp3" },
-            { titel: "Illegale Rennen (Baby Pink Panda)", datei: "Illegale_Rennen.mp3" },
-            { titel: "Zaunrennen (Jorvik Sisters)", datei: "Zaunrennen.mp3" },
-            { titel: "Slalomrennen (Jorvik Sisters)", datei: "Slalomrennen.mp3" },
-            { titel: "Happy Birthday (Jorvik Sisters)", datei: "Happy_Birthday.mp3" },
-            { titel: "Der Frieden kommt (Jorvik Sisters)", datei: "Der_Frieden_kommt.mp3" },
-            { titel: "Cat President (Baby Pink Panda)", datei: "Cat_President.mp3" },
-            { titel: "Drachenhexe (Baby Pink Panda)", datei: "Drachenhexe.mp3" },
-            { titel: "Keine Geschenke (Baby Pink Panda)", datei: "Keine_Geschenke.mp3" },
-            { titel: "Lieber Lautt 2 (Baby Pink Panda)", datei: "Lieber_Lautt-2.mp3" },
-            { titel: "Märchengast (Baby Pink Panda)", datei: "Märchengast.mp3" },
-            { titel: "Verstecktes Dorf (Baby Pink Panda)", datei: "Verstecktes_Dorf.mp3" },
-            { titel: "Wind in den Haaren (Baby Pink Panda)", datei: "Wind-in_den_Haaren.mp3" },
-            { titel: "Wo sind die Wölfe (Baby Pink Panda)", datei: "Wo_sind_die_Wölfe.mp3" },
-            { titel: "Zirkus von Pandoria (Baby Pink Panda)", datei: "Zirkus_von_Pandoria.mp3" }
-            
+            { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
+            { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
+            { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
+            { titel: "Slalomrennen", datei: "Slalomrennen.mp3", band: "js" },
+            { titel: "Happy Birthday", datei: "Happy_Birthday.mp3", band: "js" },
+            { titel: "Der Frieden kommt", datei: "Der_Frieden_kommt.mp3", band: "js" },
+            { titel: "Cat President", datei: "Cat_President.mp3", band: "bpp" },
+            { titel: "Drachenhexe", datei: "Drachenhexe.mp3", band: "bpp" },
+            { titel: "Keine Geschenke", datei: "Keine_Geschenke.mp3", band: "bpp" },
+            { titel: "Lieber Lautt 2", datei: "Lieber_Lautt-2.mp3", band: "bpp" },
+            { titel: "Märchengast", datei: "Märchengast.mp3", band: "bpp" },
+            { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3", band: "bpp" },
+            { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3", band: "bpp" },
+            { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3", band: "bpp" },
+            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
         ];
 
         window.onload = function() { 
             init(); 
             renderJukebox();
-            setupJukebox();
         };
 
         function enableAudio() {
@@ -146,26 +184,46 @@
             setInterval(updateDisplay, 1000);
         }
 
-        // 1. Baut das HTML dynamisch aus dem songListe-Array auf
+        // Baut das HTML dynamisch nach Band-Auswahl auf
         function renderJukebox() {
             const container = document.getElementById('jukebox-playlist');
+            const showBpp = document.getElementById('chk-bpp').checked;
+            const showJs = document.getElementById('chk-js').checked;
+
             let html = '';
             
-            songListe.forEach(song => {
-                html += `
-                    <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                        <strong>🐱 ${song.titel}</strong>
-                        <audio controls preload="none">
-                            <source src="${song.datei}" type="audio/mpeg">
-                        </audio>
-                    </div>
-                `;
+            // Filtert die Songs anhand der Checkboxen
+            const gefilterteSongs = songListe.filter(song => {
+                if (song.band === 'bpp' && showBpp) return true;
+                if (song.band === 'js' && showJs) return true;
+                return false;
             });
+
+            if (gefilterteSongs.length === 0) {
+                html = '<p style="opacity: 0.6; padding: 10px;">Keine Band ausgewählt. Bitte aktiviere mindestens ein Kästchen.</p>';
+            } else {
+                gefilterteSongs.forEach(song => {
+                    const saubererPfad = encodeURI(song.datei);
+                    const bandLabel = song.band === 'bpp' ? 'Baby Pink Panda' : 'Jorvik Sisters';
+
+                    html += `
+                        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
+                            <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
+                            <audio controls preload="none">
+                                <source src="${saubererPfad}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                    `;
+                });
+            }
             
             container.innerHTML = html;
+
+            // Nach jedem Rendern die Events für automatisches Weiterspielen neu initialisieren
+            setupJukebox();
         }
 
-        // 2. Kümmert sich um automatisches Weiterspielen und Loops
+        // Kümmert sich um automatisches Weiterspielen und Loops
         function setupJukebox() {
             const playlistContainer = document.getElementById('jukebox-playlist');
             const loopSelect = document.getElementById('loop-mode');
