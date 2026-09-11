@@ -5,31 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse 🐱</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: block; }
-        .header { text-align: center; padding: 20px 0; }
-        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #1a2634; 
+            color: #e0e0e0; 
+            margin: 0; 
+            padding: 20px; 
+            display: block; 
+        }
+        .header { 
+            text-align: center; 
+            padding: 20px 0; 
+        }
+        .logo-text { 
+            color: #ff85a2; 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
         
-        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
-        .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .main-container { 
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .column { 
+            background: #253341; 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 3px solid #ff85a2; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); 
+        }
         
         .left { flex: 1; min-width: 280px; } 
         .middle { flex: 2; min-width: 350px; } 
         .right { flex: 1; min-width: 300px; }  
         
-        .full-width { width: 100%; max-width: 1200px; margin: 20px auto 0 auto; box-sizing: border-box; }
+        .full-width { 
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 20px auto 0 auto; 
+            box-sizing: border-box; 
+        }
 
-        .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; position: relative; }
-        .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
-        .code-expired { border-left: 5px solid #607d8b; opacity: 0.4; text-decoration: line-through; }
-        .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
-        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; margin-top: 0; }
-        .edit-link { display: block; margin-top: 15px; color: #ff85a2; text-decoration: none; font-size: 0.85em; text-align: center; background: rgba(255, 133, 162, 0.1); padding: 8px; border-radius: 10px; border: 1px solid #ff85a2; }
-        #sound-status { font-size: 0.9em; padding: 5px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-        .sound-off { background: #ff5252; color: white; animation: blinker 1.5s linear infinite; cursor: pointer; }
-        .sound-on { background: #4caf50; color: white; }
-        @keyframes blinker { 50% { opacity: 0.3; } }
+        .status-box { 
+            background: #3d3d29; 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: 2px dashed #fbc02d; 
+            text-align: center; 
+            position: relative; 
+        }
+        .plan-entry { 
+            background: #2d3d4d; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            border-radius: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 5px solid #8bc34a; 
+        }
         
-        audio { width: 100%; margin-top: 5px; }
+        /* Markierung für das aktuell nächste Championat */
+        .active-champi { 
+            border-left: 5px solid #fbc02d; 
+            background: #3d4d5d; 
+        }
+
+        .code-expired { 
+            border-left: 5px solid #607d8b; 
+            opacity: 0.4; 
+            text-decoration: line-through; 
+        }
+        .time-tag { 
+            background: #ff85a2; 
+            color: white; 
+            padding: 3px 8px; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            font-size: 0.9em; 
+        }
+        h3 { 
+            color: #ff85a2; 
+            border-bottom: 1px solid #3d4d5d; 
+            padding-bottom: 5px; 
+            margin-top: 0; 
+        }
+        .edit-link { 
+            display: block; 
+            margin-top: 15px; 
+            color: #ff85a2; 
+            text-decoration: none; 
+            font-size: 0.85em; 
+            text-align: center; 
+            background: rgba(255, 133, 162, 0.1); 
+            padding: 8px; 
+            border-radius: 10px; 
+            border: 1px solid #ff85a2; 
+        }
+        #sound-status { 
+            font-size: 0.9em; 
+            padding: 5px; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+            font-weight: bold; 
+        }
+        .sound-off { 
+            background: #ff5252; 
+            color: white; 
+            animation: blinker 1.5s linear infinite; 
+            cursor: pointer; 
+        }
+        .sound-on { 
+            background: #4caf50; 
+            color: white; 
+        }
+        @keyframes blinker { 
+            50% { opacity: 0.3; } 
+        }
+        
+        audio { 
+            width: 100%; 
+            margin-top: 5px; 
+        }
 
         /* Styling für die Band-Filter-Box */
         .filter-container {
@@ -102,7 +205,7 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER (Standardmäßig ohne 'checked', damit sie initial leer sind) -->
+        <!-- BAND-FILTER -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
@@ -136,6 +239,7 @@
         let alleTageDaten = {};
         let audioEnabled = false;
         let lastPlayed = ""; 
+        let hasAutoScrolled = false;
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
         const songListe = [
@@ -158,17 +262,15 @@
 
         window.onload = function() { 
             init(); 
-            loadFilterState(); // Lade gespeicherte Häkchenzustände aus dem localStorage
+            loadFilterState();
             renderJukebox();
         };
 
-        // Wird aufgerufen, wenn der Nutzer ein Häkchen an- oder abwählt
         function onFilterChange() {
             saveFilterState();
             renderJukebox();
         }
 
-        // Speichert die Zustände der Checkboxen im localStorage des Browsers
         function saveFilterState() {
             const bppChecked = document.getElementById('chk-bpp').checked;
             const jsChecked = document.getElementById('chk-js').checked;
@@ -177,12 +279,10 @@
             localStorage.setItem('filter_js', jsChecked);
         }
 
-        // Lädt die gespeicherten Zustände aus dem localStorage
         function loadFilterState() {
             const savedBpp = localStorage.getItem('filter_bpp');
             const savedJs = localStorage.getItem('filter_js');
 
-            // Wenn im localStorage ein Wert existiert, verwende diesen; andernfalls bleibt es bei 'false' (unangehakt)
             if (savedBpp !== null) {
                 document.getElementById('chk-bpp').checked = (savedBpp === 'true');
             } else {
@@ -322,57 +422,95 @@
             const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
             const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
             const curDay = deZeit.getDay();
+            const morgenIdx = (curDay + 1) % 7;
             
             document.getElementById('heutiger-tag').innerText = tage[curDay];
             document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
 
             let heutigeChampis = alleTageDaten[curDay] || [];
+            let morgigeChampis = alleTageDaten[morgenIdx] || [];
+
+            // Kombinierte Liste erstellen: Heute + Morgen
+            let kombinerteListe = [];
+
+            // 1. Heutige Rennen hinzufügen
+            heutigeChampis.forEach(c => {
+                let rennZeit = new Date(deZeit);
+                rennZeit.setHours(Math.floor(c.min / 60), c.min % 60, 0, 0);
+                kombinerteListe.push({ ...c, zielZeit: rennZeit, istMorgen: false });
+            });
+
+            // 2. Morgige Rennen hinzufügen
+            morgigeChampis.forEach(c => {
+                let rennZeit = new Date(deZeit);
+                rennZeit.setDate(rennZeit.getDate() + 1);
+                rennZeit.setHours(Math.floor(c.min / 60), c.min % 60, 0, 0);
+                kombinerteListe.push({ ...c, zielZeit: rennZeit, istMorgen: true });
+            });
+
             let next = null;
             let html = '';
+            let trennerGesezt = false;
 
-            heutigeChampis.forEach(c => {
-                const past = c.min <= curMin;
-                html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}"><span>${c.name}</span><span class="time-tag">${c.display}</span></div>`;
-                if(!next && c.min > curMin) {
-                    let target = new Date(deZeit);
-                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
-                    next = { ...c, target };
+            kombinerteListe.forEach(c => {
+                const past = c.zielZeit <= deZeit;
+                let isNext = false;
+
+                // Erster Eintrag in der Zukunft ist das nächste Rennen
+                if (!next && c.zielZeit > deZeit) {
+                    next = { name: c.name, target: c.zielZeit };
+                    isNext = true;
                 }
+
+                // Trennzeile für morgen einfügen
+                if (c.istMorgen && !trennerGesezt) {
+                    html += `<div style="text-align: center; margin: 15px 0 8px 0; color: #ff85a2; font-weight: bold; border-bottom: 1px dashed #ff85a2; padding-bottom: 5px;">
+                                🌅 ${tage[morgenIdx]}
+                             </div>`;
+                    trennerGesezt = true;
+                }
+
+                const activeClass = isNext ? 'active-champi' : '';
+                const activeId = isNext ? 'id="next-champi-entry"' : '';
+
+                html += `<div ${activeId} class="plan-entry ${activeClass}" style="${past ? 'opacity:0.3' : ''}">
+                            <span>${c.name}</span>
+                            <span class="time-tag">${c.display}</span>
+                         </div>`;
             });
+
             document.getElementById('tages-plan').innerHTML = html;
 
-            if (!next) {
-                const morgenIdx = (curDay + 1) % 7;
-                let morgenChampis = alleTageDaten[morgenIdx] || [];
-                if (morgenChampis.length > 0) {
-                    let c = morgenChampis[0];
-                    let target = new Date(deZeit);
-                    target.setDate(target.getDate() + 1);
-                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
-                    next = { ...c, target };
+            // Automatisches Scrollen beim ersten Laden
+            if (!hasAutoScrolled) {
+                const activeElem = document.getElementById('next-champi-entry');
+                if (activeElem) {
+                    activeElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    hasAutoScrolled = true;
                 }
             }
-            
-            if(next) {
+
+            // Countdown aktualisieren
+            if (next) {
                 const diff = next.target - deZeit;
-                const m = Math.floor(diff/60000);
-                const s = Math.floor((diff%60000)/1000);
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
                 document.getElementById('champi-name').innerText = next.name;
                 document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
 
-                if(audioEnabled) {
-                    if(m === 10 && s === 0 && lastPlayed !== "10m") {
+                if (audioEnabled) {
+                    if (m === 10 && s === 0 && lastPlayed !== "10m") {
                         document.getElementById('audio-miau').play();
                         lastPlayed = "10m";
                     }
-                    if(m === 5 && s === 0 && lastPlayed !== "5m") {
+                    if (m === 5 && s === 0 && lastPlayed !== "5m") {
                         let soundFile = next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
                         let player = document.getElementById('audio-champi');
                         player.src = soundFile;
                         player.play().catch(e => console.log("Datei nicht gefunden: " + soundFile));
                         lastPlayed = "5m";
                     }
-                    if(m === 9 || m === 4) lastPlayed = ""; 
+                    if (m === 9 || m === 4) lastPlayed = ""; 
                 }
             }
         }
