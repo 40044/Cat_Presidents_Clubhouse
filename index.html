@@ -102,15 +102,15 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER (NEU) -->
+        <!-- BAND-FILTER (Standardmäßig ohne 'checked', damit sie initial leer sind) -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
-                <input type="checkbox" id="chk-bpp" checked onchange="renderJukebox()"> 
+                <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
                 <span>Baby Pink Panda (Punk)</span>
             </label>
             <label class="checkbox-group">
-                <input type="checkbox" id="chk-js" checked onchange="renderJukebox()"> 
+                <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
                 <span>Jorvik Sisters (Pop)</span>
             </label>
         </div>
@@ -138,7 +138,6 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // DAS SONG-ARRAY: Jetzt mit Zuweisung band: "js" (Jorvik Sisters) oder band: "bpp" (Baby Pink Panda)
         const songListe = [
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
@@ -159,8 +158,43 @@
 
         window.onload = function() { 
             init(); 
+            loadFilterState(); // Lade gespeicherte Häkchenzustände aus dem localStorage
             renderJukebox();
         };
+
+        // Wird aufgerufen, wenn der Nutzer ein Häkchen an- oder abwählt
+        function onFilterChange() {
+            saveFilterState();
+            renderJukebox();
+        }
+
+        // Speichert die Zustände der Checkboxen im localStorage des Browsers
+        function saveFilterState() {
+            const bppChecked = document.getElementById('chk-bpp').checked;
+            const jsChecked = document.getElementById('chk-js').checked;
+            
+            localStorage.setItem('filter_bpp', bppChecked);
+            localStorage.setItem('filter_js', jsChecked);
+        }
+
+        // Lädt die gespeicherten Zustände aus dem localStorage
+        function loadFilterState() {
+            const savedBpp = localStorage.getItem('filter_bpp');
+            const savedJs = localStorage.getItem('filter_js');
+
+            // Wenn im localStorage ein Wert existiert, verwende diesen; andernfalls bleibt es bei 'false' (unangehakt)
+            if (savedBpp !== null) {
+                document.getElementById('chk-bpp').checked = (savedBpp === 'true');
+            } else {
+                document.getElementById('chk-bpp').checked = false;
+            }
+
+            if (savedJs !== null) {
+                document.getElementById('chk-js').checked = (savedJs === 'true');
+            } else {
+                document.getElementById('chk-js').checked = false;
+            }
+        }
 
         function enableAudio() {
             if(!audioEnabled) {
@@ -184,7 +218,6 @@
             setInterval(updateDisplay, 1000);
         }
 
-        // Baut das HTML dynamisch nach Band-Auswahl auf
         function renderJukebox() {
             const container = document.getElementById('jukebox-playlist');
             const showBpp = document.getElementById('chk-bpp').checked;
@@ -192,7 +225,6 @@
 
             let html = '';
             
-            // Filtert die Songs anhand der Checkboxen
             const gefilterteSongs = songListe.filter(song => {
                 if (song.band === 'bpp' && showBpp) return true;
                 if (song.band === 'js' && showJs) return true;
@@ -218,12 +250,9 @@
             }
             
             container.innerHTML = html;
-
-            // Nach jedem Rendern die Events für automatisches Weiterspielen neu initialisieren
             setupJukebox();
         }
 
-        // Kümmert sich um automatisches Weiterspielen und Loops
         function setupJukebox() {
             const playlistContainer = document.getElementById('jukebox-playlist');
             const loopSelect = document.getElementById('loop-mode');
