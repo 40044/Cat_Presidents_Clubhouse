@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Presidents Clubhouse - Jukebox</title>
+    <title>Cat Presidents Clubhouse</title>
     <style>
-        /* Grundlegendes Design für die Webseite */
+        /* Grundlegendes Design */
         body {
             font-family: Arial, sans-serif;
             background-color: #1a1a1a;
@@ -14,12 +14,12 @@
             padding: 0;
         }
 
-        h1 {
+        h1, h2 {
             color: #ff69b4;
         }
 
-        /* Styling für den Filter-Bereich */
-        .filter-container {
+        /* Styling für die einzelnen Bereiche */
+        .section-box {
             background-color: #2a2a2a;
             padding: 15px;
             border-radius: 8px;
@@ -59,35 +59,61 @@
 </head>
 <body>
 
-    <h1>🐱 Cat Presidents Jukebox</h1>
+    <h1>🐱 Cat Presidents Clubhouse</h1>
 
-    <!-- BAND-FILTER (Alle 3 Bands) -->
-    <div class="filter-container">
-        <span class="filter-label">🎸 Bands auswählen:</span>
-        <label class="checkbox-group">
-            <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
-            <span>Baby Pink Panda (Punk)</span>
-        </label>
-        <label class="checkbox-group">
-            <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
-            <span>Jorvik Sisters (Pop)</span>
-        </label>
-        <label class="checkbox-group">
-            <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-            <span>Vier Brüder im Staub (Dark Country Metal)</span>
-        </label>
+    <!-- 1. CHAT BEREICH -->
+    <div class="section-box" id="chat-section">
+        <h2>💬 Club Chat</h2>
+        <div id="chat-messages" style="min-height: 100px; background: #111; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+            <p style="opacity: 0.6;">Willkommen im Chat!</p>
+        </div>
+        <input type="text" id="chat-input" placeholder="Nachricht schreiben..." style="width: 70%; padding: 8px;">
+        <button style="padding: 8px 15px; background: #ff69b4; border: none; color: white; border-radius: 4px; cursor: pointer;">Senden</button>
     </div>
 
-    <!-- CONTAINER FÜR DIE SONG-LISTE -->
-    <div id="jukebox-playlist"></div>
+    <!-- 2. SSO-CODE BEREICH -->
+    <div class="section-box" id="sso-section">
+        <h2>🔑 Aktueller SSO-Code</h2>
+        <p>Code: <strong style="color: #00ffcc;">CATPRESIDENTS2026</strong></p>
+    </div>
+
+    <!-- 3. CHAMPI-BAROMETER -->
+    <div class="section-box" id="champi-section">
+        <h2>🏆 Champi-Barometer</h2>
+        <p>Nächstes Championat: <span style="color: #ffcc00;">19:00 Uhr</span></p>
+    </div>
+
+    <!-- 4. JUKEBOX MIT BAND-FILTER -->
+    <div class="section-box" id="jukebox-section">
+        <h2>🎵 Jukebox</h2>
+        
+        <!-- Filter-Checkboxes -->
+        <div style="margin-bottom: 15px;">
+            <span class="filter-label">🎸 Bands auswählen:</span>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
+                <span>Baby Pink Panda (Punk)</span>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
+                <span>Jorvik Sisters (Pop)</span>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
+                <span>Vier Brüder im Staub (Dark Country Metal)</span>
+            </label>
+        </div>
+
+        <!-- Container für Playlist -->
+        <div id="jukebox-playlist"></div>
+    </div>
 
     <script>
         // ==========================================
-        // 1. SONG-DATENBANK (ARRAY)
+        // 1. SONG-DATENBANK
         // ==========================================
-        // Jedes Objekt enthält: titel (Anzeigename), datei (MP3-Dateiname), band (Kürzel)
         const songListe = [
-            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
+            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" }
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
             { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
@@ -102,14 +128,13 @@
             { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3", band: "bpp" },
             { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3", band: "bpp" },
             { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3", band: "bpp" },
-            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
+            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" },
             
         ];
 
         // ==========================================
         // 2. FILTER-ZUSTAND SPEICHERN & LADEN
         // ==========================================
-        // Speichert die Hakenauswahl im Browser-Speicher (localStorage)
         function saveFilterState() {
             const bppChecked = document.getElementById('chk-bpp').checked;
             const jsChecked = document.getElementById('chk-js').checked;
@@ -120,19 +145,18 @@
             localStorage.setItem('filter_vbis', vbisChecked);
         }
 
-        // Lädt die gespeicherte Hakenauswahl beim Öffnen der Seite
         function loadFilterState() {
             const savedBpp = localStorage.getItem('filter_bpp');
             const savedJs = localStorage.getItem('filter_js');
             const savedVbis = localStorage.getItem('filter_vbis');
 
-            // Standardmäßig aktivieren, falls noch nichts gespeichert wurde
+            // Standardwerte beim allerersten Aufruf:
+            // BPP = an (true), JS = an (true), VBIS = aus (false)
             document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
             document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
-            document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
+            document.getElementById('chk-vbis').checked = (savedVbis === null) ? false : (savedVbis === 'true');
         }
 
-        // Wird aufgerufen, wenn ein Haken gesetzt oder entfernt wird
         function onFilterChange() {
             saveFilterState();
             renderJukebox();
@@ -149,7 +173,6 @@
 
             let html = '';
             
-            // Filtere die Songs basierend auf den gesetzten Haken
             const gefilterteSongs = songListe.filter(song => {
                 if (song.band === 'bpp' && showBpp) return true;
                 if (song.band === 'js' && showJs) return true;
@@ -157,11 +180,9 @@
                 return false;
             });
 
-            // Ausgabe, wenn kein Haken gesetzt ist
             if (gefilterteSongs.length === 0) {
                 html = '<p style="opacity: 0.6; padding: 10px;">Keine Band ausgewählt. Bitte aktiviere mindestens ein Kästchen.</p>';
             } else {
-                // Erstelle für jeden gefilterten Song das HTML-Element
                 gefilterteSongs.forEach(song => {
                     const saubererPfad = encodeURI(song.datei);
                     
@@ -185,7 +206,7 @@
             setupJukebox();
         }
 
-        // Hilfsfunktion für Audio-Player (z.B. automatisches Stoppen anderer Tracks)
+        // Stoppt andere Audios, wenn ein neuer Song gestartet wird
         function setupJukebox() {
             const audios = document.querySelectorAll('audio');
             audios.forEach(audio => {
@@ -200,7 +221,7 @@
         }
 
         // ==========================================
-        // 4. INITIALISIERUNG BEIM SEITENSTART
+        // 4. INITIALISIERUNG
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             loadFilterState();
