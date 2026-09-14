@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse</title>
     <style>
-        /* =========================================================
-           ORIGINAL STYLES (Unverändert übernommen)
-           ========================================================= */
+        /* ORIGINAL DESIGN */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -66,7 +64,7 @@
             padding-bottom: 8px;
         }
 
-        /* SSO & Barometer Styling */
+        /* SSO & BAROMETER */
         .sso-box {
             background: #252525;
             padding: 12px 18px;
@@ -83,7 +81,6 @@
             letter-spacing: 1px;
         }
 
-        /* Champi-Barometer autoscroll container */
         .barometer-container {
             max-height: 180px;
             overflow-y: auto;
@@ -91,7 +88,7 @@
             padding-right: 5px;
         }
 
-        /* Jukebox Filter Component */
+        /* JUKEBOX FILTER & PLAYLIST */
         .filter-container {
             background-color: #252525;
             padding: 12px;
@@ -121,7 +118,6 @@
             accent-color: #ff69b4;
         }
 
-        /* Jukebox Playlist Entries */
         .playlist {
             display: flex;
             flex-direction: column;
@@ -185,7 +181,7 @@
         <div class="card">
             <h2>🎵 Clubhouse Jukebox</h2>
             
-            <!-- Band Filter Box mit 3 Bands -->
+            <!-- Band Filter Box mit allen 3 Bands -->
             <div class="filter-container">
                 <span class="filter-label">🎸 Bands:</span>
                 <label class="checkbox-group">
@@ -211,10 +207,10 @@
     <script>
         // ==========================================
         // SONG DATABASE ARRAY
-        // NEUER SONG IST AN ERSTER STELLE (GANZ OBEN)
+        // NEUER TRACK GANZ OBEN AN ERSTER STELLE
         // ==========================================
         const songListe = [
-            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" }, // NEWEST TRACK FIRST
+            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
             { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
@@ -250,7 +246,7 @@
             const savedJs = localStorage.getItem('filter_js');
             const savedVbis = localStorage.getItem('filter_vbis');
 
-            // Defaults: BPP = active (true), JS = active (true), VBIS = inactive (false)
+            // Standards: BPP = true, JS = true, VBIS = false (unangehakt)
             document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
             document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
             document.getElementById('chk-vbis').checked = (savedVbis === null) ? false : (savedVbis === 'true');
