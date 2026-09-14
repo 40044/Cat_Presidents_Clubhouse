@@ -205,7 +205,7 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER -->
+        <!-- BAND-FILTER MET ERWEITERUNG FUER VIER BRUEDER IM STAUB -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
@@ -215,6 +215,10 @@
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
                 <span>Jorvik Sisters (Pop)</span>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
+                <span>Vier Brüder im Staub</span>
             </label>
         </div>
 
@@ -242,7 +246,9 @@
         let hasAutoScrolled = false;
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
+        // SONG-LISTE MIT NEUEM TRACK GANZ OBEN
         const songListe = [
+            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
             { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
@@ -274,26 +280,21 @@
         function saveFilterState() {
             const bppChecked = document.getElementById('chk-bpp').checked;
             const jsChecked = document.getElementById('chk-js').checked;
+            const vbisChecked = document.getElementById('chk-vbis').checked;
             
             localStorage.setItem('filter_bpp', bppChecked);
             localStorage.setItem('filter_js', jsChecked);
+            localStorage.setItem('filter_vbis', vbisChecked);
         }
 
         function loadFilterState() {
             const savedBpp = localStorage.getItem('filter_bpp');
             const savedJs = localStorage.getItem('filter_js');
+            const savedVbis = localStorage.getItem('filter_vbis');
 
-            if (savedBpp !== null) {
-                document.getElementById('chk-bpp').checked = (savedBpp === 'true');
-            } else {
-                document.getElementById('chk-bpp').checked = false;
-            }
-
-            if (savedJs !== null) {
-                document.getElementById('chk-js').checked = (savedJs === 'true');
-            } else {
-                document.getElementById('chk-js').checked = false;
-            }
+            document.getElementById('chk-bpp').checked = (savedBpp !== null) ? (savedBpp === 'true') : false;
+            document.getElementById('chk-js').checked = (savedJs !== null) ? (savedJs === 'true') : false;
+            document.getElementById('chk-vbis').checked = (savedVbis !== null) ? (savedVbis === 'true') : false;
         }
 
         function enableAudio() {
@@ -322,12 +323,14 @@
             const container = document.getElementById('jukebox-playlist');
             const showBpp = document.getElementById('chk-bpp').checked;
             const showJs = document.getElementById('chk-js').checked;
+            const showVbis = document.getElementById('chk-vbis').checked;
 
             let html = '';
             
             const gefilterteSongs = songListe.filter(song => {
                 if (song.band === 'bpp' && showBpp) return true;
                 if (song.band === 'js' && showJs) return true;
+                if (song.band === 'vbis' && showVbis) return true;
                 return false;
             });
 
@@ -336,7 +339,9 @@
             } else {
                 gefilterteSongs.forEach(song => {
                     const saubererPfad = encodeURI(song.datei);
-                    const bandLabel = song.band === 'bpp' ? 'Baby Pink Panda' : 'Jorvik Sisters';
+                    let bandLabel = 'Baby Pink Panda';
+                    if (song.band === 'js') bandLabel = 'Jorvik Sisters';
+                    if (song.band === 'vbis') bandLabel = 'Vier Brüder im Staub';
 
                     html += `
                         <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
@@ -430,17 +435,14 @@
             let heutigeChampis = alleTageDaten[curDay] || [];
             let morgigeChampis = alleTageDaten[morgenIdx] || [];
 
-            // Kombinierte Liste erstellen: Heute + Morgen
             let kombinerteListe = [];
 
-            // 1. Heutige Rennen hinzufügen
             heutigeChampis.forEach(c => {
                 let rennZeit = new Date(deZeit);
                 rennZeit.setHours(Math.floor(c.min / 60), c.min % 60, 0, 0);
                 kombinerteListe.push({ ...c, zielZeit: rennZeit, istMorgen: false });
             });
 
-            // 2. Morgige Rennen hinzufügen
             morgigeChampis.forEach(c => {
                 let rennZeit = new Date(deZeit);
                 rennZeit.setDate(rennZeit.getDate() + 1);
@@ -456,13 +458,11 @@
                 const past = c.zielZeit <= deZeit;
                 let isNext = false;
 
-                // Erster Eintrag in der Zukunft ist das nächste Rennen
                 if (!next && c.zielZeit > deZeit) {
                     next = { name: c.name, target: c.zielZeit };
                     isNext = true;
                 }
 
-                // Trennzeile für morgen einfügen
                 if (c.istMorgen && !trennerGesezt) {
                     html += `<div style="text-align: center; margin: 15px 0 8px 0; color: #ff85a2; font-weight: bold; border-bottom: 1px dashed #ff85a2; padding-bottom: 5px;">
                                 🌅 ${tage[morgenIdx]}
@@ -481,7 +481,6 @@
 
             document.getElementById('tages-plan').innerHTML = html;
 
-            // Automatisches Scrollen beim ersten Laden
             if (!hasAutoScrolled) {
                 const activeElem = document.getElementById('next-champi-entry');
                 if (activeElem) {
@@ -490,7 +489,6 @@
                 }
             }
 
-            // Countdown aktualisieren
             if (next) {
                 const diff = next.target - deZeit;
                 const m = Math.floor(diff / 60000);
