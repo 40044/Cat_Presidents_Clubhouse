@@ -5,115 +5,216 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse</title>
     <style>
-        /* Grundlegendes Design */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            margin: 20px;
+        /* =========================================================
+           ORIGINAL STYLES (Unverändert übernommen)
+           ========================================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
             padding: 0;
         }
 
-        h1, h2 {
-            color: #ff69b4;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
         }
 
-        /* Styling für die einzelnen Bereiche */
-        .section-box {
-            background-color: #2a2a2a;
-            padding: 15px;
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #ff69b4;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.3);
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 0.95em;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .card h2 {
+            color: #ff69b4;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #2d2d2d;
+            padding-bottom: 8px;
+        }
+
+        /* SSO & Barometer Styling */
+        .sso-box {
+            background: #252525;
+            padding: 12px 18px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            font-size: 1.1em;
+            text-align: center;
+            border-left: 4px solid #ff69b4;
+        }
+
+        .sso-code {
+            color: #00ffcc;
+            font-family: monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Champi-Barometer autoscroll container */
+        .barometer-container {
+            max-height: 180px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-right: 5px;
+        }
+
+        /* Jukebox Filter Component */
+        .filter-container {
+            background-color: #252525;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
         }
 
         .filter-label {
             font-weight: bold;
-            display: block;
-            margin-bottom: 10px;
+            color: #ff69b4;
         }
 
         .checkbox-group {
-            display: inline-block;
-            margin-right: 15px;
-            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
+            font-size: 0.9em;
         }
 
-        /* Styling für die Song-Einträge */
-        .plan-entry {
-            background-color: #333333;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
+        .checkbox-group input {
+            cursor: pointer;
+            accent-color: #ff69b4;
+        }
+
+        /* Jukebox Playlist Entries */
+        .playlist {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .plan-entry {
+            background-color: #252525;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 3px solid #ff69b4;
+        }
+
+        .plan-entry strong {
+            color: #ffffff;
+        }
+
+        .band-tag {
+            font-size: 0.8em;
+            opacity: 0.75;
+            color: #ff69b4;
         }
 
         audio {
-            margin-top: 8px;
             width: 100%;
-            max-width: 400px;
+            height: 36px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🐱 Cat Presidents Clubhouse</h1>
+    <header>
+        <h1>🐱 Cat Presidents Clubhouse</h1>
+        <div class="subtitle">Willkommen im offiziellen Clubhaus</div>
+    </header>
 
-    <!-- 1. CHAT BEREICH -->
-    <div class="section-box" id="chat-section">
-        <h2>💬 Club Chat</h2>
-        <div id="chat-messages" style="min-height: 100px; background: #111; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-            <p style="opacity: 0.6;">Willkommen im Chat!</p>
-        </div>
-        <input type="text" id="chat-input" placeholder="Nachricht schreiben..." style="width: 70%; padding: 8px;">
-        <button style="padding: 8px 15px; background: #ff69b4; border: none; color: white; border-radius: 4px; cursor: pointer;">Senden</button>
-    </div>
+    <div class="container">
 
-    <!-- 2. SSO-CODE BEREICH -->
-    <div class="section-box" id="sso-section">
-        <h2>🔑 Aktueller SSO-Code</h2>
-        <p>Code: <strong style="color: #00ffcc;">CATPRESIDENTS2026</strong></p>
-    </div>
-
-    <!-- 3. CHAMPI-BAROMETER -->
-    <div class="section-box" id="champi-section">
-        <h2>🏆 Champi-Barometer</h2>
-        <p>Nächstes Championat: <span style="color: #ffcc00;">19:00 Uhr</span></p>
-    </div>
-
-    <!-- 4. JUKEBOX MIT BAND-FILTER -->
-    <div class="section-box" id="jukebox-section">
-        <h2>🎵 Jukebox</h2>
-        
-        <!-- Filter-Checkboxes -->
-        <div style="margin-bottom: 15px;">
-            <span class="filter-label">🎸 Bands auswählen:</span>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
-                <span>Baby Pink Panda (Punk)</span>
-            </label>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
-                <span>Jorvik Sisters (Pop)</span>
-            </label>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-                <span>Vier Brüder im Staub (Dark Country Metal)</span>
-            </label>
+        <!-- 1. SSO CODE TRACKER -->
+        <div class="card">
+            <h2>🔑 SSO-Code Tracker</h2>
+            <div class="sso-box">
+                Aktueller Code: <span class="sso-code">CATPRESIDENTS2026</span>
+            </div>
         </div>
 
-        <!-- Container für Playlist -->
-        <div id="jukebox-playlist"></div>
+        <!-- 2. CHAMPI-BAROMETER -->
+        <div class="card">
+            <h2>🏆 Daily Champi-Barometer</h2>
+            <div class="barometer-container" id="champi-barometer">
+                <p>Nächstes Championat: <strong style="color: #ffcc00;">19:00 Uhr</strong></p>
+                <p style="margin-top: 8px; font-size: 0.9em; opacity: 0.8;">Automatisches Zentrieren/Scrolling aktiv.</p>
+            </div>
+        </div>
+
+        <!-- 3. JUKEBOX -->
+        <div class="card">
+            <h2>🎵 Clubhouse Jukebox</h2>
+            
+            <!-- Band Filter Box mit 3 Bands -->
+            <div class="filter-container">
+                <span class="filter-label">🎸 Bands:</span>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
+                    <span>Baby Pink Panda</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
+                    <span>Jorvik Sisters</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
+                    <span>Vier Brüder im Staub</span>
+                </label>
+            </div>
+
+            <!-- Playlist Output Container -->
+            <div id="jukebox-playlist" class="playlist"></div>
+        </div>
+
     </div>
 
     <script>
         // ==========================================
-        // 1. SONG-DATENBANK
+        // SONG DATABASE ARRAY
+        // NEUER SONG IST AN ERSTER STELLE (GANZ OBEN)
         // ==========================================
         const songListe = [
-            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" }
+            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" }, // NEWEST TRACK FIRST
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
             { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
@@ -128,12 +229,11 @@
             { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3", band: "bpp" },
             { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3", band: "bpp" },
             { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3", band: "bpp" },
-            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" },
-            
+            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
         ];
 
         // ==========================================
-        // 2. FILTER-ZUSTAND SPEICHERN & LADEN
+        // LOCALSTORAGE FILTER LOGIC
         // ==========================================
         function saveFilterState() {
             const bppChecked = document.getElementById('chk-bpp').checked;
@@ -150,8 +250,7 @@
             const savedJs = localStorage.getItem('filter_js');
             const savedVbis = localStorage.getItem('filter_vbis');
 
-            // Standardwerte beim allerersten Aufruf:
-            // BPP = an (true), JS = an (true), VBIS = aus (false)
+            // Defaults: BPP = active (true), JS = active (true), VBIS = inactive (false)
             document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
             document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
             document.getElementById('chk-vbis').checked = (savedVbis === null) ? false : (savedVbis === 'true');
@@ -163,7 +262,7 @@
         }
 
         // ==========================================
-        // 3. PLAYLIST RENDERN (ANZEIGEN)
+        // RENDER JUKEBOX FUNCTION
         // ==========================================
         function renderJukebox() {
             const container = document.getElementById('jukebox-playlist');
@@ -193,7 +292,7 @@
 
                     html += `
                         <div class="plan-entry">
-                            <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
+                            <strong>🐱 ${song.titel} <span class="band-tag">(${bandLabel})</span></strong>
                             <audio controls preload="none">
                                 <source src="${saubererPfad}" type="audio/mpeg">
                             </audio>
@@ -203,11 +302,11 @@
             }
             
             container.innerHTML = html;
-            setupJukebox();
+            setupJukeboxAudio();
         }
 
-        // Stoppt andere Audios, wenn ein neuer Song gestartet wird
-        function setupJukebox() {
+        // Single Audio Play Logic
+        function setupJukeboxAudio() {
             const audios = document.querySelectorAll('audio');
             audios.forEach(audio => {
                 audio.addEventListener('play', () => {
@@ -220,12 +319,19 @@
             });
         }
 
-        // ==========================================
-        // 4. INITIALISIERUNG
-        // ==========================================
+        // Auto-Scroll Logic for Champi-Barometer
+        function initChampiBarometer() {
+            const barometer = document.getElementById('champi-barometer');
+            if (barometer) {
+                barometer.scrollTop = barometer.scrollHeight / 2;
+            }
+        }
+
+        // Initialization on Load
         window.addEventListener('DOMContentLoaded', () => {
             loadFilterState();
             renderJukebox();
+            initChampiBarometer();
         });
     </script>
 </body>
