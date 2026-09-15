@@ -205,7 +205,7 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER MET ERWEITERUNG FUER VIER BRUEDER IM STAUB -->
+        <!-- BAND-FILTER INKLUSIVE 4 BRÜDER IM STAUB -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
@@ -218,7 +218,7 @@
             </label>
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-                <span>Vier Brüder im Staub</span>
+                <span>4 Brüder im Staub</span>
             </label>
         </div>
 
@@ -246,10 +246,17 @@
         let hasAutoScrolled = false;
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // SONG-LISTE MIT NEUEM TRACK GANZ OBEN
+        // SONG-LISTE MIT VOLLSTÄNDIGEN 23 SONGS
         const songListe = [
-            { titel: "Erster und etzter", datei: "Erster_undLetzter.mp3", band: "vbis" },
+            { titel: "Geisterstunde", datei: "Erster_undLetzter.mp3", band: "vbis" },
             { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
+            { titel: "Champireihe", datei: "Champireihe.mp3", band: "js" },
+            { titel: "Pleite", datei: "Pleite.mp3", band: "js" },
+            { titel: "Fuck Off Fashion", datei: "Fuck_Off_Fashion.mp3", band: "bpp" },
+            { titel: "Lass mich mal durch", datei: "Lass_mich_mal_durch.mp3", band: "js" },
+            { titel: "Verpiss dich", datei: "Verpiss_dich.mp3", band: "bpp" },
+            { titel: "Die Reihe", datei: "Die_Reihe.mp3", band: "js" },
+            { titel: "Ein starkes Team", datei: "Ein_starkes_Team.mp3", band: "js" },
             { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
             { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
             { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
@@ -342,7 +349,7 @@
                     const saubererPfad = encodeURI(song.datei);
                     let bandLabel = 'Baby Pink Panda';
                     if (song.band === 'js') bandLabel = 'Jorvik Sisters';
-                    if (song.band === 'vbis') bandLabel = 'Vier Brüder im Staub';
+                    if (song.band === 'vbis') bandLabel = '4 Brüder im Staub';
 
                     html += `
                         <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
