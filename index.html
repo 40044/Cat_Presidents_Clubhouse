@@ -70,21 +70,28 @@
             align-items: center; 
             border-left: 5px solid #8bc34a; 
         }
-        
-        /* Stylische Bild-Anzeige für die Championate */
-        .champi-icon {
-            width: 32px;
-            height: 32px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-right: 10px;
-            border: 1px solid #ff85a2;
-            vertical-align: middle;
-        }
 
-        .champi-info {
+        /* Styling für die Katzen-Galerie */
+        .gallery-container {
+            max-height: 550px;
+            overflow-y: auto;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 5px;
+        }
+        .gallery-item {
+            background: #2d3d4d;
+            padding: 8px;
+            border-radius: 12px;
+            border-left: 5px solid #ff85a2;
+            text-align: center;
+        }
+        .gallery-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
         }
 
         /* Markierung für das aktuell nächste Championat */
@@ -187,11 +194,11 @@
 
     <div class="main-container">
         
-        <!-- LINKS: SSO CODES -->
+        <!-- LINKS: KATZEN GALERIE -->
         <div class="column left">
-            <h3>🎁 SSO Codes</h3>
-            <div id="code-list">Lade Codes...</div>
-            <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit" target="_blank" class="edit-link">➕ Codes bearbeiten</a>
+            <h3>🐱 Cat Galerie</h3>
+            <div id="code-list" class="gallery-container">Lade Galerie...</div>
+            <a href="https://docs.google.com/spreadsheets/d/1qBZrDQApoIYHCQ9Q2rlFpjQ9KKZWaEBOnf7lyojjohs/edit" target="_blank" class="edit-link">➕ Galerie bearbeiten</a>
         </div>
 
         <!-- MITTE: BAROMETER & TAGESPLAN -->
@@ -262,7 +269,7 @@
         let hasAutoScrolled = false;
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // SONG-LISTE MIT VOLLSTÄNDIGEN 23 SONGS
+        // SONG-LISTE MIT VOLLSTÄNDIGEN SONGS
         const songListe = [
             { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
             { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
@@ -508,14 +515,8 @@
                 const activeClass = isNext ? 'active-champi' : '';
                 const activeId = isNext ? 'id="next-champi-entry"' : '';
 
-                // Bildpfad anhand des Namens auflösen
-                let imgFileName = c.name.toLowerCase().replace(/\s+/g, '') + '.png';
-
                 html += `<div ${activeId} class="plan-entry ${activeClass}" style="${past ? 'opacity:0.3' : ''}">
-                            <div class="champi-info">
-                                <img src="${imgFileName}" class="champi-icon" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 24 24\' fill=\'%23ff85a2\'><path d=\'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z\'/></svg>';">
-                                <span>${c.name}</span>
-                            </div>
+                            <span>${c.name}</span>
                             <span class="time-tag">${c.display}</span>
                          </div>`;
             });
@@ -554,7 +555,7 @@
             }
         }
 
-        /* GOOGLE SHEETS SSO CODES */
+        /* GOOGLE SHEETS KATZEN-GALERIE */
         async function loadCodes() {
             const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRlKQDgI4SCBqe8Kv0ZSvzDIfXW5YxyU3kLrR4h0LgK7vMdpNxgcpJfU0jP4xD0v9FOs7JQ74StZOHC/pub?gid=0&single=true&output=csv';
             try {
@@ -565,12 +566,22 @@
                 rows.forEach(r => {
                     const c = r.split(',');
                     if(c[0]) {
-                        let isExpired = (c[2] && c[2].trim().length > 0) ? 'code-expired' : '';
-                        html += `<div class="plan-entry ${isExpired}"><strong>${c[0].replace(/"/g,'')}</strong><span>${c[1]||''}</span></div>`;
+                        let imgUrl = c[0].replace(/"/g, '').trim();
+                        if (imgUrl.startsWith('http')) {
+                            html += `
+                                <div class="gallery-item">
+                                    <a href="${imgUrl}" target="_blank">
+                                        <img src="${imgUrl}" class="gallery-img" alt="Katzenbild">
+                                    </a>
+                                </div>
+                            `;
+                        }
                     }
                 });
-                document.getElementById('code-list').innerHTML = html;
-            } catch(e) {}
+                document.getElementById('code-list').innerHTML = html || '<p style="opacity:0.6;">Keine Bilder gefunden.</p>';
+            } catch(e) {
+                document.getElementById('code-list').innerHTML = '<p style="opacity:0.6;">Fehler beim Laden der Galerie.</p>';
+            }
         }
     </script>
 </body>
