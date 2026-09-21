@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katzen Galerie</title>
+    <title>Cat Presidents Club House - Galerie</title>
     <style>
         /* Grundlegendes Layout der Seite */
         body {
@@ -37,30 +37,77 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #fff;
             transition: transform 0.2s ease-in-out;
+            cursor: pointer; /* Zeigt den Zeigefinger, um anzuzeigen, dass das Bild klickbar ist */
         }
 
         .gallery-item:hover {
             transform: scale(1.03); /* Leichter Zoom-Effekt beim Drüberfahren */
         }
 
-        /* Bildeigenschaften für messerscharfe Anzeige */
+        /* Bildeigenschaften für die Vorschau */
         .gallery-item img {
             width: 100%;
             height: 200px;
             object-fit: cover; /* Schneidet das Bild sauber zu, ohne es zu verzerren */
             display: block;
         }
+
+        /* 
+         * MODAL (GROSSANSICHT)
+         * Dunkler Hintergrund, der das gewählte Bild zentriert anzeigt
+         */
+        .modal {
+            display: none; /* Standardmäßig ausgeblendet */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            object-fit: contain; /* Zeigt das Bild vollständig ohne Verzerrung an */
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .close-button:hover {
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
 
-    <h1>🐾 Meine Katzen Galerie</h1>
+    <h1>🐾 Cat Presidents Club House - Galerie</h1>
 
     <!-- Der Container, in den das JavaScript die Bilder einfügt -->
     <div id="gallery" class="gallery-container"></div>
 
+    <!-- Das Modal-Element für die Großansicht -->
+    <div id="imageModal" class="modal">
+        <span class="close-button" id="closeModal">&times;</span>
+        <img class="modal-content" id="fullImage" alt="Großansicht Katze">
+    </div>
+
     <script>
-        // Array mit all deinen 28 direkten Bild-URLs aus der CSV
+        // Array mit den Bild-URLs
         const imageUrls = [
             "https://i.postimg.cc/y3s5Hpwb/tin-1-2026-09-20-18-03-35.png",
             "https://i.postimg.cc/phN40LkR/tin-2-2026-09-20-18-01-55.png",
@@ -92,29 +139,48 @@
             "https://i.postimg.cc/GHhLPXHF/tin-28-2026-09-20-18-23-11.png"
         ];
 
+        // Modal-Elemente referenzieren
+        const modal = document.getElementById('imageModal');
+        const fullImage = document.getElementById('fullImage');
+        const closeModal = document.getElementById('closeModal');
+
         // Funktion zum Erzeugen der Galerie
         function renderGallery() {
             const galleryContainer = document.getElementById('gallery');
             
-            // Schleife durch alle Bild-URLs
             imageUrls.forEach((url, index) => {
-                // 1. Element für das Bild-Kästchen erstellen
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'gallery-item';
 
-                // 2. Img-Element erstellen
                 const img = document.createElement('img');
                 img.src = url;
                 img.alt = `Katzenbild ${index + 1}`;
-                img.loading = "lazy"; // Lädt Bilder erst, wenn sie im Sichtfeld sind (spart Ladezeit)
+                img.loading = "lazy";
 
-                // 3. Zusammenbauen und im HTML platzieren
+                // Klick-Event für die Großansicht
+                itemDiv.addEventListener('click', () => {
+                    fullImage.src = url;
+                    modal.style.display = 'flex';
+                });
+
                 itemDiv.appendChild(img);
                 galleryContainer.appendChild(itemDiv);
             });
         }
 
-        // Galerie beim Laden der Seite aufrufen
+        // Event-Listener zum Schließen des Modals
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Schließen bei Klick außerhalb des Bildes
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Galerie initialisieren
         renderGallery();
     </script>
 </body>
