@@ -86,12 +86,39 @@
             border-radius: 12px;
             border-left: 5px solid #ff85a2;
             text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.02);
         }
         .gallery-img {
             width: 100%;
             height: auto;
             border-radius: 8px;
             display: block;
+        }
+
+        /* Pop-up (Modal) für die Großansicht */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.85); 
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .modal-img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+            border: 3px solid #ff85a2;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
         }
 
         /* Markierung für das aktuell nächste Championat */
@@ -257,6 +284,11 @@
 
         <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
+    </div>
+
+    <!-- POP-UP MODAL FÜR BILDER-GROSSANSICHT -->
+    <div id="image-modal" class="modal" onclick="closeModal()">
+        <img id="modal-img" class="modal-img" src="" alt="Großansicht">
     </div>
 
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
@@ -569,10 +601,8 @@
                         let imgUrl = c[0].replace(/"/g, '').trim();
                         if (imgUrl.startsWith('http')) {
                             html += `
-                                <div class="gallery-item">
-                                    <a href="${imgUrl}" target="_blank">
-                                        <img src="${imgUrl}" class="gallery-img" alt="Katzenbild">
-                                    </a>
+                                <div class="gallery-item" onclick="openModal('${imgUrl}')">
+                                    <img src="${imgUrl}" class="gallery-img" alt="Katzenbild">
                                 </div>
                             `;
                         }
@@ -582,6 +612,18 @@
             } catch(e) {
                 document.getElementById('code-list').innerHTML = '<p style="opacity:0.6;">Fehler beim Laden der Galerie.</p>';
             }
+        }
+
+        /* POP-UP STEUERUNG */
+        function openModal(url) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            modalImg.src = url;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('image-modal').style.display = 'none';
         }
     </script>
 </body>
