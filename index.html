@@ -121,7 +121,6 @@
             max-width: 90vw;
             max-height: 90vh;
         }
-        /* Bild erzwingt hier eine große Darstellung */
         .modal-img {
             width: 70vw;
             max-width: 1000px;
@@ -179,7 +178,6 @@
             .btn-close { top: 10px; right: 10px; }
         }
 
-        /* Markierung für das aktuell nächste Championat */
         .active-champi { 
             border-left: 5px solid #fbc02d; 
             background: #3d4d5d; 
@@ -606,7 +604,7 @@
                 }
 
                 if (c.istMorgen && !trennerGesezt) {
-                    html += `<div style="text-align: center; margin: 15px 0 8px 0; color: #ff85a2; font-weight: bold; border-bottom: 1px dashed #ff85a2; padding-bottom: 5px;">
+                    html += `<div style="text-align: center; margin: 15px 0 8px 0; color: #ff85a2; font-weight: bold; border-border-bottom: 1px dashed #ff85a2; padding-bottom: 5px;">
                                 🌅 ${tage[morgenIdx]}
                              </div>`;
                     trennerGesezt = true;
@@ -688,10 +686,32 @@
             }
         }
 
-        /* WANDELT GOOGLE-THUMBNAIL-LINKS IN HOCHAUFLÖSENDE LINKS UM */
+        /* UMFASSENDE FUNKTION ZUR ERZEUGUNG HOCHAUFLÖSENDER BILD-URLS */
         function getHighResUrl(url) {
-            // Wandelt Google-Bildgrößenbegrenzungen (z.B. =s220, =w200 usw.) in hochauflösende Ansicht (=s1600) um
-            return url.replace(/=s\d+/, '=s1600').replace(/=w\d+-h\d+/, '=s1600');
+            if (!url) return '';
+            
+            let cleanUrl = url;
+
+            // 1. Google Drive View Link in Direkt-Link umwandeln
+            if (cleanUrl.includes('drive.google.com/file/d/')) {
+                const matches = cleanUrl.match(/\/d\/([^\/]+)/);
+                if (matches && matches[1]) {
+                    return `https://drive.google.com/uc?export=view&id=${matches[1]}`;
+                }
+            }
+
+            // 2. Google Drive Thumbnail Link auf maximale Auflösung erzwingen
+            if (cleanUrl.includes('drive.google.com/thumbnail')) {
+                return cleanUrl.replace(/sz=[^&]+/, 'sz=w2000');
+            }
+
+            // 3. Google User Content/Photos Größen-Parameter entfernen bzw. auf s0 (Originalgröße) setzen
+            // Entfernt Größenangaben wie =s220, =w400-h300, =w100 usw.
+            if (cleanUrl.match(/=(s|w|h)\d+/)) {
+                return cleanUrl.replace(/=(s|w|h)\d+.*$/, '=s0');
+            }
+
+            return cleanUrl;
         }
 
         /* POP-UP STEUERUNG MIT BLÄTTER-FUNKTION */
