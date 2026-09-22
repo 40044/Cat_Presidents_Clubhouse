@@ -12,10 +12,10 @@
         .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1400px; margin: 0 auto; }
         .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         
-        /* Drei Spalten nebeneinander */
-        .left-col { flex: 1.2; min-width: 300px; }
-        .center-col { flex: 1.5; min-width: 350px; } 
-        .right-col { flex: 1; min-width: 300px; }  
+        /* Perfekt symmetrische Spalten */
+        .left-col { flex: 1; min-width: 320px; }
+        .center-col { flex: 1.2; min-width: 350px; } 
+        .right-col { flex: 1; min-width: 320px; }  
         
         .full-width { width: 100%; max-width: 1400px; margin: 20px auto 0 auto; box-sizing: border-box; }
 
@@ -61,7 +61,7 @@
 
     <div class="main-container">
         
-        <!-- SPALTE 1: CAT GALLERY (LINKS) -->
+        <!-- SPALTE 1: CAT GALLERY (LINKS - SYMMETRISCH PAUSSCHAL WIE CHAT) -->
         <div class="column left-col">
             <h3>🖼️ Cat Gallery</h3>
             <div id="cat-gallery" class="gallery-grid"></div>
@@ -82,7 +82,7 @@
             <div id="tages-plan" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
 
-        <!-- SPALTE 3: CHAT (RECHTS) -->
+        <!-- SPALTE 3: CHAT (RECHTS - SYMMETRISCH PAUSSCHAL WIE GALERIE) -->
         <div class="column right-col">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
