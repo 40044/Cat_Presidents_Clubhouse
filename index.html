@@ -331,12 +331,13 @@
             }
         }
 
-        /* Stoppt alle anderen Songs, wenn ein neuer gestartet wird */
+        /* Stoppt alle anderen Songs und setzt sie an den Anfang zurück */
         function stopOtherSongs(currentAudio) {
             const allAudios = document.querySelectorAll('#jukebox-playlist audio');
             allAudios.forEach(audio => {
                 if (audio !== currentAudio) {
                     audio.pause();
+                    audio.currentTime = 0; /* Setzt die Zeit auf 0 Sekunden zurück */
                 }
             });
         }
