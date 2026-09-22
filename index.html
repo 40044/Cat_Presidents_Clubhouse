@@ -455,7 +455,7 @@
 
                 itemDiv.appendChild(img);
                 galleryContainer.appendChild(itemDiv);
-            }
+            });
 
             closeBtn.addEventListener('click', schliesseGrossansicht);
             modal.addEventListener('click', (e) => {
@@ -492,10 +492,10 @@
             });
         }
 
-        function oeffneGrossansicht() {
+        function oeffneGrossansichtCustom(bilderListe) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImg');
-            modalImg.src = `${folderPath}/tin-${aktiverBildIndex}.png`;
+            modalImg.src = bilderListe[aktiverBildIndex - 1];
             modal.style.display = 'flex';
         }
 
