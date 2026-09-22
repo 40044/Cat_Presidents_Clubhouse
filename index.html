@@ -416,81 +416,94 @@
 
         /* GALLERY LADEN & NAVIGATION STEUERN */
         function loadCatGalleryDirect() {
-            const galleryContainer = document.getElementById('cat-gallery');
-            const modal = document.getElementById('imageModal');
-            const closeBtn = document.getElementById('closeBtn');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
+    const galleryContainer = document.getElementById('cat-gallery');
+    const modal = document.getElementById('imageModal');
+    const closeBtn = document.getElementById('closeBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
-            galleryContainer.innerHTML = ''; 
+    galleryContainer.innerHTML = ''; 
 
-            let alleBilderPfade = [];
+    let alleBilderPfade = [];
 
-            // 1. Tin-Bilder hinzufügen (1 bis 28)
-            for (let i = 1; i <= 28; i++) {
-                alleBilderPfade.push(`${folderPath}/tin-${i}.png`);
+    // 1. Tin-Bilder (1 bis 28)
+    for (let i = 1; i <= 28; i++) {
+        alleBilderPfade.push(`${folderPath}/tin-${i}.png`);
+    }
+
+    // 2. Coli-Bilder (1 bis 23)
+    for (let i = 1; i <= 23; i++) {
+        alleBilderPfade.push(`${folderPath}/coli-${i}.png`);
+    }
+
+    const gesamtBilderCount = alleBilderPfade.length;
+
+    // IntersectionObserver: Lädt ein Bild erst, wenn es im Sichtfeld der Galerie auftaucht
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src; // Echtes Bild erst jetzt laden!
+                observer.unobserve(img);
             }
+        });
+    }, { root: galleryContainer, rootMargin: '50px' });
 
-            // 2. Coli-Bilder hinzufügen (1 bis 23)
-            for (let i = 1; i <= 23; i++) {
-                alleBilderPfade.push(`${folderPath}/coli-${i}.png`);
-            }
+    alleBilderPfade.forEach((imagePath, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'cat-gallery-item';
 
-            // Gesamtzahl für die Modal-Navigation aktualisieren
-            const gesamtBilderCount = alleBilderPfade.length;
+        const img = document.createElement('img');
+        // WICHTIG: Pfad im data-src speichern, nicht im src!
+        img.dataset.src = imagePath; 
+        img.alt = `Cat Image ${index + 1}`;
 
-            alleBilderPfade.forEach((imagePath, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'cat-gallery-item';
+        itemDiv.addEventListener('click', () => {
+            aktiverBildIndex = index + 1;
+            oeffneGrossansichtCustom(alleBilderPfade);
+        });
 
-                const img = document.createElement('img');
-                img.src = imagePath;
-                img.alt = `Cat Image ${index + 1}`;
-                img.loading = 'lazy';
+        itemDiv.appendChild(img);
+        galleryContainer.appendChild(itemDiv);
 
-                itemDiv.addEventListener('click', () => {
-                    aktiverBildIndex = index + 1; // 1-basiert für das Modal
-                    oeffneGrossansichtCustom(alleBilderPfade);
-                });
+        // Bild dem Observer übergeben
+        imageObserver.observe(img);
+    });
 
-                itemDiv.appendChild(img);
-                galleryContainer.appendChild(itemDiv);
-            });
+    closeBtn.addEventListener('click', schliesseGrossansicht);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) schliesseGrossansicht();
+    });
 
-            closeBtn.addEventListener('click', schliesseGrossansicht);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) schliesseGrossansicht();
-            });
+    prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aktiverBildIndex--;
+        if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
+        oeffneGrossansichtCustom(alleBilderPfade);
+    });
+    nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aktiverBildIndex++;
+        if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
+        oeffneGrossansichtCustom(alleBilderPfade);
+    });
 
-            prevBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'flex') {
+            if (e.key === 'ArrowLeft') {
                 aktiverBildIndex--;
                 if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
                 oeffneGrossansichtCustom(alleBilderPfade);
-            });
-            nextBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+            }
+            if (e.key === 'ArrowRight') {
                 aktiverBildIndex++;
                 if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
                 oeffneGrossansichtCustom(alleBilderPfade);
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (modal.style.display === 'flex') {
-                    if (e.key === 'ArrowLeft') {
-                        aktiverBildIndex--;
-                        if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
-                        oeffneGrossansichtCustom(alleBilderPfade);
-                    }
-                    if (e.key === 'ArrowRight') {
-                        aktiverBildIndex++;
-                        if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
-                        oeffneGrossansichtCustom(alleBilderPfade);
-                    }
-                    if (e.key === 'Escape') schliesseGrossansicht();
-                }
-            });
+            }
+            if (e.key === 'Escape') schliesseGrossansicht();
         }
+    });
+}
 
         function oeffneGrossansichtCustom(bilderListe) {
             const modal = document.getElementById('imageModal');
