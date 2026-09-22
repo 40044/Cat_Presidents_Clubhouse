@@ -33,13 +33,13 @@
         .filter-label { font-weight: bold; color: #ff85a2; }
         .checkbox-group { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
-        /* Galerie Grid */
+        /* Gallery Grid */
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
         .cat-gallery-item { position: relative; width: 100%; padding-top: 100%; border-radius: 10px; overflow: hidden; border: 2px solid #ff85a2; background: #1a2634; cursor: pointer; }
         .cat-gallery-item img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
         .cat-gallery-item:hover img { transform: scale(1.08); }
 
-        /* Grossansicht (Modal) mit Navigation */
+        /* Modal / Fullscreen Navigation */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; z-index: 9999; }
         .modal img { max-width: 90%; max-height: 85%; border-radius: 15px; border: 3px solid #ff85a2; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
@@ -59,8 +59,11 @@
 
     <div class="main-container">
         
-        <!-- BAROMETER & TAGESPLAN -->
+        <!-- CAT GALLERY & BAROMETER & TAGESPLAN -->
         <div class="column left-main">
+            <h3>🖼️ Cat Gallery</h3>
+            <div id="cat-gallery" class="gallery-grid" style="margin-bottom: 25px;"></div>
+
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
@@ -69,6 +72,7 @@
                 <p id="local-time" style="font-size: 0.8em; opacity: 0.6;"></p>
                 <div id="sound-status" class="sound-off">⚠️ KLICKEN: MIAU IST NOCH STUMM! ⚠️</div>
             </div>
+
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
             <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
         </div>
@@ -105,17 +109,11 @@
         <div id="jukebox-playlist"></div>
     </div>
 
-    <!-- KATZEN GALERIE -->
-    <div class="column full-width">
-        <h3>🖼️ Katzen Galerie</h3>
-        <div id="cat-gallery" class="gallery-grid"></div>
-    </div>
-
-    <!-- GROSSANSICHT (MODAL) MIT NAVIGATION -->
+    <!-- MODAL MIT NAVIGATION -->
     <div class="modal" id="imageModal">
         <span class="close-btn" id="closeBtn">&times;</span>
         <span class="modal-nav-btn prev-btn" id="prevBtn">&#10094;</span>
-        <img id="modalImg" src="" alt="Katzenbild Großansicht">
+        <img id="modalImg" src="" alt="Cat Image Preview">
         <span class="modal-nav-btn next-btn" id="nextBtn">&#10095;</span>
     </div>
 
@@ -148,7 +146,7 @@
             { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" }
         ];
 
-        /* GALERIE SYSTEM */
+        /* GALLERY SYSTEM */
         let aktiverBildIndex = 1;
         const gesamtBilder = 28;
         const folderPath = 'Katzen_Bilder';
@@ -329,7 +327,7 @@
             container.innerHTML = html;
         }
 
-        /* GALERIE LADEN & NAVIGATION STEUERN */
+        /* GALLERY LADEN & NAVIGATION STEUERN */
         function loadCatGalleryDirect() {
             const galleryContainer = document.getElementById('cat-gallery');
             const modal = document.getElementById('imageModal');
@@ -347,7 +345,7 @@
 
                 const img = document.createElement('img');
                 img.src = imagePath;
-                img.alt = `Katzenbild ${i}`;
+                img.alt = `Cat Image ${i}`;
                 img.loading = 'lazy';
 
                 itemDiv.addEventListener('click', () => {
