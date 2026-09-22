@@ -116,7 +116,7 @@
         <!-- WIEDERGABE-EINSTELLUNGEN -->
         <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
             <label for="loop-mode" style="font-weight: bold; color: #ff85a2;">🔁 Wiederholung / Loop:</label>
-            <select id="loop-mode" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+            <select id="loop-mode" onchange="saveFilterState()" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
                 <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
                 <option value="playlist">Ganze Playlist wiederholen</option>
                 <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
@@ -125,6 +125,14 @@
 
         <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
+    </div>
+
+    <!-- MODAL FÜR BILD-GROSSANSICHT -->
+    <div id="imageModal" class="modal">
+        <span id="closeBtn" class="close-btn">&times;</span>
+        <span id="prevBtn" class="modal-nav-btn prev-btn">&#10094;</span>
+        <img id="modalImg" src="" alt="Großansicht Katzenbild">
+        <span id="nextBtn" class="modal-nav-btn next-btn">&#10095;</span>
     </div>
 
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
@@ -302,37 +310,25 @@
             renderJukebox();
         }
 
-        function onLoopStateChange() {
-            const singleLoop = document.getElementById('chk-loop-single').checked;
-            // Wenn Einzel-Loop aktiv ist, kann nicht zeitgleich der Listen-Loop aktiv sein
-            if (event && event.target.id === 'chk-loop-single' && singleLoop) {
-                document.getElementById('chk-loop-list').checked = false;
-            } else if (event && event.target.id === 'chk-loop-list' && document.getElementById('chk-loop-list').checked) {
-                document.getElementById('chk-loop-single').checked = false;
-            }
-            saveFilterState();
-        }
-
         function saveFilterState() {
             localStorage.setItem('filter_bpp', document.getElementById('chk-bpp').checked);
             localStorage.setItem('filter_js', document.getElementById('chk-js').checked);
             localStorage.setItem('filter_vbis', document.getElementById('chk-vbis').checked);
-            localStorage.setItem('loop_list', document.getElementById('chk-loop-list').checked);
-            localStorage.setItem('loop_single', document.getElementById('chk-loop-single').checked);
+            localStorage.setItem('loop_mode', document.getElementById('loop-mode').value);
         }
 
         function loadFilterState() {
             const savedBpp = localStorage.getItem('filter_bpp');
             const savedJs = localStorage.getItem('filter_js');
             const savedVbis = localStorage.getItem('filter_vbis');
-            const savedLoopList = localStorage.getItem('loop_list');
-            const savedLoopSingle = localStorage.getItem('loop_single');
+            const savedLoop = localStorage.getItem('loop_mode');
 
             document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
             document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
             document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
-            document.getElementById('chk-loop-list').checked = (savedLoopList === 'true');
-            document.getElementById('chk-loop-single').checked = (savedLoopSingle === 'true');
+            if(savedLoop) {
+                document.getElementById('loop-mode').value = savedLoop;
+            }
         }
 
         function renderJukebox() {
@@ -375,11 +371,10 @@
 
         /* AUTOMATISCHES ABSPIELEN & LOOP CONTROL */
         function playNextSong(currentIndex) {
-            const isSingleLoop = document.getElementById('chk-loop-single').checked;
-            const isListLoop = document.getElementById('chk-loop-list').checked;
+            const loopMode = document.getElementById('loop-mode').value;
             
             // 1. Option: Einzelnen Song wiederholen
-            if (isSingleLoop) {
+            if (loopMode === 'single') {
                 const currentPlayer = document.getElementById(`jukebox-player-${currentIndex}`);
                 if (currentPlayer) {
                     currentPlayer.currentTime = 0;
@@ -394,7 +389,7 @@
 
             // Wenn wir am Ende der Liste sind
             if (!nextPlayer) {
-                if (isListLoop) {
+                if (loopMode === 'playlist') {
                     // Zurück zum ersten Song der Liste
                     nextIndex = 0;
                     nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
