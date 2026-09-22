@@ -91,13 +91,14 @@
 
     </div>
 
-    <!-- CLUB-JUKEBOX -->
+    
+    <!-- UNTEN: CLUB-JUKEBOX -->
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- Band-Filter -->
+        <!-- BAND-FILTER INKLUSIVE 4 BRÜDER IM STAUB -->
         <div class="filter-container">
-            <span class="filter-label">🎸 Bands:</span>
+            <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
                 <span>Baby Pink Panda (Punk)</span>
@@ -108,32 +109,22 @@
             </label>
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-                <span>Vier Brüder im Staub (Dark Country Metal)</span>
+                <span>4 Brüder im Staub</span>
             </label>
         </div>
 
-        <!-- Wiedergabe-Optionen (Loop / Autoplay) -->
-        <div class="filter-container">
-            <span class="filter-label">🔄 Wiedergabe:</span>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-loop-list" onchange="onLoopStateChange()"> 
-                <span>Ganze Liste wiederholen</span>
-            </label>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-loop-single" onchange="onLoopStateChange()"> 
-                <span>Song wiederholen (Single Loop)</span>
-            </label>
+        <!-- WIEDERGABE-EINSTELLUNGEN -->
+        <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+            <label for="loop-mode" style="font-weight: bold; color: #ff85a2;">🔁 Wiederholung / Loop:</label>
+            <select id="loop-mode" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
+                <option value="playlist">Ganze Playlist wiederholen</option>
+                <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
+            </select>
         </div>
 
+        <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
-    </div>
-
-    <!-- MODAL MIT NAVIGATION -->
-    <div class="modal" id="imageModal">
-        <span class="close-btn" id="closeBtn">&times;</span>
-        <span class="modal-nav-btn prev-btn" id="prevBtn">&#10094;</span>
-        <img id="modalImg" src="" alt="Cat Image Preview">
-        <span class="modal-nav-btn next-btn" id="nextBtn">&#10095;</span>
     </div>
 
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
