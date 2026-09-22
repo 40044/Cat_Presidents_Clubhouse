@@ -9,13 +9,15 @@
         .header { text-align: center; padding: 20px 0; }
         .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         
-        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
+        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1400px; margin: 0 auto; }
         .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         
-        .left-main { flex: 2; min-width: 350px; } 
-        .right-main { flex: 1; min-width: 300px; }  
+        /* Drei Spalten nebeneinander */
+        .left-col { flex: 1.2; min-width: 300px; }
+        .center-col { flex: 1.5; min-width: 350px; } 
+        .right-col { flex: 1; min-width: 300px; }  
         
-        .full-width { width: 100%; max-width: 1200px; margin: 20px auto 0 auto; box-sizing: border-box; }
+        .full-width { width: 100%; max-width: 1400px; margin: 20px auto 0 auto; box-sizing: border-box; }
 
         .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; position: relative; }
         .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
@@ -34,7 +36,7 @@
         .checkbox-group { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
         /* Gallery Grid */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 15px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; max-height: 550px; overflow-y: auto; padding-right: 5px; }
         .cat-gallery-item { position: relative; width: 100%; padding-top: 100%; border-radius: 10px; overflow: hidden; border: 2px solid #ff85a2; background: #1a2634; cursor: pointer; }
         .cat-gallery-item img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
         .cat-gallery-item:hover img { transform: scale(1.08); }
@@ -59,11 +61,14 @@
 
     <div class="main-container">
         
-        <!-- CAT GALLERY & BAROMETER & TAGESPLAN -->
-        <div class="column left-main">
+        <!-- SPALTE 1: CAT GALLERY (LINKS) -->
+        <div class="column left-col">
             <h3>🖼️ Cat Gallery</h3>
-            <div id="cat-gallery" class="gallery-grid" style="margin-bottom: 25px;"></div>
+            <div id="cat-gallery" class="gallery-grid"></div>
+        </div>
 
+        <!-- SPALTE 2: BAROMETER & TAGESPLAN (MITTE) -->
+        <div class="column center-col">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
@@ -74,11 +79,11 @@
             </div>
 
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
-            <div id="tages-plan" style="max-height: 400px; overflow-y: auto;"></div>
+            <div id="tages-plan" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
 
-        <!-- CHAT -->
-        <div class="column right-main">
+        <!-- SPALTE 3: CHAT (RECHTS) -->
+        <div class="column right-col">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
             <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
