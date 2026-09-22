@@ -424,20 +424,33 @@
 
             galleryContainer.innerHTML = ''; 
 
-            for (let i = 1; i <= gesamtBilder; i++) {
-                const imagePath = `${folderPath}/tin-${i}.png`;
+            let alleBilderPfade = [];
 
+            // 1. Tin-Bilder hinzufügen (1 bis 28)
+            for (let i = 1; i <= 28; i++) {
+                alleBilderPfade.push(`${folderPath}/tin-${i}.png`);
+            }
+
+            // 2. Coli-Bilder hinzufügen (1 bis 23)
+            for (let i = 1; i <= 23; i++) {
+                alleBilderPfade.push(`${folderPath}/coli-${i}.png`);
+            }
+
+            // Gesamtzahl für die Modal-Navigation aktualisieren
+            const gesamtBilderCount = alleBilderPfade.length;
+
+            alleBilderPfade.forEach((imagePath, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'cat-gallery-item';
 
                 const img = document.createElement('img');
                 img.src = imagePath;
-                img.alt = `Cat Image ${i}`;
+                img.alt = `Cat Image ${index + 1}`;
                 img.loading = 'lazy';
 
                 itemDiv.addEventListener('click', () => {
-                    aktiverBildIndex = i;
-                    oeffneGrossansicht();
+                    aktiverBildIndex = index + 1; // 1-basiert für das Modal
+                    oeffneGrossansichtCustom(alleBilderPfade);
                 });
 
                 itemDiv.appendChild(img);
@@ -451,17 +464,29 @@
 
             prevBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                zeigeVorherigesBild();
+                aktiverBildIndex--;
+                if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
+                oeffneGrossansichtCustom(alleBilderPfade);
             });
             nextBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                zeigeNaechstesBild();
+                aktiverBildIndex++;
+                if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
+                oeffneGrossansichtCustom(alleBilderPfade);
             });
 
             document.addEventListener('keydown', (e) => {
                 if (modal.style.display === 'flex') {
-                    if (e.key === 'ArrowLeft') zeigeVorherigesBild();
-                    if (e.key === 'ArrowRight') zeigeNaechstesBild();
+                    if (e.key === 'ArrowLeft') {
+                        aktiverBildIndex--;
+                        if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
+                        oeffneGrossansichtCustom(alleBilderPfade);
+                    }
+                    if (e.key === 'ArrowRight') {
+                        aktiverBildIndex++;
+                        if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
+                        oeffneGrossansichtCustom(alleBilderPfade);
+                    }
                     if (e.key === 'Escape') schliesseGrossansicht();
                 }
             });
