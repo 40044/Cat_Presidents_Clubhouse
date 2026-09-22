@@ -71,7 +71,6 @@
             border-left: 5px solid #8bc34a; 
         }
         
-        /* Markierung für das aktuell nächste Championat */
         .active-champi { 
             border-left: 5px solid #fbc02d; 
             background: #3d4d5d; 
@@ -117,7 +116,6 @@
             margin-top: 5px; 
         }
 
-        /* Styling für die Band-Filter-Box */
         .filter-container {
             display: flex;
             gap: 20px;
@@ -145,11 +143,11 @@
             height: 16px;
         }
 
-        /* --- GALERIE STYLING --- */
+        /* --- CAT-GALERIE STYLING --- */
         .cat-gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
             max-height: 520px;
             overflow-y: auto;
             padding-right: 5px;
@@ -163,17 +161,17 @@
             background: #1a2634;
         }
         .cat-gallery-item:hover {
-            transform: scale(1.04);
+            transform: scale(1.05);
             border-color: #ff85a2;
         }
         .cat-gallery-item img {
             width: 100%;
-            height: 110px;
+            height: 100px;
             object-fit: cover;
             display: block;
         }
 
-        /* Grossansicht Modal */
+        /* GROSSANSICHT (MODAL) */
         .modal {
             display: none;
             position: fixed;
@@ -218,9 +216,7 @@
         <!-- LINKS: CAT-GALERIE -->
         <div class="column left">
             <h3>🖼️ Cat-Galerie</h3>
-            <div id="cat-gallery" class="cat-gallery-grid">
-                <p style="opacity: 0.6; font-size: 0.9em;">Lade Katzenbilder...</p>
-            </div>
+            <div id="cat-gallery" class="cat-gallery-grid"></div>
         </div>
 
         <!-- MITTE: BAROMETER & TAGESPLAN -->
@@ -250,7 +246,6 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER INKLUSIVE 4 BRÜDER IM STAUB -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
@@ -267,7 +262,6 @@
             </label>
         </div>
 
-        <!-- WIEDERGABE-EINSTELLUNGEN -->
         <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
             <label for="loop-mode" style="font-weight: bold; color: #ff85a2;">🔁 Wiederholung / Loop:</label>
             <select id="loop-mode" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
@@ -277,7 +271,6 @@
             </select>
         </div>
 
-        <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
     </div>
 
@@ -297,7 +290,6 @@
         let hasAutoScrolled = false;
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        // SONG-LISTE
         const songListe = [
             { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
             { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
@@ -340,7 +332,7 @@
             init(); 
             loadFilterState();
             renderJukebox();
-            loadCatGallery();
+            loadCatGalleryDirect();
         };
 
         function onFilterChange() {
@@ -389,51 +381,39 @@
             setInterval(updateDisplay, 1000);
         }
 
-        /* --- KATZENBILDER AUS GITHUB LADEN --- */
-        async function loadCatGallery() {
-            const githubUser = '40044';
-            const repoName = 'Cat_Presidents_Clubhouse';
-            const folderName = 'Katzen_Bilder';
+        /* --- GALERIE: DIREKTES LADEN VON TIN-1 BIS TIN-28 --- */
+        function loadCatGalleryDirect() {
             const galleryContainer = document.getElementById('cat-gallery');
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImg');
             const closeBtn = document.getElementById('closeBtn');
 
-            const apiUrl = `https://api.github.com/repos/${githubUser}/${repoName}/contents/${folderName}`;
+            galleryContainer.innerHTML = ''; 
 
-            try {
-                const res = await fetch(apiUrl);
-                if (!res.ok) throw new Error('Fehler beim Laden');
-                const files = await res.json();
+            const folderPath = 'Katzen_Bilder'; 
+            const totalImages = 28;
 
-                galleryContainer.innerHTML = ''; // Ladehinweis leeren
+            for (let i = 1; i <= totalImages; i++) {
+                const imagePath = `${folderPath}/tin-${i}.png`;
 
-                files.forEach(file => {
-                    const fileName = file.name.toLowerCase();
-                    if (fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'cat-gallery-item';
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cat-gallery-item';
 
-                        const img = document.createElement('img');
-                        img.src = file.download_url;
-                        img.alt = file.name;
-                        img.loading = 'lazy';
+                const img = document.createElement('img');
+                img.src = imagePath;
+                img.alt = `Katzenbild ${i}`;
+                img.loading = 'lazy';
 
-                        itemDiv.addEventListener('click', () => {
-                            modalImg.src = file.download_url;
-                            modal.style.display = 'flex';
-                        });
-
-                        itemDiv.appendChild(img);
-                        galleryContainer.appendChild(itemDiv);
-                    }
+                itemDiv.addEventListener('click', () => {
+                    modalImg.src = imagePath;
+                    modal.style.display = 'flex';
                 });
-            } catch (error) {
-                console.error('Fehler beim Abrufen der Katzenbilder:', error);
-                galleryContainer.innerHTML = '<p style="color: #ff5252; font-size: 0.85em;">Bilder konnten nicht geladen werden.</p>';
+
+                itemDiv.appendChild(img);
+                galleryContainer.appendChild(itemDiv);
             }
 
-            // Modal Events zum Schließen
+            // Modal schließen per Klick auf X oder den Hintergrund
             closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.style.display = 'none';
