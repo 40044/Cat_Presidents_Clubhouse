@@ -30,10 +30,10 @@
         
         audio { width: 100%; margin-top: 5px; }
 
-        /* Filter-Styling */
-        .filter-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; background: #1a2634; padding: 10px 15px; border-radius: 10px; align-items: center; }
+        /* Filter-Styling - Hintergrund angepasst an Kasten-Design */
+        .filter-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; background: #253341; padding: 12px 18px; border-radius: 12px; align-items: center; border: 1px solid #ff85a2; }
         .filter-label { font-weight: bold; color: #ff85a2; }
-        .checkbox-group { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .checkbox-group { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
 
         /* Gallery Grid */
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; max-height: 550px; overflow-y: auto; padding-right: 5px; }
@@ -61,7 +61,7 @@
 
     <div class="main-container">
         
-        <!-- SPALTE 1: CAT GALLERY (LINKS - SYMMETRISCH PAUSSCHAL WIE CHAT) -->
+        <!-- SPALTE 1: CAT GALLERY (LINKS) -->
         <div class="column left-col">
             <h3>🖼️ Cat Gallery</h3>
             <div id="cat-gallery" class="gallery-grid"></div>
@@ -82,7 +82,7 @@
             <div id="tages-plan" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
 
-        <!-- SPALTE 3: CHAT (RECHTS - SYMMETRISCH PAUSSCHAL WIE GALERIE) -->
+        <!-- SPALTE 3: CHAT (RECHTS) -->
         <div class="column right-col">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
@@ -95,8 +95,9 @@
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
+        <!-- Band-Filter -->
         <div class="filter-container">
-            <span class="filter-label">🎸 Bands auswählen:</span>
+            <span class="filter-label">🎸 Bands:</span>
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
                 <span>Baby Pink Panda (Punk)</span>
@@ -108,6 +109,19 @@
             <label class="checkbox-group">
                 <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
                 <span>Vier Brüder im Staub (Dark Country Metal)</span>
+            </label>
+        </div>
+
+        <!-- Wiedergabe-Optionen (Loop / Autoplay) -->
+        <div class="filter-container">
+            <span class="filter-label">🔄 Wiedergabe:</span>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-loop-list" onchange="onLoopStateChange()"> 
+                <span>Ganze Liste wiederholen</span>
+            </label>
+            <label class="checkbox-group">
+                <input type="checkbox" id="chk-loop-single" onchange="onLoopStateChange()"> 
+                <span>Song wiederholen (Single Loop)</span>
             </label>
         </div>
 
@@ -131,7 +145,7 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        /* SONG DATENBANK */
+        /* VOLLSTÄNDIGE SONG DATENBANK */
         const songListe = [
             { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
             { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
@@ -291,26 +305,43 @@
             }
         }
 
-        /* JUKEBOX FILTER & RENDER */
+        /* JUKEBOX FILTER, LOOP & RENDER */
         function onFilterChange() {
             saveFilterState();
             renderJukebox();
+        }
+
+        function onLoopStateChange() {
+            const singleLoop = document.getElementById('chk-loop-single').checked;
+            // Wenn Einzel-Loop aktiv ist, kann nicht zeitgleich der Listen-Loop aktiv sein
+            if (event && event.target.id === 'chk-loop-single' && singleLoop) {
+                document.getElementById('chk-loop-list').checked = false;
+            } else if (event && event.target.id === 'chk-loop-list' && document.getElementById('chk-loop-list').checked) {
+                document.getElementById('chk-loop-single').checked = false;
+            }
+            saveFilterState();
         }
 
         function saveFilterState() {
             localStorage.setItem('filter_bpp', document.getElementById('chk-bpp').checked);
             localStorage.setItem('filter_js', document.getElementById('chk-js').checked);
             localStorage.setItem('filter_vbis', document.getElementById('chk-vbis').checked);
+            localStorage.setItem('loop_list', document.getElementById('chk-loop-list').checked);
+            localStorage.setItem('loop_single', document.getElementById('chk-loop-single').checked);
         }
 
         function loadFilterState() {
             const savedBpp = localStorage.getItem('filter_bpp');
             const savedJs = localStorage.getItem('filter_js');
             const savedVbis = localStorage.getItem('filter_vbis');
+            const savedLoopList = localStorage.getItem('loop_list');
+            const savedLoopSingle = localStorage.getItem('loop_single');
 
             document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
             document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
             document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
+            document.getElementById('chk-loop-list').checked = (savedLoopList === 'true');
+            document.getElementById('chk-loop-single').checked = (savedLoopSingle === 'true');
         }
 
         function renderJukebox() {
@@ -331,7 +362,7 @@
             if (gefilterteSongs.length === 0) {
                 html = '<p style="opacity: 0.6; padding: 10px;">Keine Band ausgewählt. Bitte aktiviere mindestens ein Kästchen.</p>';
             } else {
-                gefilterteSongs.forEach(song => {
+                gefilterteSongs.forEach((song, index) => {
                     const saubererPfad = encodeURI(song.datei);
                     let bandLabel = '';
                     if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
@@ -341,7 +372,7 @@
                     html += `
                         <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
                             <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
-                            <audio controls preload="none">
+                            <audio id="jukebox-player-${index}" controls preload="none" onended="playNextSong(${index})">
                                 <source src="${saubererPfad}" type="audio/mpeg">
                             </audio>
                         </div>
@@ -349,6 +380,41 @@
                 });
             }
             container.innerHTML = html;
+        }
+
+        /* AUTOMATISCHES ABSPIELEN & LOOP CONTROL */
+        function playNextSong(currentIndex) {
+            const isSingleLoop = document.getElementById('chk-loop-single').checked;
+            const isListLoop = document.getElementById('chk-loop-list').checked;
+            
+            // 1. Option: Einzelnen Song wiederholen
+            if (isSingleLoop) {
+                const currentPlayer = document.getElementById(`jukebox-player-${currentIndex}`);
+                if (currentPlayer) {
+                    currentPlayer.currentTime = 0;
+                    currentPlayer.play();
+                }
+                return;
+            }
+
+            // 2. Option: Nächsten Song in der Liste abspielen
+            let nextIndex = currentIndex + 1;
+            let nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
+
+            // Wenn wir am Ende der Liste sind
+            if (!nextPlayer) {
+                if (isListLoop) {
+                    // Zurück zum ersten Song der Liste
+                    nextIndex = 0;
+                    nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
+                }
+            }
+
+            // Nächsten Song abspielen
+            if (nextPlayer) {
+                nextPlayer.currentTime = 0;
+                nextPlayer.play();
+            }
         }
 
         /* GALLERY LADEN & NAVIGATION STEUERN */
