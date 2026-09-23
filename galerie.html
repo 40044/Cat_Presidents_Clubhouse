@@ -1,1 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie - Cat Presidents Clubhouse 🐱</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #1a2634; 
+            color: #e0e0e0; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .header { 
+            text-align: center; 
+            padding: 20px 0; 
+        }
+        .logo-text { 
+            color: #ff85a2; 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
+        .back-btn {
+            display: inline-block;
+            background: #ff85a2;
+            color: #1a2634;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+        .gallery-container { 
+            background: #253341; 
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 3px solid #ff85a2; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h3 { 
+            color: #ff85a2; 
+            border-bottom: 1px solid #3d4d5d; 
+            padding-bottom: 5px; 
+            margin-top: 0; 
+        }
+        .gallery-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-top: 15px; 
+        }
+        .cat-gallery-item { 
+            position: relative; 
+            width: 100%; 
+            padding-top: 100%; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            border: 2px solid #ff85a2; 
+            background: #1a2634; 
+            cursor: pointer; 
+        }
+        .cat-gallery-item img { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.2s ease; 
+        }
+        .cat-gallery-item:hover img { 
+            transform: scale(1.08); 
+        }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.85); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999; 
+        }
+        .modal img { 
+            max-width: 90%; 
+            max-height: 85%; 
+            border-radius: 15px; 
+            border: 3px solid #ff85a2; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.8); 
+        }
+        .close-btn { 
+            position: absolute; 
+            top: 20px; 
+            right: 30px; 
+            color: white; 
+            font-size: 40px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        .close-btn:hover { 
+            color: #ff85a2; 
+        }
+        .modal-nav-btn { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            font-size: 50px; 
+            color: #ffffff; 
+            cursor: pointer; 
+            user-select: none; 
+            padding: 10px 15px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border-radius: 8px; 
+            transition: background 0.2s ease, color 0.2s ease; 
+        }
+        .modal-nav-btn:hover { 
+            color: #ff85a2; 
+            background: rgba(0, 0, 0, 0.8); 
+        }
+        .prev-btn { left: 20px; }
+        .next-btn { right: 20px; }
+    </style>
+</head>
+<body>
 
+    <div class="header">
+        <a href="index.html" class="back-btn">⬅️ Zurück zur Hauptseite</a>
+        <p class="logo-text">🖼️ Katzen-Galerie 🐾</p>
+    </div>
+
+    <div class="gallery-container">
+        <h3>Alle Club-Katzen</h3>
+        <div id="cat-gallery" class="gallery-grid"></div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <span id="closeBtn" class="close-btn">&times;</span>
+        <span id="prevBtn" class="modal-nav-btn prev-btn">&#10094;</span>
+        <img id="modalImg" src="" alt="Großansicht Katzenbild">
+        <span id="nextBtn" class="modal-nav-btn next-btn">&#10095;</span>
+    </div>
+
+    <script>
+        let aktiverBildIndex = 1;
+        const folderPath = 'Katzen_Bilder';
+
+        window.onload = function() {
+            loadCatGalleryDirect();
+        };
+
+        function loadCatGalleryDirect() {
+            const galleryContainer = document.getElementById('cat-gallery');
+            const modal = document.getElementById('imageModal');
+            const closeBtn = document.getElementById('closeBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            galleryContainer.innerHTML = ''; 
+
+            let alleBilderPfade = [];
+
+            // 1. Tin-Bilder (1 bis 28)
+            for (let i = 1; i <= 28; i++) {
+                alleBilderPfade.push(`${folderPath}/tin-${i}.png`);
+            }
+
+            // 2. Coli-Bilder (1 bis 23)
+            for (let i = 1; i <= 23; i++) {
+                alleBilderPfade.push(`${folderPath}/coli-${i}.png`);
+            }
+
+            const gesamtBilderCount = alleBilderPfade.length;
+
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '50px' });
+
+            alleBilderPfade.forEach((imagePath, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cat-gallery-item';
+
+                const img = document.createElement('img');
+                img.dataset.src = imagePath; 
+                img.alt = `Cat Image ${index + 1}`;
+
+                itemDiv.addEventListener('click', () => {
+                    aktiverBildIndex = index + 1;
+                    oeffneGrossansichtCustom(alleBilderPfade);
+                });
+
+                itemDiv.appendChild(img);
+                galleryContainer.appendChild(itemDiv);
+
+                imageObserver.observe(img);
+            });
+
+            closeBtn.addEventListener('click', schliesseGrossansicht);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) schliesseGrossansicht();
+            });
+
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                aktiverBildIndex--;
+                if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
+                oeffneGrossansichtCustom(alleBilderPfade);
+            });
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                aktiverBildIndex++;
+                if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
+                oeffneGrossansichtCustom(alleBilderPfade);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'ArrowLeft') {
+                        aktiverBildIndex--;
+                        if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
+                        oeffneGrossansichtCustom(alleBilderPfade);
+                    }
+                    if (e.key === 'ArrowRight') {
+                        aktiverBildIndex++;
+                        if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
+                        oeffneGrossansichtCustom(alleBilderPfade);
+                    }
+                    if (e.key === 'Escape') schliesseGrossansicht();
+                }
+            });
+        }
+
+        function oeffneGrossansichtCustom(bilderListe) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImg');
+            modalImg.src = bilderListe[aktiverBildIndex - 1];
+            modal.style.display = 'flex';
+        }
+
+        function schliesseGrossansicht() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
