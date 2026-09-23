@@ -7,13 +7,28 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: block; }
         .header { text-align: center; padding: 20px 0; }
-        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
         
+        .gallery-link-btn {
+            display: inline-block;
+            background-color: #ff85a2;
+            color: #1a2634;
+            padding: 12px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .gallery-link-btn:hover {
+            transform: scale(1.05);
+            background-color: #ff9ebb;
+        }
+
         .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1400px; margin: 0 auto; }
         .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        
-        /* Perfekt symmetrische Spalten */
-        .left-col { flex: 1; min-width: 320px; }
+
         .center-col { flex: 1.2; min-width: 350px; } 
         .right-col { flex: 1; min-width: 320px; }  
         
@@ -30,44 +45,22 @@
         
         audio { width: 100%; margin-top: 5px; }
 
-        /* Filter-Styling - Hintergrund angepasst an Kasten-Design */
         .filter-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; background: #253341; padding: 12px 18px; border-radius: 12px; align-items: center; border: 1px solid #ff85a2; }
         .filter-label { font-weight: bold; color: #ff85a2; }
         .checkbox-group { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
-
-        /* Gallery Grid */
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px; max-height: 550px; overflow-y: auto; padding-right: 5px; }
-        .cat-gallery-item { position: relative; width: 100%; padding-top: 100%; border-radius: 10px; overflow: hidden; border: 2px solid #ff85a2; background: #1a2634; cursor: pointer; }
-        .cat-gallery-item img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
-        .cat-gallery-item:hover img { transform: scale(1.08); }
-
-        /* Modal / Fullscreen Navigation */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; z-index: 9999; }
-        .modal img { max-width: 90%; max-height: 85%; border-radius: 15px; border: 3px solid #ff85a2; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
-        .close-btn:hover { color: #ff85a2; }
-
-        .modal-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); font-size: 50px; color: #ffffff; cursor: pointer; user-select: none; padding: 10px 15px; background: rgba(0, 0, 0, 0.4); border-radius: 8px; transition: background 0.2s ease, color 0.2s ease; }
-        .modal-nav-btn:hover { color: #ff85a2; background: rgba(0, 0, 0, 0.8); }
-        .prev-btn { left: 20px; }
-        .next-btn { right: 20px; }
     </style>
 </head>
 <body onclick="enableAudio()">
 
     <div class="header">
-        <p class="logo-text">🐾 Cat Presidents Clubhouse 🐾</p>
+        <div class="logo-text">🐾 Cat Presidents Clubhouse 🐾</div>
+        <!-- Galerie-Button jetzt richtig im Header platziert -->
+        <a href="galerie.html" class="gallery-link-btn">🖼️ Zur Katzen-Galerie</a>
     </div>
 
     <div class="main-container">
         
-        <!-- SPALTE 1: CAT GALLERY (LINKS) -->
-        <div class="column left-col">
-            <h3>🖼️ Cat Gallery</h3>
-            <div id="cat-gallery" class="gallery-grid"></div>
-        </div>
-
-        <!-- SPALTE 2: BAROMETER & TAGESPLAN (MITTE) -->
+        <!-- SPALTE 1: BAROMETER & TAGESPLAN -->
         <div class="column center-col">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
@@ -82,7 +75,7 @@
             <div id="tages-plan" style="max-height: 300px; overflow-y: auto;"></div>
         </div>
 
-        <!-- SPALTE 3: CHAT (RECHTS) -->
+        <!-- SPALTE 2: CHAT -->
         <div class="column right-col">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
@@ -91,12 +84,11 @@
 
     </div>
 
-    
     <!-- UNTEN: CLUB-JUKEBOX -->
     <div class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
-        <!-- BAND-FILTER INKLUSIVE 4 BRÜDER IM STAUB -->
+        <!-- BAND-FILTER -->
         <div class="filter-container">
             <span class="filter-label">🎸 Bands auswählen:</span>
             <label class="checkbox-group">
@@ -127,14 +119,6 @@
         <div id="jukebox-playlist"></div>
     </div>
 
-    <!-- MODAL FÜR BILD-GROSSANSICHT -->
-    <div id="imageModal" class="modal">
-        <span id="closeBtn" class="close-btn">&times;</span>
-        <span id="prevBtn" class="modal-nav-btn prev-btn">&#10094;</span>
-        <img id="modalImg" src="" alt="Großansicht Katzenbild">
-        <span id="nextBtn" class="modal-nav-btn next-btn">&#10095;</span>
-    </div>
-
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
     <audio id="audio-champi" preload="auto"></audio>
 
@@ -144,7 +128,6 @@
         let lastPlayed = ""; 
         const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-        /* VOLLSTÄNDIGE SONG DATENBANK */
         const songListe = [
             { titel: "Fripps Welt", datei: "Fripps_Welt.mp3", band: "js" },
             { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
@@ -184,11 +167,6 @@
             { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
         ];
 
-        /* GALLERY SYSTEM */
-        let aktiverBildIndex = 1;
-        const gesamtBilder = 28;
-        const folderPath = 'Katzen_Bilder';
-
         window.onload = function() { init(); };
 
         async function init() {
@@ -198,7 +176,6 @@
 
             loadFilterState();
             renderJukebox();
-            loadCatGalleryDirect();
         }
 
         function enableAudio() {
@@ -216,7 +193,6 @@
             }
         }
 
-        /* CHAMPIONAT DATEN & COUNTDOWN */
         async function loadChampiData() {
             const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
             const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
@@ -305,7 +281,6 @@
             }
         }
 
-        /* JUKEBOX FILTER, LOOP & RENDER */
         function onFilterChange() {
             saveFilterState();
             renderJukebox();
@@ -332,13 +307,12 @@
             }
         }
 
-        /* Stoppt alle anderen Songs und setzt sie an den Anfang zurück */
         function stopOtherSongs(currentAudio) {
             const allAudios = document.querySelectorAll('#jukebox-playlist audio');
             allAudios.forEach(audio => {
                 if (audio !== currentAudio) {
                     audio.pause();
-                    audio.currentTime = 0; /* Setzt die Zeit auf 0 Sekunden zurück */
+                    audio.currentTime = 0;
                 }
             });
         }
@@ -381,11 +355,9 @@
             container.innerHTML = html;
         }
 
-        /* AUTOMATISCHES ABSPIELEN & LOOP CONTROL */
         function playNextSong(currentIndex) {
             const loopMode = document.getElementById('loop-mode').value;
             
-            // 1. Option: Einzelnen Song wiederholen
             if (loopMode === 'single') {
                 const currentPlayer = document.getElementById(`jukebox-player-${currentIndex}`);
                 if (currentPlayer) {
@@ -395,142 +367,20 @@
                 return;
             }
 
-            // 2. Option: Nächsten Song in der Liste abspielen
             let nextIndex = currentIndex + 1;
             let nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
 
-            // Wenn wir am Ende der Liste sind
             if (!nextPlayer) {
                 if (loopMode === 'playlist') {
-                    // Zurück zum ersten Song der Liste
                     nextIndex = 0;
                     nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
                 }
             }
 
-            // Nächsten Song abspielen
             if (nextPlayer) {
                 nextPlayer.currentTime = 0;
                 nextPlayer.play();
             }
-        }
-
-        /* GALLERY LADEN & NAVIGATION STEUERN */
-        function loadCatGalleryDirect() {
-    const galleryContainer = document.getElementById('cat-gallery');
-    const modal = document.getElementById('imageModal');
-    const closeBtn = document.getElementById('closeBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-
-    galleryContainer.innerHTML = ''; 
-
-    let alleBilderPfade = [];
-
-    // 1. Tin-Bilder (1 bis 28)
-    for (let i = 1; i <= 28; i++) {
-        alleBilderPfade.push(`${folderPath}/tin-${i}.png`);
-    }
-
-    // 2. Coli-Bilder (1 bis 23)
-    for (let i = 1; i <= 23; i++) {
-        alleBilderPfade.push(`${folderPath}/coli-${i}.png`);
-    }
-
-    const gesamtBilderCount = alleBilderPfade.length;
-
-    // IntersectionObserver: Lädt ein Bild erst, wenn es im Sichtfeld der Galerie auftaucht
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src; // Echtes Bild erst jetzt laden!
-                observer.unobserve(img);
-            }
-        });
-    }, { root: galleryContainer, rootMargin: '50px' });
-
-    alleBilderPfade.forEach((imagePath, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'cat-gallery-item';
-
-        const img = document.createElement('img');
-        // WICHTIG: Pfad im data-src speichern, nicht im src!
-        img.dataset.src = imagePath; 
-        img.alt = `Cat Image ${index + 1}`;
-
-        itemDiv.addEventListener('click', () => {
-            aktiverBildIndex = index + 1;
-            oeffneGrossansichtCustom(alleBilderPfade);
-        });
-
-        itemDiv.appendChild(img);
-        galleryContainer.appendChild(itemDiv);
-
-        // Bild dem Observer übergeben
-        imageObserver.observe(img);
-    });
-
-    closeBtn.addEventListener('click', schliesseGrossansicht);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) schliesseGrossansicht();
-    });
-
-    prevBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        aktiverBildIndex--;
-        if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
-        oeffneGrossansichtCustom(alleBilderPfade);
-    });
-    nextBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        aktiverBildIndex++;
-        if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
-        oeffneGrossansichtCustom(alleBilderPfade);
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (modal.style.display === 'flex') {
-            if (e.key === 'ArrowLeft') {
-                aktiverBildIndex--;
-                if (aktiverBildIndex < 1) aktiverBildIndex = gesamtBilderCount;
-                oeffneGrossansichtCustom(alleBilderPfade);
-            }
-            if (e.key === 'ArrowRight') {
-                aktiverBildIndex++;
-                if (aktiverBildIndex > gesamtBilderCount) aktiverBildIndex = 1;
-                oeffneGrossansichtCustom(alleBilderPfade);
-            }
-            if (e.key === 'Escape') schliesseGrossansicht();
-        }
-    });
-}
-
-        function oeffneGrossansichtCustom(bilderListe) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImg');
-            modalImg.src = bilderListe[aktiverBildIndex - 1];
-            modal.style.display = 'flex';
-        }
-
-        function schliesseGrossansicht() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-
-        function zeigeNaechstesBild() {
-            aktiverBildIndex++;
-            if (aktiverBildIndex > gesamtBilder) {
-                aktiverBildIndex = 1;
-            }
-            oeffneGrossansicht();
-        }
-
-        function zeigeVorherigesBild() {
-            aktiverBildIndex--;
-            if (aktiverBildIndex < 1) {
-                aktiverBildIndex = gesamtBilder;
-            }
-            oeffneGrossansicht();
         }
     </script>
 </body>
