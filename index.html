@@ -4,88 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat Presidents Clubhouse 🐱</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #1a2634; color: #e0e0e0; margin: 0; padding: 20px; display: block; }
-        .header { text-align: center; padding: 20px 0; }
-        .logo-text { color: #ff85a2; font-size: 2.5em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
-        
-        .gallery-link-btn {
-            display: inline-block;
-            background-color: #ff85a2;
-            color: #1a2634;
-            padding: 12px 25px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .gallery-link-btn:hover {
-            transform: scale(1.05);
-            background-color: #ff9ebb;
-        }
-
-        .main-container { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1400px; margin: 0 auto; }
-        .column { background: #253341; padding: 20px; border-radius: 20px; border: 3px solid #ff85a2; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-
-        .center-col { flex: 1.2; min-width: 350px; } 
-        .right-col { flex: 1; min-width: 320px; }  
-        
-        .full-width { width: 100%; max-width: 1400px; margin: 20px auto 0 auto; box-sizing: border-box; }
-
-        .status-box { background: #3d3d29; padding: 20px; border-radius: 15px; border: 2px dashed #fbc02d; text-align: center; position: relative; }
-        .plan-entry { background: #2d3d4d; padding: 10px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #8bc34a; }
-        .time-tag { background: #ff85a2; color: white; padding: 3px 8px; border-radius: 5px; font-weight: bold; font-size: 0.9em; }
-        h3 { color: #ff85a2; border-bottom: 1px solid #3d4d5d; padding-bottom: 5px; margin-top: 0; }
-        #sound-status { font-size: 0.9em; padding: 5px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
-        .sound-off { background: #ff5252; color: white; animation: blinker 1.5s linear infinite; cursor: pointer; }
-        .sound-on { background: #4caf50; color: white; }
-        @keyframes blinker { 50% { opacity: 0.3; } }
-        
-        audio { width: 100%; margin-top: 5px; }
-
-        .filter-container { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; background: #253341; padding: 12px 18px; border-radius: 12px; align-items: center; border: 1px solid #ff85a2; }
-        .filter-label { font-weight: bold; color: #ff85a2; }
-        .checkbox-group { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
 </head>
 <body onclick="enableAudio()">
 
-    <div class="header">
+    <header class="header">
         <div class="logo-text">🐾 Mietzen Power Clubhouse 🐾</div>
-        <!-- Galerie-Button jetzt richtig im Header platziert -->
-        <a href="galerie.html" class="gallery-link-btn">🖼️ Zur Katzen-Galerie</a>
-    </div>
+        <a href="galerie.html" class="btn-pink">🖼️ Zur Katzen-Galerie</a>
+    </header>
 
-    <div class="main-container">
+    <main class="main-container">
         
         <!-- SPALTE 1: BAROMETER & TAGESPLAN -->
-        <div class="column center-col">
+        <section class="column center-col">
             <h3>📊 Champi-Barometer</h3>
             <div class="status-box">
                 <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" style="color: #ff85a2; margin: 10px 0;">Suche...</h2>
-                <p>Countdown: <span id="countdown" style="font-weight: bold; color: #fbc02d; font-size: 1.6em;">--:--</span></p>
-                <p id="local-time" style="font-size: 0.8em; opacity: 0.6;"></p>
+                <h2 id="champi-name" class="status-highlight">Suche...</h2>
+                <p>Countdown: <span id="countdown" class="countdown-timer">--:--</span></p>
+                <p id="local-time" class="sub-time"></p>
                 <div id="sound-status" class="sound-off">⚠️ KLICKEN: MIAU IST NOCH STUMM! ⚠️</div>
             </div>
 
             <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
-            <div id="tages-plan" style="max-height: 300px; overflow-y: auto;"></div>
-        </div>
+            <div id="tages-plan" class="scroll-plan"></div>
+        </section>
 
         <!-- SPALTE 2: CHAT -->
-        <div class="column right-col">
+        <section class="column right-col">
             <h3>💬 Chat</h3>
             <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
             <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
-        </div>
+        </section>
 
-    </div>
+    </main>
 
     <!-- UNTEN: CLUB-JUKEBOX -->
-    <div class="column full-width">
+    <section class="column full-width">
         <h3>🎵 Club-Jukebox</h3>
         
         <!-- BAND-FILTER -->
@@ -106,9 +62,9 @@
         </div>
 
         <!-- WIEDERGABE-EINSTELLUNGEN -->
-        <div style="margin-bottom: 20px; background: #2d3d4d; padding: 10px; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
-            <label for="loop-mode" style="font-weight: bold; color: #ff85a2;">🔁 Wiederholung / Loop:</label>
-            <select id="loop-mode" onchange="saveFilterState()" style="background: #1a2634; color: white; border: 1px solid #ff85a2; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+        <div class="settings-bar">
+            <label for="loop-mode" class="filter-label">🔁 Wiederholung / Loop:</label>
+            <select id="loop-mode" onchange="saveFilterState()" class="custom-select">
                 <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
                 <option value="playlist">Ganze Playlist wiederholen</option>
                 <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
@@ -117,271 +73,11 @@
 
         <!-- SONG-CONTAINER -->
         <div id="jukebox-playlist"></div>
-    </div>
+    </section>
 
+    <!-- AUDIO ELEMENTE FÜR BENACHRICHTIGUNGEN -->
     <audio id="audio-miau" src="miau.mp3" preload="auto"></audio>
     <audio id="audio-champi" preload="auto"></audio>
 
-    <script>
-        let alleTageDaten = {};
-        let audioEnabled = false;
-        let lastPlayed = ""; 
-        const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-
-        const songListe = [
-            { titel: "Fripps Welt", datei: "Fripps_Welt.mp3", band: "js" },
-            { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
-            { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
-            { titel: "Farah", datei: "Farah.mp3", band: "js" },
-            { titel: "Simple Things", datei: "Simple_Things.mp3", band: "js" },
-            { titel: "Satteltaschen Parade", datei: "Satteltaschen_Parade.mp3", band: "js" },
-            { titel: "Überall Tanzen", datei: "Überall_Tanzen.mp3", band: "js" },
-            { titel: "Schnarchstunde im Stall", datei: "Schnarchstunde_im_Stall.mp3", band: "js" },
-            { titel: "Sturm ueber Valedale", datei: "Sturm_ueber_Valedale.mp3", band: "js" },
-            { titel: "Licht gegen Maschinen", datei: "Licht_gegen_Maschinen.mp3", band: "js" },
-            { titel: "Die perfekte Line", datei: "Die_perfekte_Line.mp3", band: "vbis" },
-            { titel: "Der lange Ritt", datei: "Der_lange_Ritt.mp3", band: "vbis" },
-            { titel: "Geisterstunde", datei: "Erster_und_Letzter.mp3", band: "vbis" },
-            { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
-            { titel: "Champireihe", datei: "Champireihe.mp3", band: "js" },
-            { titel: "Pleite", datei: "Pleite.mp3", band: "js" },
-            { titel: "Fuck Off Fashion", datei: "Fuck_Off_Fashion.mp3", band: "bpp" },
-            { titel: "Lass mich mal durch", datei: "Lass_mich_mal_durch.mp3", band: "js" },
-            { titel: "Verpiss dich", datei: "Verpiss_dich.mp3", band: "bpp" },
-            { titel: "Die Reihe", datei: "Die_Reihe.mp3", band: "js" },
-            { titel: "Ein starkes Team", datei: "Ein_starkes_Team.mp3", band: "js" },
-            { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
-            { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
-            { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
-            { titel: "Slalomrennen", datei: "Slalomrennen.mp3", band: "js" },
-            { titel: "Happy Birthday", datei: "Happy_Birthday.mp3", band: "js" },
-            { titel: "Der Frieden kommt", datei: "Der_Frieden_kommt.mp3", band: "js" },
-            { titel: "Cat President", datei: "Cat_President.mp3", band: "bpp" },
-            { titel: "Drachenhexe", datei: "Drachenhexe.mp3", band: "bpp" },
-            { titel: "Keine Geschenke", datei: "Keine_Geschenke.mp3", band: "bpp" },
-            { titel: "Lieber Lautt 2", datei: "Lieber_Lautt-2.mp3", band: "bpp" },
-            { titel: "Märchengast", datei: "Märchengast.mp3", band: "bpp" },
-            { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3", band: "bpp" },
-            { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3", band: "bpp" },
-            { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3", band: "bpp" },
-            { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
-        ];
-
-        window.onload = function() { init(); };
-
-        async function init() {
-            await loadChampiData();
-            updateDisplay();
-            setInterval(updateDisplay, 1000);
-
-            loadFilterState();
-            renderJukebox();
-        }
-
-        function enableAudio() {
-            if(!audioEnabled) {
-                audioEnabled = true;
-                const status = document.getElementById('sound-status');
-                if(status) {
-                    status.innerText = "🔊 SOUNDS AKTIV!";
-                    status.className = "sound-on";
-                }
-                document.getElementById('audio-miau').play().then(() => { 
-                    document.getElementById('audio-miau').pause(); 
-                    document.getElementById('audio-miau').currentTime = 0; 
-                }).catch(e => {});
-            }
-        }
-
-        async function loadChampiData() {
-            const spreadsheetId = '1rDCPInp1BjzJ2ced7Pv24ZCi8La6mRCCfFEovNiSEoE';
-            const fetchUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv`;
-            try {
-                const res = await fetch(fetchUrl);
-                const text = await res.text();
-                let sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
-                const rows = text.split(/\r?\n/).map(r => r.split(sep));
-
-                for (let tIdx = 0; tIdx < 7; tIdx++) {
-                    let colIdx = (tIdx === 0) ? 7 : tIdx; 
-                    let list = [];
-                    for(let i = 1; i < rows.length; i++) {
-                        let r = rows[i];
-                        if (r.length > colIdx && r[0] && r[colIdx]) {
-                            let time = r[0].trim();
-                            let name = r[colIdx].trim();
-                            if(time.includes(':') && name.length > 2 && name !== "---") {
-                                let p = time.split(':');
-                                list.push({ min: parseInt(p[0])*60 + parseInt(p[1]), display: time, name: name });
-                            }
-                        }
-                    }
-                    alleTageDaten[tIdx] = list.sort((a,b) => a.min - b.min);
-                }
-            } catch(e) { console.error("Datenfehler"); }
-        }
-
-        function updateDisplay() {
-            const jetzt = new Date();
-            const deZeit = new Date(jetzt.toLocaleString("en-US", {timeZone: "Europe/Berlin"}));
-            const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
-            const curDay = deZeit.getDay();
-            
-            document.getElementById('heutiger-tag').innerText = tage[curDay];
-            document.getElementById('local-time').innerText = "Club-Zeit: " + deZeit.getHours() + ":" + (deZeit.getMinutes() < 10 ? '0' : '') + deZeit.getMinutes() + " Uhr";
-
-            let heutigeChampis = alleTageDaten[curDay] || [];
-            let next = null;
-            let html = '';
-
-            heutigeChampis.forEach(c => {
-                const past = c.min <= curMin;
-                html += `<div class="plan-entry" style="${past ? 'opacity:0.3' : ''}"><span>${c.name}</span><span class="time-tag">${c.display}</span></div>`;
-                if(!next && c.min > curMin) {
-                    let target = new Date(deZeit);
-                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
-                    next = { ...c, target };
-                }
-            });
-            document.getElementById('tages-plan').innerHTML = html;
-
-            if (!next) {
-                const morgenIdx = (curDay + 1) % 7;
-                let morgenChampis = alleTageDaten[morgenIdx] || [];
-                if (morgenChampis.length > 0) {
-                    let c = morgenChampis[0];
-                    let target = new Date(deZeit);
-                    target.setDate(target.getDate() + 1);
-                    target.setHours(Math.floor(c.min/60), c.min%60, 0, 0);
-                    next = { ...c, target };
-                }
-            }
-            
-            if(next) {
-                const diff = next.target - deZeit;
-                const m = Math.floor(diff/60000);
-                const s = Math.floor((diff%60000)/1000);
-                document.getElementById('champi-name').innerText = next.name;
-                document.getElementById('countdown').innerText = m + ":" + (s < 10 ? '0' : '') + s;
-
-                if(audioEnabled) {
-                    if(m === 10 && s === 0 && lastPlayed !== "10m") {
-                        document.getElementById('audio-miau').play();
-                        lastPlayed = "10m";
-                    }
-                    if(m === 5 && s === 0 && lastPlayed !== "5m") {
-                        let soundFile = next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
-                        let player = document.getElementById('audio-champi');
-                        player.src = soundFile;
-                        player.play().catch(e => console.log("Datei nicht gefunden: " + soundFile));
-                        lastPlayed = "5m";
-                    }
-                    if(m === 9 || m === 4) lastPlayed = ""; 
-                }
-            }
-        }
-
-        function onFilterChange() {
-            saveFilterState();
-            renderJukebox();
-        }
-
-        function saveFilterState() {
-            localStorage.setItem('filter_bpp', document.getElementById('chk-bpp').checked);
-            localStorage.setItem('filter_js', document.getElementById('chk-js').checked);
-            localStorage.setItem('filter_vbis', document.getElementById('chk-vbis').checked);
-            localStorage.setItem('loop_mode', document.getElementById('loop-mode').value);
-        }
-
-        function loadFilterState() {
-            const savedBpp = localStorage.getItem('filter_bpp');
-            const savedJs = localStorage.getItem('filter_js');
-            const savedVbis = localStorage.getItem('filter_vbis');
-            const savedLoop = localStorage.getItem('loop_mode');
-
-            document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
-            document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
-            document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
-            if(savedLoop) {
-                document.getElementById('loop-mode').value = savedLoop;
-            }
-        }
-
-        function stopOtherSongs(currentAudio) {
-            const allAudios = document.querySelectorAll('#jukebox-playlist audio');
-            allAudios.forEach(audio => {
-                if (audio !== currentAudio) {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }
-            });
-        }
-
-        function renderJukebox() {
-            const container = document.getElementById('jukebox-playlist');
-            const showBpp = document.getElementById('chk-bpp').checked;
-            const showJs = document.getElementById('chk-js').checked;
-            const showVbis = document.getElementById('chk-vbis').checked;
-
-            let html = '';
-            
-            const gefilterteSongs = songListe.filter(song => {
-                if (song.band === 'bpp' && showBpp) return true;
-                if (song.band === 'js' && showJs) return true;
-                if (song.band === 'vbis' && showVbis) return true;
-                return false;
-            });
-
-            if (gefilterteSongs.length === 0) {
-                html = '<p style="opacity: 0.6; padding: 10px;">Keine Band ausgewählt. Bitte aktiviere mindestens ein Kästchen.</p>';
-            } else {
-                gefilterteSongs.forEach((song, index) => {
-                    const saubererPfad = encodeURI(song.datei);
-                    let bandLabel = '';
-                    if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
-                    else if (song.band === 'js') bandLabel = 'Jorvik Sisters';
-                    else if (song.band === 'vbis') bandLabel = 'Vier Brüder im Staub';
-
-                    html += `
-                        <div class="plan-entry" style="flex-direction: column; align-items: flex-start;">
-                            <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
-                            <audio id="jukebox-player-${index}" controls preload="none" onplay="stopOtherSongs(this)" onended="playNextSong(${index})">
-                                <source src="${saubererPfad}" type="audio/mpeg">
-                            </audio>
-                        </div>
-                    `;
-                });
-            }
-            container.innerHTML = html;
-        }
-
-        function playNextSong(currentIndex) {
-            const loopMode = document.getElementById('loop-mode').value;
-            
-            if (loopMode === 'single') {
-                const currentPlayer = document.getElementById(`jukebox-player-${currentIndex}`);
-                if (currentPlayer) {
-                    currentPlayer.currentTime = 0;
-                    currentPlayer.play();
-                }
-                return;
-            }
-
-            let nextIndex = currentIndex + 1;
-            let nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
-
-            if (!nextPlayer) {
-                if (loopMode === 'playlist') {
-                    nextIndex = 0;
-                    nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
-                }
-            }
-
-            if (nextPlayer) {
-                nextPlayer.currentTime = 0;
-                nextPlayer.play();
-            }
-        }
-    </script>
 </body>
 </html>
