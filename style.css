@@ -341,3 +341,7 @@ audio {
 
 .prev-btn { left: 20px; }
 .next-btn { right: 20px; }
+
+.header-logo {
+	height: 186px;
+} 
