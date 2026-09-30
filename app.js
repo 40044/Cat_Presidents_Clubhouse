@@ -4,6 +4,8 @@ let lastPlayed = "";
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
 const songListe = [
+    { titel: "Werwolfs-Huf", datei: "Werwolfs-Huf.mp3", band: "bpp" }
+    { titel: "Firgrove Rennen", datei: "Firgrove_Rennen.mp3", band: "js" },
     { titel: "Fripps Welt", datei: "Fripps_Welt.mp3", band: "js" },
     { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
     { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
