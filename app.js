@@ -233,7 +233,11 @@ function renderJukebox() {
 
     let html = '';
     gefilterteSongs.forEach((song, index) => {
-        const saubererPfad = encodeURI(song.datei);
+        let path ="songs_SSO/";
+        //const saubererPfad = encodeURI(song.datei);
+        const saubererPfad = encodeURI(  path.concat(song.datei)); 
+        console.log(saubererPfad); 
+
         let bandLabel = '';
         if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
         else if (song.band === 'js') bandLabel = 'Jorvik Sisters';
