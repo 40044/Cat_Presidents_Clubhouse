@@ -33,6 +33,10 @@ body {
     padding: 20px 0;
 }
 
+.header-logo {
+    height: 186px;
+}
+
 .logo-text {
     color: var(--accent-pink);
     font-size: 2.5em;
@@ -66,6 +70,12 @@ body {
 .back-btn {
     padding: 10px 20px;
     margin-bottom: 20px;
+}
+
+/* Intro Box */
+/* .intro-box {
+    margin-bottom: 10px;
+    text-align: center; */
 }
 
 /* Layout Containers & Columns */
@@ -107,6 +117,47 @@ h3 {
     border-bottom: 1px solid #3d4d5d;
     padding-bottom: 5px;
     margin-top: 0;
+}
+
+/* TAB NAVIGATION (REITER) */
+.tab-navigation {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.tab-btn {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 2px solid var(--accent-pink);
+    padding: 10px 20px;
+    border-radius: var(--border-radius-md);
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.tab-btn:hover {
+    background-color: var(--accent-pink-hover);
+    color: var(--bg-main);
+}
+
+.tab-btn.active {
+    background-color: var(--accent-pink);
+    color: var(--bg-main);
+    box-shadow: 0 0 10px rgba(255, 133, 162, 0.5);
+}
+
+/* TABS EIN-/AUSBLENDEN */
+.tab-content {
+    display: none !important;
+}
+
+.tab-content.active-content {
+    display: block !important;
 }
 
 /* Champi Barometer & Plan Entries */
@@ -341,7 +392,3 @@ audio {
 
 .prev-btn { left: 20px; }
 .next-btn { right: 20px; }
-
-.header-logo {
-	height: 186px;
-} 
