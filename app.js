@@ -5,6 +5,7 @@ const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freita
 
 const songListe = [
     { titel: "Werwolf-Pferd", datei: "Werwolf-Pferd.mp3", band: "bpp" },
+    { titel: "Werwolfs-Huf", datei: "Werwolfs-Huf.mp3", band: "bpp" },
     { titel: "Firgrove Rennen", datei: "Firgrove-Rennen.mp3", band: "js" },
     { titel: "Fripps Welt", datei: "Fripps_Welt.mp3", band: "js" },
     { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
@@ -164,7 +165,8 @@ function updateDisplay() {
                 lastPlayed = "10m";
             }
             if (m === 5 && s === 0 && lastPlayed !== "5m") {
-                const soundFile = next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
+                // Pfad zum Ordner 'Champi-Barometer_Songs' vor den dynamischen Dateinamen hängen:
+                const soundFile = "Champi-Barometer_Songs/" + next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
                 const player = document.getElementById('audio-champi');
                 if (player) {
                     player.src = soundFile;
