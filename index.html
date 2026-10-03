@@ -15,71 +15,96 @@
             <img src="club_logo.webp" alt="Cat Presidents Lodge Logo" class="header-logo">
         </div>
         <div class="logo-text">🐾 Cat Presidents Clubhouse 🐾</div>
-        <a href="galerie.html" class="btn-pink">🖼️ Zur Katzen-Galerie</a>
     </header>
 
-    <main class="main-container">
-        
-        <!-- SPALTE 1: BAROMETER & TAGESPLAN -->
-        <section class="column center-col">
-            <h3>📊 Champi-Barometer</h3>
-            <div class="status-box">
-                <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
-                <h2 id="champi-name" class="status-highlight">Suche...</h2>
-                <p>Countdown: <span id="countdown" class="countdown-timer">--:--</span></p>
-                <p id="local-time" class="sub-time"></p>
-                <div id="sound-status" class="sound-off">⚠️ KLICKEN: MIAU IST NOCH STUMM! ⚠️</div>
+    <!-- WILLKOMMENS-BEREICH / BESCHREIBUNG -->
+    <!-- <section class="column full-width intro-box">
+        <h3>🐾 Willkommen im Clubhouse!</h3>
+        <p>Willkommen auf der offiziellen Seite der Cat Presidents! Hier findest du unser Champi-Barometer, unsere Club-Jukebox, den Chat und die Galerie. Wähle einfach oben einen Reiter aus!</p>
+    </section> -->
+
+    <!-- DIE REITER / TABS -->
+    <nav class="tab-navigation">
+        <button class="tab-btn active" data-tab="barometer" onclick="switchTab(event, 'barometer')">📊 Barometer</button>
+        <button class="tab-btn" data-tab="chat" onclick="switchTab(event, 'chat')">💬 Chat</button>
+        <button class="tab-btn" data-tab="jukebox" onclick="switchTab(event, 'jukebox')">🎵 Jukebox</button>
+        <button class="tab-btn" data-tab="galerie" onclick="switchTab(event, 'galerie')">🖼️ Galerie</button>
+    </nav>
+
+    <!-- TAB 1: BAROMETER -->
+    <div id="tab-barometer" class="tab-content active-content">
+        <main class="main-container">
+            <section class="column center-col" style="width: 100%;">
+                <h3>📊 Champi-Barometer</h3>
+                <div class="status-box">
+                    <p><strong>HEUTE: <span id="heutiger-tag">...</span></strong></p>
+                    <h2 id="champi-name" class="status-highlight">Suche...</h2>
+                    <p>Countdown: <span id="countdown" class="countdown-timer">--:--</span></p>
+                    <p id="local-time" class="sub-time"></p>
+                    <div id="sound-status" class="sound-off">⚠️ KLICKEN: MIAU IST NOCH STUMM! ⚠️</div>
+                </div>
+
+                <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
+                <div id="tages-plan" class="scroll-plan"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- TAB 2: CHAT -->
+    <div id="tab-chat" class="tab-content">
+        <main class="main-container">
+            <section class="column right-col" style="width: 100%;">
+                <h3>💬 Chat</h3>
+                <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
+                <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
+            </section>
+        </main>
+    </div>
+
+    <!-- TAB 3: JUKEBOX -->
+    <div id="tab-jukebox" class="tab-content">
+        <section class="column full-width">
+            <h3>🎵 Club-Jukebox</h3>
+            
+            <div class="filter-container">
+                <span class="filter-label">🎸 Bands auswählen:</span>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
+                    <span>Baby Pink Panda (Punk)</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
+                    <span>Jorvik Sisters (Pop)</span>
+                </label>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
+                    <span>4 Brüder im Staub</span>
+                </label>
             </div>
 
-            <h3 style="margin-top: 25px;">📅 Tagesplan</h3>
-            <div id="tages-plan" class="scroll-plan"></div>
+            <div class="settings-bar">
+                <label for="loop-mode" class="filter-label">🔁 Wiederholung / Loop:</label>
+                <select id="loop-mode" onchange="saveFilterState()" class="custom-select">
+                    <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
+                    <option value="playlist">Ganze Playlist wiederholen</option>
+                    <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
+                </select>
+            </div>
+
+            <div id="jukebox-playlist"></div>
         </section>
+    </div>
 
-        <!-- SPALTE 2: CHAT -->
-        <section class="column right-col">
-            <h3>💬 Chat</h3>
-            <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
+    <!-- TAB 4: GALERIE (Verlinkung oder Vorschau) -->
+    <div id="tab-galerie" class="tab-content">
+        <section class="column full-width" style="text-align: center; padding: 40px 20px;">
+            <h3>🖼️ Katzen-Galerie</h3>
+            <p style="margin-bottom: 20px;">Möchtest du zu unserer Galerie wechseln?</p>
+            <a href="galerie.html" class="btn-pink" style="font-size: 1.2em; padding: 12px 24px;">Zur Galerie weiterleiten ➔</a>
         </section>
+    </div>
 
-    </main>
-
-    <!-- UNTEN: CLUB-JUKEBOX -->
-    <section class="column full-width">
-        <h3>🎵 Club-Jukebox</h3>
-        
-        <!-- BAND-FILTER -->
-        <div class="filter-container">
-            <span class="filter-label">🎸 Bands auswählen:</span>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
-                <span>Baby Pink Panda (Punk)</span>
-            </label>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
-                <span>Jorvik Sisters (Pop)</span>
-            </label>
-            <label class="checkbox-group">
-                <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-                <span>4 Brüder im Staub</span>
-            </label>
-        </div>
-
-        <!-- WIEDERGABE-EINSTELLUNGEN -->
-        <div class="settings-bar">
-            <label for="loop-mode" class="filter-label">🔁 Wiederholung / Loop:</label>
-            <select id="loop-mode" onchange="saveFilterState()" class="custom-select">
-                <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
-                <option value="playlist">Ganze Playlist wiederholen</option>
-                <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
-            </select>
-        </div>
-
-        <!-- SONG-CONTAINER -->
-        <div id="jukebox-playlist"></div>
-    </section>
-
-    <!-- AUDIO ELEMENTE FÜR BENACHRICHTIGUNGEN -->
+    <!-- AUDIO ELEMENTE -->
     <audio id="audio-miau" src="Champi-Barometer_Songs/miau.mp3" preload="auto"></audio>
     <audio id="audio-champi" preload="auto"></audio>
 

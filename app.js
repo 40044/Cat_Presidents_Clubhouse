@@ -47,6 +47,7 @@ const songListe = [
 
 window.addEventListener('DOMContentLoaded', () => {
     init();
+    initTabNavigation();
 });
 
 async function init() {
@@ -280,5 +281,47 @@ function playNextSong(currentIndex) {
     if (nextPlayer) {
         nextPlayer.currentTime = 0;
         nextPlayer.play();
+    }
+}
+
+function initTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', (evt) => {
+            const dataTab = button.getAttribute('data-tab');
+            if (dataTab) {
+                switchTab(evt, dataTab);
+            }
+        });
+    });
+}
+
+function switchTab(evt, tabName) {
+    if (!tabName) return;
+    const cleanTabName = tabName.replace(/^tab-/, '');
+    const targetId = `tab-${cleanTabName}`;
+
+    // Alle Tab-Inhalte ausblenden
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active-content'));
+
+    // Alle Buttons zurücksetzen
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Den gewählten Tab aktivieren
+    const activeTab = document.getElementById(targetId);
+    if (activeTab) {
+        activeTab.classList.add('active-content');
+    }
+
+    // Den geklickten Button optisch hervorheben
+    if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
+        evt.currentTarget.classList.add('active');
+    } else {
+        const targetBtn = document.querySelector(`.tab-btn[data-tab="${cleanTabName}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
     }
 }
