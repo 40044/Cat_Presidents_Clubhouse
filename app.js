@@ -1,10 +1,10 @@
-let alleTageDaten = {};
+`let alleTageDaten = {};
 let audioEnabled = false;
 let lastPlayed = ""; 
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
 const songListe = [
-    { titel: "Scheiß drauf ich reite!", datei: "Scheiß_drauf_ich_reite!.mp3", band: "vbis" },
+    { titel: "Scheiss drauf ich reite", datei: "Scheiss_drauf_ich_reite.mp3", band: "vbis" },
     { titel: "Piraten-Chaos", datei: "Piraten-Chaos.mp3", band: "bpp" },
     { titel: "Werwolf-Pferd", datei: "Werwolf-Pferd.mp3", band: "bpp" },
     { titel: "Werwolfs-Huf", datei: "Werwolfs-Huf.mp3", band: "bpp" },
@@ -327,3 +327,4 @@ function switchTab(evt, tabName) {
         }
     }
 }
+`
