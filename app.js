@@ -1,4 +1,4 @@
-`let alleTageDaten = {};
+let alleTageDaten = {};
 let audioEnabled = false;
 let lastPlayed = ""; 
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
@@ -168,7 +168,6 @@ function updateDisplay() {
                 lastPlayed = "10m";
             }
             if (m === 5 && s === 0 && lastPlayed !== "5m") {
-                // Pfad zum Ordner 'Champi-Barometer_Songs' vor den dynamischen Dateinamen hängen:
                 const soundFile = "Champi-Barometer_Songs/" + next.name.toLowerCase().replace(/\s+/g, '') + ".mp3";
                 const player = document.getElementById('audio-champi');
                 if (player) {
@@ -238,10 +237,8 @@ function renderJukebox() {
 
     let html = '';
     gefilterteSongs.forEach((song, index) => {
-        let path ="songs_SSO/";
-        //const saubererPfad = encodeURI(song.datei);
-        const saubererPfad = encodeURI(  path.concat(song.datei)); 
-        console.log(saubererPfad); 
+        let path = "songs_SSO/";
+        const saubererPfad = encodeURI(path.concat(song.datei)); 
 
         let bandLabel = '';
         if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
@@ -251,13 +248,25 @@ function renderJukebox() {
         html += `
             <div class="plan-entry jukebox-entry">
                 <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
-                <audio id="jukebox-player-${index}" controls preload="none" onplay="stopOtherSongs(this)" onended="playNextSong(${index})">
+                <audio id="jukebox-player-${index}" controls preload="none">
                     <source src="${saubererPfad}" type="audio/mpeg">
                 </audio>
             </div>
         `;
     });
     container.innerHTML = html;
+
+    gefilterteSongs.forEach((_, index) => {
+        const player = document.getElementById(`jukebox-player-${index}`);
+        if (player) {
+            player.addEventListener('play', function() {
+                stopOtherSongs(this);
+            });
+            player.addEventListener('ended', function() {
+                playNextSong(index);
+            });
+        }
+    });
 }
 
 function playNextSong(currentIndex) {
@@ -303,21 +312,17 @@ function switchTab(evt, tabName) {
     const cleanTabName = tabName.replace(/^tab-/, '');
     const targetId = `tab-${cleanTabName}`;
 
-    // Alle Tab-Inhalte ausblenden
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(content => content.classList.remove('active-content'));
 
-    // Alle Buttons zurücksetzen
     const buttons = document.querySelectorAll('.tab-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
 
-    // Den gewählten Tab aktivieren
     const activeTab = document.getElementById(targetId);
     if (activeTab) {
         activeTab.classList.add('active-content');
     }
 
-    // Den geklickten Button optisch hervorheben
     if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
         evt.currentTarget.classList.add('active');
     } else {
@@ -327,4 +332,9 @@ function switchTab(evt, tabName) {
         }
     }
 }
-`
+
+// Global für HTML-Inline-Events verfügbar machen
+window.enableAudio = enableAudio;
+window.onFilterChange = onFilterChange;
+window.stopOtherSongs = stopOtherSongs;
+window.playNextSong = playNextSong;
