@@ -3,49 +3,8 @@ let audioEnabled = false;
 let lastPlayed = ""; 
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-const songListe = [
-    { titel: "Scheiss drauf ich reite", datei: "Scheiss_drauf_ich_reite.mp3", band: "vbis" },
-    { titel: "Piraten-Chaos", datei: "Piraten-Chaos.mp3", band: "bpp" },
-    { titel: "Werwolf-Pferd", datei: "Werwolf-Pferd.mp3", band: "bpp" },
-    { titel: "Werwolfs-Huf", datei: "Werwolfs-Huf.mp3", band: "bpp" },
-    { titel: "Firgrove Rennen", datei: "Firgrove-Rennen.mp3", band: "js" },
-    { titel: "Fripps Welt", datei: "Fripps_Welt.mp3", band: "js" },
-    { titel: "Die Ra-Kate", datei: "Die_Ra-Kate.mp3", band: "js" },
-    { titel: "Lvl 13", datei: "Lvl_13.mp3", band: "js" },
-    { titel: "Farah", datei: "Farah.mp3", band: "js" },
-    { titel: "Simple Things", datei: "Simple_Things.mp3", band: "js" },
-    { titel: "Satteltaschen Parade", datei: "Satteltaschen_Parade.mp3", band: "js" },
-    { titel: "Überall Tanzen", datei: "Überall_Tanzen.mp3", band: "js" },
-    { titel: "Schnarchstunde im Stall", datei: "Schnarchstunde_im_Stall.mp3", band: "js" },
-    { titel: "Sturm ueber Valedale", datei: "Sturm_ueber_Valedale.mp3", band: "js" },
-    { titel: "Licht gegen Maschinen", datei: "Licht_gegen_Maschinen.mp3", band: "js" },
-    { titel: "Die perfekte Line", datei: "Die_perfekte_Line.mp3", band: "vbis" },
-    { titel: "Der lange Ritt", datei: "Der_lange_Ritt.mp3", band: "vbis" },
-    { titel: "Geisterstunde", datei: "Erster_und_Letzter.mp3", band: "vbis" },
-    { titel: "Das wilde Banjo", datei: "Das_wilde_Banjo.mp3", band: "vbis" },
-    { titel: "Champireihe", datei: "Champireihe.mp3", band: "js" },
-    { titel: "Pleite", datei: "Pleite.mp3", band: "js" },
-    { titel: "Fuck Off Fashion", datei: "Fuck_Off_Fashion.mp3", band: "bpp" },
-    { titel: "Lass mich mal durch", datei: "Lass_mich_mal_durch.mp3", band: "js" },
-    { titel: "Verpiss dich", datei: "Verpiss_dich.mp3", band: "bpp" },
-    { titel: "Die Reihe", datei: "Die_Reihe.mp3", band: "js" },
-    { titel: "Ein starkes Team", datei: "Ein_starkes_Team.mp3", band: "js" },
-    { titel: "Keine Fahnen", datei: "Keine_Fahnen.mp3", band: "js" },
-    { titel: "Illegale Rennen", datei: "Illegale_Rennen.mp3", band: "bpp" },
-    { titel: "Zaunrennen", datei: "Zaunrennen.mp3", band: "js" },
-    { titel: "Slalomrennen", datei: "Slalomrennen.mp3", band: "js" },
-    { titel: "Happy Birthday", datei: "Happy_Birthday.mp3", band: "js" },
-    { titel: "Der Frieden kommt", datei: "Der_Frieden_kommt.mp3", band: "js" },
-    { titel: "Cat President", datei: "Cat_President.mp3", band: "bpp" },
-    { titel: "Drachenhexe", datei: "Drachenhexe.mp3", band: "bpp" },
-    { titel: "Keine Geschenke", datei: "Keine_Geschenke.mp3", band: "bpp" },
-    { titel: "Lieber Lautt 2", datei: "Lieber_Lautt-2.mp3", band: "bpp" },
-    { titel: "Märchengast", datei: "Märchengast.mp3", band: "bpp" },
-    { titel: "Verstecktes Dorf", datei: "Verstecktes_Dorf.mp3", band: "bpp" },
-    { titel: "Wind in den Haaren", datei: "Wind-in_den_Haaren.mp3", band: "bpp" },
-    { titel: "Wo sind die Wölfe", datei: "Wo_sind_die_Wölfe.mp3", band: "bpp" },
-    { titel: "Zirkus von Pandoria", datei: "Zirkus_von_Pandoria.mp3", band: "bpp" }
-];
+// Leeres Array für die Songs aus songs.json
+let songListe = [];
 
 window.addEventListener('DOMContentLoaded', () => {
     init();
@@ -54,11 +13,26 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function init() {
     await loadChampiData();
+    await loadSongs(); // Songs dynamisch laden
+    
     updateDisplay();
     setInterval(updateDisplay, 1000);
 
     loadFilterState();
     renderJukebox();
+}
+
+async function loadSongs() {
+    try {
+        const response = await fetch('songs.json');
+        if (!response.ok) {
+            throw new Error(`HTTP-Fehler: ${response.status} ${response.statusText}`);
+        }
+        songListe = await response.json();
+    } catch (error) {
+        console.error("Fehler beim Laden der songs.json. Mögliche Ursachen: CORS-Blockade (lokales Dateisystem) oder falscher Pfad.", error);
+        alert("Fehler beim Laden der Songs! Bitte sicherstellen, dass die Seite über einen lokalen Server (http://localhost...) aufgerufen wird und nicht direkt aus dem Dateisystem (file://...).");
+    }
 }
 
 function enableAudio() {
@@ -190,6 +164,9 @@ function saveFilterState() {
     localStorage.setItem('filter_bpp', document.getElementById('chk-bpp').checked);
     localStorage.setItem('filter_js', document.getElementById('chk-js').checked);
     localStorage.setItem('filter_vbis', document.getElementById('chk-vbis').checked);
+    if (document.getElementById('chk-fav')) {
+        localStorage.setItem('filter_fav', document.getElementById('chk-fav').checked);
+    }
     localStorage.setItem('loop_mode', document.getElementById('loop-mode').value);
 }
 
@@ -197,101 +174,134 @@ function loadFilterState() {
     const savedBpp = localStorage.getItem('filter_bpp');
     const savedJs = localStorage.getItem('filter_js');
     const savedVbis = localStorage.getItem('filter_vbis');
+    const savedFav = localStorage.getItem('filter_fav');
     const savedLoop = localStorage.getItem('loop_mode');
 
     document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
     document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
     document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
+    if (document.getElementById('chk-fav')) {
+        document.getElementById('chk-fav').checked = (savedFav === 'true');
+    }
     if (savedLoop) {
         document.getElementById('loop-mode').value = savedLoop;
     }
 }
 
-function stopOtherSongs(currentAudio) {
-    const allAudios = document.querySelectorAll('#jukebox-playlist audio');
-    allAudios.forEach(audio => {
-        if (audio !== currentAudio) {
-            audio.pause();
-            audio.currentTime = 0;
-        }
-    });
+let gefilterteSongListe = [];
+let aktuellerSongIndex = -1;
+let favoriteSongs = JSON.parse(localStorage.getItem('favoriteSongs') || '[]');
+
+function toggleFavorite(songFile) {
+    if (favoriteSongs.includes(songFile)) {
+        favoriteSongs = favoriteSongs.filter(f => f !== songFile);
+    } else {
+        favoriteSongs.push(songFile);
+    }
+    localStorage.setItem('favoriteSongs', JSON.stringify(favoriteSongs));
+    renderJukebox();
 }
 
 function renderJukebox() {
-    const container = document.getElementById('jukebox-playlist');
+    const container = document.getElementById('jukebox-playlist-body');
+    if (!container) return;
+
     const showBpp = document.getElementById('chk-bpp').checked;
     const showJs = document.getElementById('chk-js').checked;
     const showVbis = document.getElementById('chk-vbis').checked;
+    const showFav = document.getElementById('chk-fav') ? document.getElementById('chk-fav').checked : false;
+    
+    const searchInput = document.getElementById('song-search');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-    const gefilterteSongs = songListe.filter(song => {
-        if (song.band === 'bpp' && showBpp) return true;
-        if (song.band === 'js' && showJs) return true;
-        if (song.band === 'vbis' && showVbis) return true;
-        return false;
+    // Filter anwenden
+    gefilterteSongListe = songListe.filter(song => {
+        let bandMatch = false;
+        if (song.band === 'bpp' && showBpp) bandMatch = true;
+        if (song.band === 'js' && showJs) bandMatch = true;
+        if (song.band === 'vbis' && showVbis) bandMatch = true;
+        if (!bandMatch) return false;
+
+        if (showFav && !favoriteSongs.includes(song.datei)) {
+            return false;
+        }
+
+        if (searchTerm && !song.titel.toLowerCase().includes(searchTerm)) {
+            return false;
+        }
+
+        return true;
     });
 
-    if (gefilterteSongs.length === 0) {
-        container.innerHTML = '<p style="opacity: 0.6; padding: 10px;">Keine Band ausgewählt. Bitte aktiviere mindestens ein Kästchen.</p>';
+    if (gefilterteSongListe.length === 0) {
+        container.innerHTML = `<tr><td colspan="4" style="text-align:center; opacity:0.6; padding:20px;">Keine Songs gefunden.</td></tr>`;
         return;
     }
 
     let html = '';
-    gefilterteSongs.forEach((song, index) => {
-        let path = "songs_SSO/";
-        const saubererPfad = encodeURI(path.concat(song.datei)); 
-
+    gefilterteSongListe.forEach((song, index) => {
         let bandLabel = '';
         if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
         else if (song.band === 'js') bandLabel = 'Jorvik Sisters';
-        else if (song.band === 'vbis') bandLabel = 'Vier Brüder im Staub';
+        else if (song.band === 'vbis') bandLabel = '4 Brüder im Staub';
+
+        const isFav = favoriteSongs.includes(song.datei);
+        const starIcon = isFav ? '⭐' : '☆';
 
         html += `
-            <div class="plan-entry jukebox-entry">
-                <strong>🐱 ${song.titel} <span style="font-size:0.8em; opacity:0.7;">(${bandLabel})</span></strong>
-                <audio id="jukebox-player-${index}" controls preload="none">
-                    <source src="${saubererPfad}" type="audio/mpeg">
-                </audio>
-            </div>
+            <tr>
+                <td style="text-align: center;">
+                    <button class="btn-play-row" onclick="playSongByIndex(${index})">▶</button>
+                </td>
+                <td style="text-align: center;">
+                    <button class="btn-star-row" onclick="toggleFavorite('${song.datei}')" title="Als Favorit markieren/entfernen">${starIcon}</button>
+                </td>
+                <td><strong>${song.titel}</strong></td>
+                <td><span class="band-tag">${bandLabel}</span></td>
+            </tr>
         `;
     });
-    container.innerHTML = html;
 
-    gefilterteSongs.forEach((_, index) => {
-        const player = document.getElementById(`jukebox-player-${index}`);
-        if (player) {
-            player.addEventListener('play', function() {
-                stopOtherSongs(this);
-            });
-            player.addEventListener('ended', function() {
-                playNextSong(index);
-            });
-        }
-    });
+    container.innerHTML = html;
 }
 
-function playNextSong(currentIndex) {
-    const loopMode = document.getElementById('loop-mode').value;
+function playSongByIndex(index) {
+    if (index < 0 || index >= gefilterteSongListe.length) return;
     
+    aktuellerSongIndex = index;
+    const song = gefilterteSongListe[index];
+    const path = "songs_SSO/" + encodeURIComponent(song.datei);
+
+    let bandLabel = '';
+    if (song.band === 'bpp') bandLabel = 'Baby Pink Panda';
+    else if (song.band === 'js') bandLabel = 'Jorvik Sisters';
+    else if (song.band === 'vbis') bandLabel = '4 Brüder im Staub';
+
+    const mainPlayer = document.getElementById('main-audio-player');
+    const titleElem = document.getElementById('player-song-title');
+    const bandElem = document.getElementById('player-band-name');
+
+    if (mainPlayer) {
+        mainPlayer.src = path;
+        mainPlayer.play();
+        mainPlayer.onended = handleSongEnded;
+    }
+    if (titleElem) titleElem.innerText = song.titel;
+    if (bandElem) bandElem.innerText = bandLabel;
+}
+
+function handleSongEnded() {
+    const loopMode = document.getElementById('loop-mode') ? document.getElementById('loop-mode').value : 'none';
+
     if (loopMode === 'single') {
-        const currentPlayer = document.getElementById(`jukebox-player-${currentIndex}`);
-        if (currentPlayer) {
-            currentPlayer.currentTime = 0;
-            currentPlayer.play();
+        playSongByIndex(aktuellerSongIndex);
+    } else if (loopMode === 'playlist') {
+        const naechsterIndex = (aktuellerSongIndex + 1) % gefilterteSongListe.length;
+        playSongByIndex(naechsterIndex);
+    } else {
+        if (aktuellerSongIndex + 1 < gefilterteSongListe.length) {
+            playSongByIndex(aktuellerSongIndex + 1);
         }
-        return;
-    }
-
-    let nextIndex = currentIndex + 1;
-    let nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
-
-    if (!nextPlayer && loopMode === 'playlist') {
-        nextIndex = 0;
-        nextPlayer = document.getElementById(`jukebox-player-${nextIndex}`);
-    }
-
-    if (nextPlayer) {
-        nextPlayer.currentTime = 0;
-        nextPlayer.play();
     }
 }
 
@@ -336,5 +346,5 @@ function switchTab(evt, tabName) {
 // Global für HTML-Inline-Events verfügbar machen
 window.enableAudio = enableAudio;
 window.onFilterChange = onFilterChange;
-window.stopOtherSongs = stopOtherSongs;
-window.playNextSong = playNextSong;
+window.playSongByIndex = playSongByIndex;
+window.toggleFavorite = toggleFavorite;
