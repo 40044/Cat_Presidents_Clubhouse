@@ -72,11 +72,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* Intro Box */
-/* .intro-box {
-    margin-bottom: 10px;
-    text-align: center; */
-}
 
 /* Layout Containers & Columns */
 .main-container {
@@ -392,3 +387,198 @@ audio {
 
 .prev-btn { left: 20px; }
 .next-btn { right: 20px; }
+
+/* ==========================================
+   JUKEBOX NEUES DESIGN (PLAYER & TABELLE)
+   ========================================== */
+
+/* Haupt-Player Karte oben */
+.main-player-card {
+    background: linear-gradient(135deg, #2d3d4d 0%, #1e2936 100%);
+    border: 2px solid var(--accent-pink);
+    border-radius: var(--border-radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.now-playing-info {
+    margin-bottom: 10px;
+}
+
+.now-playing-label {
+    font-size: 0.9em;
+    color: var(--accent-pink);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#player-song-title {
+    margin: 5px 0 2px 0;
+    color: #ffffff;
+    font-size: 1.5em;
+}
+
+.player-band {
+    font-size: 0.95em;
+    opacity: 0.8;
+    color: var(--text-main);
+}
+
+/* Filter & Suchleiste */
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.fav-filter {
+    color: #ffca28;
+    font-weight: bold;
+}
+
+.settings-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    border: 1px solid var(--accent-pink);
+    border-radius: 8px;
+    padding: 5px 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-icon {
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.custom-input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    font-size: 0.95em;
+    outline: none;
+}
+
+.loop-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Kompakte Song-Tabelle */
+.song-table-container {
+    background: var(--bg-card);
+    border-radius: var(--border-radius-md);
+    border: 1px solid #3d4d5d;
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-top: 15px;
+}
+
+.song-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.song-table th {
+    background: #1e2936;
+    color: var(--accent-pink);
+    padding: 12px 15px;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.song-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.song-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.song-table tbody tr:hover {
+    background-color: rgba(255, 133, 162, 0.1);
+}
+
+.song-table tr.active-song-row {
+    background-color: rgba(255, 133, 162, 0.25) !important;
+    border-left: 4px solid var(--accent-pink);
+}
+
+/* Buttons in der Tabelle */
+.btn-play-row {
+    background: var(--accent-pink);
+    color: var(--bg-main);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 0.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease;
+    margin: 0 auto;
+}
+
+.btn-play-row:hover {
+    transform: scale(1.15);
+    background: var(--accent-pink-hover);
+}
+
+.btn-star-row {
+    background: transparent;
+    border: none;
+    font-size: 1.3em;
+    cursor: pointer;
+    color: #666;
+    transition: transform 0.15s ease, color 0.15s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-star-row:hover {
+    transform: scale(1.2);
+}
+
+.btn-star-row.is-fav {
+    color: #ffca28;
+}
+
+.band-tag {
+    font-size: 0.85em;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--bg-subcard);
+    opacity: 0.85;
+}

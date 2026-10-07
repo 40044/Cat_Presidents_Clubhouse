@@ -66,32 +66,76 @@
         <section class="column full-width">
             <h3>🎵 Club-Jukebox</h3>
             
+            <!-- ZENTRALER HAUPTPLAYER -->
+            <div class="main-player-card">
+                <div class="now-playing-info">
+                    <span class="now-playing-label">🎵 Jetzt läuft:</span>
+                    <h2 id="player-song-title">Kein Song ausgewählt</h2>
+                    <span id="player-band-name" class="player-band">Wähle einen Song aus der Liste</span>
+                </div>
+                <audio id="main-audio-player" controls preload="auto" style="width: 100%; margin-top: 10px;">
+                    Ihr Browser unterstützt dieses Audio-Element nicht.
+                </audio>
+            </div>
+
+            <!-- FILTER & SUCHE -->
             <div class="filter-container">
-                <span class="filter-label">🎸 Bands auswählen:</span>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
-                    <span>Baby Pink Panda (Punk)</span>
-                </label>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
-                    <span>Jorvik Sisters (Pop)</span>
-                </label>
-                <label class="checkbox-group">
-                    <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
-                    <span>4 Brüder im Staub</span>
-                </label>
+                <div class="filter-section">
+                    <span class="filter-label">🎸 Bands:</span>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="chk-bpp" onchange="onFilterChange()"> 
+                        <span>Baby Pink Panda</span>
+                    </label>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="chk-js" onchange="onFilterChange()"> 
+                        <span>Jorvik Sisters</span>
+                    </label>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="chk-vbis" onchange="onFilterChange()"> 
+                        <span>4 Brüder im Staub</span>
+                    </label>
+                </div>
+
+                <div class="filter-section">
+                    <label class="checkbox-group fav-filter">
+                        <input type="checkbox" id="chk-fav" onchange="onFilterChange()"> 
+                        <span>⭐ Nur Favoriten</span>
+                    </label>
+                </div>
             </div>
 
             <div class="settings-bar">
-                <label for="loop-mode" class="filter-label">🔁 Wiederholung / Loop:</label>
-                <select id="loop-mode" onchange="saveFilterState()" class="custom-select">
-                    <option value="none">Kein Loop (Spielt Playlist 1x durch)</option>
-                    <option value="playlist">Ganze Playlist wiederholen</option>
-                    <option value="single">Aktuellen Song wiederholen (Einzel-Loop)</option>
-                </select>
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="song-search" placeholder="Song suchen..." oninput="onFilterChange()" class="custom-input">
+                </div>
+
+                <div class="loop-box">
+                    <label for="loop-mode" class="filter-label">🔁 Loop:</label>
+                    <select id="loop-mode" onchange="saveFilterState()" class="custom-select">
+                        <option value="none">Kein Loop (Playlist 1x spielen)</option>
+                        <option value="playlist">Ganze Playlist wiederholen</option>
+                        <option value="single">Aktuellen Song wiederholen</option>
+                    </select>
+                </div>
             </div>
 
-            <div id="jukebox-playlist"></div>
+            <!-- KOMPAKTE SONG-TABELLE -->
+            <div class="song-table-container">
+                <table class="song-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">Play</th>
+                            <th style="width: 50px; text-align: center;">⭐</th>
+                            <th>Titel</th>
+                            <th>Band</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jukebox-playlist-body">
+                        <!-- Wird per JS befüllt -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 
