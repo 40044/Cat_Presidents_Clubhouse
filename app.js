@@ -1,13 +1,20 @@
+// Benachrichtigungs-Erlaubnis beim Browser anfordern
+function initNotifications() {
+    if (window.Notification && Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+}
+
 // ==========================================
 // 1. FIREBASE CONFIGURATION & INITIALISIERUNG
 // ==========================================
 const firebaseConfig = {
-  apiKey: "AIzaSyCBa3LQ_Zr-QULwlg3HXbSIkDUdSb4vkkw",
-  authDomain: "catpresidentschat.firebaseapp.com",
-  projectId: "catpresidentschat",
-  storageBucket: "catpresidentschat.firebasestorage.app",
-  messagingSenderId: "184683983511",
-  appId: "1:184683983511:web:82ade60a28c0416fc86fd2"
+    apiKey: "AIzaSyCBa3LQ_Zr-QULwlg3HXbSIkDUdSb4vkkw",
+    authDomain: "catpresidentschat.firebaseapp.com",
+    projectId: "catpresidentschat",
+    storageBucket: "catpresidentschat.firebasestorage.app",
+    messagingSenderId: "184683983511",
+    appId: "1:184683983511:web:82ade60a28c0416fc86fd2"
 };
 
 // Firebase initialisieren
@@ -22,7 +29,7 @@ let initialLoadComplete = false;
 // ==========================================
 let alleTageDaten = {};
 let audioEnabled = false;
-let lastPlayed = ""; 
+let lastPlayed = "";
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
 // Leeres Array für die Songs aus songs.json
@@ -41,9 +48,10 @@ if (document.readyState === 'loading') {
 }
 
 async function init() {
+    initNotifications();
     await loadChampiData();
-    await loadSongs(); // Songs dynamisch laden
-    
+    await loadSongs();
+
     updateDisplay();
     setInterval(updateDisplay, 1000);
 
@@ -52,7 +60,7 @@ async function init() {
 }
 
 // ==========================================
-// 3. FIREBASE CHAT LOGIK & ROTER PUNKT
+// 3. FIREBASE CHAT LOGIK & ROTER PUNKT & POP-UP
 // ==========================================
 function initFirebaseChat() {
     const chatForm = document.getElementById('chat-form');
@@ -80,12 +88,12 @@ function initFirebaseChat() {
                     text: messageText,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 })
-                .then(() => {
-                    chatInput.value = '';
-                })
-                .catch((error) => {
-                    console.error("Fehler beim Senden: ", error);
-                });
+                    .then(() => {
+                        chatInput.value = '';
+                    })
+                    .catch((error) => {
+                        console.error("Fehler beim Senden: ", error);
+                    });
             }
         });
     }
@@ -98,6 +106,7 @@ function initFirebaseChat() {
                 chatMessages.innerHTML = ''; // Container zurücksetzen
 
                 let hasNewMessage = false;
+                let latestMessageData = null; // Speichert die Daten der neuesten Nachricht
 
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
@@ -107,6 +116,8 @@ function initFirebaseChat() {
 
                 snapshot.forEach((doc) => {
                     const data = doc.data();
+                    latestMessageData = data; // Letzte Nachricht merken
+
                     const messageElement = document.createElement('div');
                     messageElement.style.marginBottom = '8px';
                     messageElement.style.padding = '8px 12px';
@@ -132,12 +143,21 @@ function initFirebaseChat() {
                 // Nach unten scrollen
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // Roter Punkt Logik: Nur bei NEUEN Nachrichten nach dem ersten Laden
-                if (initialLoadComplete && hasNewMessage) {
+                // Roter Punkt & Desktop Benachrichtigung Logik
+                if (initialLoadComplete && hasNewMessage && latestMessageData) {
                     const chatTabContent = document.getElementById('tab-chat');
                     const isChatActive = chatTabContent && chatTabContent.classList.contains('active-content');
+
                     if (!isChatActive) {
                         setChatUnread(true);
+
+                        // Desktop Pop-up auslösen
+                        if (window.Notification && Notification.permission === "granted") {
+                            new Notification("Cat Presidents Clubhouse 🐾", {
+                                body: `${latestMessageData.username || 'Jemand'}: ${latestMessageData.text}`,
+                                icon: "club_logo.webp"
+                            });
+                        }
                     }
                 }
 
@@ -172,10 +192,10 @@ function enableAudio() {
         }
         const miauAudio = document.getElementById('audio-miau');
         if (miauAudio) {
-            miauAudio.play().then(() => { 
-                miauAudio.pause(); 
-                miauAudio.currentTime = 0; 
-            }).catch(() => {});
+            miauAudio.play().then(() => {
+                miauAudio.pause();
+                miauAudio.currentTime = 0;
+            }).catch(() => { });
         }
     }
 }
@@ -190,7 +210,7 @@ async function loadChampiData() {
         const rows = text.split(/\r?\n/).map(r => r.split(sep));
 
         for (let tIdx = 0; tIdx < 7; tIdx++) {
-            const colIdx = (tIdx === 0) ? 7 : tIdx; 
+            const colIdx = (tIdx === 0) ? 7 : tIdx;
             const list = [];
             for (let i = 1; i < rows.length; i++) {
                 const r = rows[i];
@@ -205,7 +225,7 @@ async function loadChampiData() {
             }
             alleTageDaten[tIdx] = list.sort((a, b) => a.min - b.min);
         }
-    } catch(e) {
+    } catch (e) {
         console.error("Fehler beim Laden der Champi-Daten:", e);
     }
 }
@@ -215,7 +235,7 @@ function updateDisplay() {
     const deZeit = new Date(jetzt.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
     const curMin = deZeit.getHours() * 60 + deZeit.getMinutes();
     const curDay = deZeit.getDay();
-    
+
     const tagElem = document.getElementById('heutiger-tag');
     const localTimeElem = document.getElementById('local-time');
     if (tagElem) tagElem.innerText = tage[curDay];
@@ -236,7 +256,7 @@ function updateDisplay() {
             next = { ...c, target };
         }
     });
-    
+
     const planElem = document.getElementById('tages-plan');
     if (planElem) planElem.innerHTML = html;
 
@@ -251,12 +271,12 @@ function updateDisplay() {
             next = { ...c, target };
         }
     }
-    
+
     if (next) {
         const diff = next.target - deZeit;
         const m = Math.floor(diff / 60000);
         const s = Math.floor((diff % 60000) / 1000);
-        
+
         const champiNameElem = document.getElementById('champi-name');
         const countdownElem = document.getElementById('countdown');
         if (champiNameElem) champiNameElem.innerText = next.name;
@@ -277,7 +297,7 @@ function updateDisplay() {
                 }
                 lastPlayed = "5m";
             }
-            if (m === 9 || m === 4) lastPlayed = ""; 
+            if (m === 9 || m === 4) lastPlayed = "";
         }
     }
 }
@@ -343,7 +363,7 @@ function renderJukebox() {
     const showJs = document.getElementById('chk-js').checked;
     const showVbis = document.getElementById('chk-vbis').checked;
     const showFav = document.getElementById('chk-fav') ? document.getElementById('chk-fav').checked : false;
-    
+
     const searchInput = document.getElementById('song-search');
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
@@ -399,7 +419,7 @@ function renderJukebox() {
 
 function playSongByIndex(index) {
     if (index < 0 || index >= gefilterteSongListe.length) return;
-    
+
     aktuellerSongIndex = index;
     const song = gefilterteSongListe[index];
     const path = "songs_SSO/" + encodeURIComponent(song.datei);
