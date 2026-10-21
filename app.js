@@ -123,6 +123,7 @@ function initFirebaseChat() {
                     messageElement.style.padding = '8px 12px';
                     messageElement.style.background = 'rgba(255, 255, 255, 0.1)';
                     messageElement.style.color = '#ffffff';
+                    messageElement.style.fontSize = '13px'; // <-- Hier die Schriftgröße anpassen (z. B. 13px oder 14px)
                     messageElement.style.borderRadius = '6px';
                     messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
 
