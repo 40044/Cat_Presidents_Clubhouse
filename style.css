@@ -124,6 +124,7 @@ h3 {
 }
 
 .tab-btn {
+    position: relative;
     background-color: var(--bg-card);
     color: var(--text-main);
     border: 2px solid var(--accent-pink);
@@ -582,3 +583,94 @@ audio {
     background: var(--bg-subcard);
     opacity: 0.85;
 }
+
+/* ==========================================
+   TAWK.TO CHAT CONTAINER & WIDGET
+   ========================================== */
+#tawk-chat-container {
+    width: 100%;
+    min-height: 550px;
+    height: 550px;
+    position: relative;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    background-color: var(--bg-subcard);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#tawk-chat-container iframe {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 550px !important;
+    border: none !important;
+    position: static !important;
+    display: block !important;
+    border-radius: var(--border-radius-md);
+}
+
+#tawk-chat-container > div,
+#tawk-chat-container .widget-visible {
+    width: 100% !important;
+    height: 100% !important;
+    position: static !important;
+    max-height: none !important;
+    max-width: none !important;
+}
+
+.tawk-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    color: var(--text-main);
+}
+
+.tawk-placeholder-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.tawk-placeholder-hint {
+    font-size: 0.9em;
+    color: var(--text-dim);
+    max-width: 480px;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+
+.tawk-placeholder code {
+    background-color: var(--bg-card);
+    color: var(--accent-pink);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* ==========================================
+   ROTER BENACHRICHTIGUNGS-PUNKT (CHAT UNREAD)
+   ========================================== */
+.tab-btn.has-unread::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--accent-red);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--accent-red);
+    animation: pulse-dot 1.5s infinite;
+    pointer-events: none;
+}
+
+@keyframes pulse-dot {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 82, 82, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
+}
+
