@@ -57,21 +57,31 @@ async function init() {
 function initFirebaseChat() {
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
+    const chatUsername = document.getElementById('chat-username');
     const chatMessages = document.getElementById('chat-messages');
 
-    // Nachricht senden
+    // Gespeicherten Namen automatisch laden
+    if (chatUsername && localStorage.getItem('chat_username')) {
+        chatUsername.value = localStorage.getItem('chat_username');
+    }
+
     if (chatForm) {
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const messageText = chatInput.value.trim();
+            const username = chatUsername ? chatUsername.value.trim() : 'Anonym';
 
-            if (messageText !== '') {
+            if (messageText !== '' && username !== '') {
+                // Namen im Browser merken
+                localStorage.setItem('chat_username', username);
+
                 db.collection('messages').add({
+                    username: username,
                     text: messageText,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 })
                 .then(() => {
-                    chatInput.value = ''; // Eingabefeld leeren
+                    chatInput.value = '';
                 })
                 .catch((error) => {
                     console.error("Fehler beim Senden: ", error);
@@ -99,11 +109,23 @@ function initFirebaseChat() {
                     const data = doc.data();
                     const messageElement = document.createElement('div');
                     messageElement.style.marginBottom = '8px';
-                    messageElement.style.padding = '6px 10px';
-                    messageElement.style.background = 'rgba(255, 255, 255, 0.6)';
+                    messageElement.style.padding = '8px 12px';
+                    messageElement.style.background = 'rgba(255, 255, 255, 0.1)';
+                    messageElement.style.color = '#ffffff';
                     messageElement.style.borderRadius = '6px';
-                    
-                    messageElement.textContent = data.text || '';
+                    messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+
+                    // Name fett hervorheben & Nachricht anzeigen
+                    const nameSpan = document.createElement('strong');
+                    nameSpan.style.color = '#ff9ebb'; // Schickes Club-Rosa für den Namen
+                    nameSpan.textContent = (data.username || 'Anonym') + ': ';
+
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = data.text || '';
+
+                    messageElement.appendChild(nameSpan);
+                    messageElement.appendChild(textSpan);
+
                     chatMessages.appendChild(messageElement);
                 });
 

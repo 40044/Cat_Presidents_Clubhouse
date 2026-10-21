@@ -58,12 +58,17 @@
                 <!-- Neuer Club-Chat Container -->
                 <div id="chat-container">
                     <!-- Hier werden die Nachrichten angezeigt -->
-                    <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;"></div>
+                    <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px; margin-bottom: 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;"></div>
 
                     <!-- Eingabezeile für neue Nachrichten -->
-                    <form id="chat-form" style="display: flex; gap: 5px;">
-                        <input type="text" id="chat-input" placeholder="Nachricht schreiben..." required style="flex-grow: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                        <button type="submit" class="btn-pink" style="padding: 8px 16px;">Senden</button>
+                    <form id="chat-form" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <!-- Feld für den Benutzernamen -->
+                        <input type="text" id="chat-username" placeholder="Dein Name" required style="width: 130px; padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(15, 23, 42, 0.8); color: #ffffff;">
+    
+                        <!-- Feld für die Nachricht -->
+                        <input type="text" id="chat-input" placeholder="Nachricht schreiben..." required style="flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(15, 23, 42, 0.8); color: #ffffff;">
+    
+                        <button type="submit" class="btn-pink" style="padding: 10px 18px;">Senden</button>
                     </form>
                 </div>
 
