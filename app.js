@@ -1,3 +1,25 @@
+// ==========================================
+// 1. FIREBASE CONFIGURATION & INITIALISIERUNG
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCBa3LQ_Zr-QULwlg3HXbSIkDUdSb4vkkw",
+  authDomain: "catpresidentschat.firebaseapp.com",
+  projectId: "catpresidentschat",
+  storageBucket: "catpresidentschat.firebasestorage.app",
+  messagingSenderId: "184683983511",
+  appId: "1:184683983511:web:82ade60a28c0416fc86fd2"
+};
+
+// Firebase initialisieren
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Variable für Initial-Ladezustand
+let initialLoadComplete = false;
+
+// ==========================================
+// 2. GLOBALE VARIABLEN & INITIALISIERUNG
+// ==========================================
 let alleTageDaten = {};
 let audioEnabled = false;
 let lastPlayed = ""; 
@@ -6,10 +28,17 @@ const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freita
 // Leeres Array für die Songs aus songs.json
 let songListe = [];
 
-window.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+        init();
+        initTabNavigation();
+        initFirebaseChat();
+    });
+} else {
     init();
     initTabNavigation();
-});
+    initFirebaseChat();
+}
 
 async function init() {
     await loadChampiData();
@@ -22,6 +51,82 @@ async function init() {
     renderJukebox();
 }
 
+// ==========================================
+// 3. FIREBASE CHAT LOGIK & ROTER PUNKT
+// ==========================================
+function initFirebaseChat() {
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Nachricht senden
+    if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const messageText = chatInput.value.trim();
+
+            if (messageText !== '') {
+                db.collection('messages').add({
+                    text: messageText,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then(() => {
+                    chatInput.value = ''; // Eingabefeld leeren
+                })
+                .catch((error) => {
+                    console.error("Fehler beim Senden: ", error);
+                });
+            }
+        });
+    }
+
+    // Live-Nachrichten empfangen
+    if (chatMessages) {
+        db.collection('messages')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot((snapshot) => {
+                chatMessages.innerHTML = ''; // Container zurücksetzen
+
+                let hasNewMessage = false;
+
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        hasNewMessage = true;
+                    }
+                });
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.style.marginBottom = '8px';
+                    messageElement.style.padding = '6px 10px';
+                    messageElement.style.background = 'rgba(255, 255, 255, 0.6)';
+                    messageElement.style.borderRadius = '6px';
+                    
+                    messageElement.textContent = data.text || '';
+                    chatMessages.appendChild(messageElement);
+                });
+
+                // Nach unten scrollen
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Roter Punkt Logik: Nur bei NEUEN Nachrichten nach dem ersten Laden
+                if (initialLoadComplete && hasNewMessage) {
+                    const chatTabContent = document.getElementById('tab-chat');
+                    const isChatActive = chatTabContent && chatTabContent.classList.contains('active-content');
+                    if (!isChatActive) {
+                        setChatUnread(true);
+                    }
+                }
+
+                initialLoadComplete = true;
+            });
+    }
+}
+
+// ==========================================
+// 4. JUKEBOX & BAROMETER
+// ==========================================
 async function loadSongs() {
     try {
         const response = await fetch('songs.json');
@@ -30,8 +135,8 @@ async function loadSongs() {
         }
         songListe = await response.json();
     } catch (error) {
-        console.error("Fehler beim Laden der songs.json. Mögliche Ursachen: CORS-Blockade (lokales Dateisystem) oder falscher Pfad.", error);
-        alert("Fehler beim Laden der Songs! Bitte sicherstellen, dass die Seite über einen lokalen Server (http://localhost...) aufgerufen wird und nicht direkt aus dem Dateisystem (file://...).");
+        console.error("Fehler beim Laden der songs.json.", error);
+        alert("Fehler beim Laden der Songs! Bitte sicherstellen, dass die Seite über einen lokalen Server (http://localhost...) aufgerufen wird.");
     }
 }
 
@@ -161,13 +266,17 @@ function onFilterChange() {
 }
 
 function saveFilterState() {
-    localStorage.setItem('filter_bpp', document.getElementById('chk-bpp').checked);
-    localStorage.setItem('filter_js', document.getElementById('chk-js').checked);
-    localStorage.setItem('filter_vbis', document.getElementById('chk-vbis').checked);
-    if (document.getElementById('chk-fav')) {
-        localStorage.setItem('filter_fav', document.getElementById('chk-fav').checked);
-    }
-    localStorage.setItem('loop_mode', document.getElementById('loop-mode').value);
+    const chkBpp = document.getElementById('chk-bpp');
+    const chkJs = document.getElementById('chk-js');
+    const chkVbis = document.getElementById('chk-vbis');
+    const chkFav = document.getElementById('chk-fav');
+    const loopMode = document.getElementById('loop-mode');
+
+    if (chkBpp) localStorage.setItem('filter_bpp', chkBpp.checked);
+    if (chkJs) localStorage.setItem('filter_js', chkJs.checked);
+    if (chkVbis) localStorage.setItem('filter_vbis', chkVbis.checked);
+    if (chkFav) localStorage.setItem('filter_fav', chkFav.checked);
+    if (loopMode) localStorage.setItem('loop_mode', loopMode.value);
 }
 
 function loadFilterState() {
@@ -177,15 +286,17 @@ function loadFilterState() {
     const savedFav = localStorage.getItem('filter_fav');
     const savedLoop = localStorage.getItem('loop_mode');
 
-    document.getElementById('chk-bpp').checked = (savedBpp === null) ? true : (savedBpp === 'true');
-    document.getElementById('chk-js').checked = (savedJs === null) ? true : (savedJs === 'true');
-    document.getElementById('chk-vbis').checked = (savedVbis === null) ? true : (savedVbis === 'true');
-    if (document.getElementById('chk-fav')) {
-        document.getElementById('chk-fav').checked = (savedFav === 'true');
-    }
-    if (savedLoop) {
-        document.getElementById('loop-mode').value = savedLoop;
-    }
+    const chkBpp = document.getElementById('chk-bpp');
+    const chkJs = document.getElementById('chk-js');
+    const chkVbis = document.getElementById('chk-vbis');
+    const chkFav = document.getElementById('chk-fav');
+    const loopMode = document.getElementById('loop-mode');
+
+    if (chkBpp) chkBpp.checked = (savedBpp === null) ? true : (savedBpp === 'true');
+    if (chkJs) chkJs.checked = (savedJs === null) ? true : (savedJs === 'true');
+    if (chkVbis) chkVbis.checked = (savedVbis === null) ? true : (savedVbis === 'true');
+    if (chkFav) chkFav.checked = (savedFav === 'true');
+    if (loopMode && savedLoop) loopMode.value = savedLoop;
 }
 
 let gefilterteSongListe = [];
@@ -214,7 +325,6 @@ function renderJukebox() {
     const searchInput = document.getElementById('song-search');
     const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-    // Filter anwenden
     gefilterteSongListe = songListe.filter(song => {
         let bandMatch = false;
         if (song.band === 'bpp' && showBpp) bandMatch = true;
@@ -305,15 +415,20 @@ function handleSongEnded() {
     }
 }
 
+// ==========================================
+// 5. NAVIGATION & TAB-STEUERUNG
+// ==========================================
 function initTabNavigation() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => {
-        button.addEventListener('click', (evt) => {
-            const dataTab = button.getAttribute('data-tab');
-            if (dataTab) {
-                switchTab(evt, dataTab);
-            }
-        });
+        if (!button.hasAttribute('onclick')) {
+            button.addEventListener('click', (evt) => {
+                const dataTab = button.getAttribute('data-tab');
+                if (dataTab) {
+                    switchTab(evt, dataTab);
+                }
+            });
+        }
     });
 }
 
@@ -333,13 +448,25 @@ function switchTab(evt, tabName) {
         activeTab.classList.add('active-content');
     }
 
-    if (evt && evt.currentTarget && evt.currentTarget.classList.contains('tab-btn')) {
-        evt.currentTarget.classList.add('active');
+    const currentBtn = document.querySelector(`.tab-btn[data-tab="${cleanTabName}"]`);
+    if (currentBtn) {
+        currentBtn.classList.add('active');
+    }
+
+    // Wenn der Chat-Reiter aufgerufen wird: roten Punkt entfernen
+    if (cleanTabName === 'chat') {
+        setChatUnread(false);
+    }
+}
+
+// Steuerung des Benachrichtigungspunkts (roter Punkt am Chat-Button)
+function setChatUnread(hasUnread) {
+    const chatBtn = document.querySelector('.tab-btn[data-tab="chat"]');
+    if (!chatBtn) return;
+    if (hasUnread) {
+        chatBtn.classList.add('has-unread');
     } else {
-        const targetBtn = document.querySelector(`.tab-btn[data-tab="${cleanTabName}"]`);
-        if (targetBtn) {
-            targetBtn.classList.add('active');
-        }
+        chatBtn.classList.remove('has-unread');
     }
 }
 
@@ -348,3 +475,5 @@ window.enableAudio = enableAudio;
 window.onFilterChange = onFilterChange;
 window.playSongByIndex = playSongByIndex;
 window.toggleFavorite = toggleFavorite;
+window.switchTab = switchTab;
+window.setChatUnread = setChatUnread;

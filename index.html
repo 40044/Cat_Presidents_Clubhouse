@@ -6,6 +6,11 @@
     <title>Cat Presidents Clubhouse 🐱✨</title>
     <link rel="icon" type="image/webp" href="club_logo.webp">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDKs (Ersatz für tawk.to) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <script src="app.js" defer></script>
 </head>
 <body onclick="enableAudio()">
@@ -17,18 +22,12 @@
         <div class="logo-text">🐾 Cat Presidents Clubhouse 🐾</div>
     </header>
 
-    <!-- WILLKOMMENS-BEREICH / BESCHREIBUNG -->
-    <!-- <section class="column full-width intro-box">
-        <h3>🐾 Willkommen im Clubhouse!</h3>
-        <p>Willkommen auf der offiziellen Seite der Cat Presidents! Hier findest du unser Champi-Barometer, unsere Club-Jukebox, den Chat und die Galerie. Wähle einfach oben einen Reiter aus!</p>
-    </section> -->
-
     <!-- DIE REITER / TABS -->
     <nav class="tab-navigation">
-        <button class="tab-btn active" data-tab="barometer" onclick="switchTab(event, 'barometer')">📊 Barometer</button>
-        <button class="tab-btn" data-tab="chat" onclick="switchTab(event, 'chat')">💬 Chat</button>
-        <button class="tab-btn" data-tab="jukebox" onclick="switchTab(event, 'jukebox')">🎵 Jukebox</button>
-        <button class="tab-btn" data-tab="galerie" onclick="switchTab(event, 'galerie')">🖼️ Galerie</button>
+        <button class="tab-btn active" data-tab="barometer">📊 Barometer</button>
+        <button class="tab-btn" data-tab="chat">💬 Chat</button>
+        <button class="tab-btn" data-tab="jukebox">🎵 Jukebox</button>
+        <button class="tab-btn" data-tab="galerie">🖼️ Galerie</button>
     </nav>
 
     <!-- TAB 1: BAROMETER -->
@@ -50,13 +49,24 @@
         </main>
     </div>
 
-    <!-- TAB 2: CHAT -->
+    <!-- TAB 2: CHAT (Hier ist jetzt der neue Firebase-Chat drin) -->
     <div id="tab-chat" class="tab-content">
         <main class="main-container">
             <section class="column right-col" style="width: 100%;">
                 <h3>💬 Chat</h3>
-                <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
-                <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/443778136316393/c/Main?embed&&dark=1" data-style="width:100%; height:550px;">Chat</span>
+                
+                <!-- Neuer Club-Chat Container -->
+                <div id="chat-container">
+                    <!-- Hier werden die Nachrichten angezeigt -->
+                    <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.8); border-radius: 8px;"></div>
+
+                    <!-- Eingabezeile für neue Nachrichten -->
+                    <form id="chat-form" style="display: flex; gap: 5px;">
+                        <input type="text" id="chat-input" placeholder="Nachricht schreiben..." required style="flex-grow: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                        <button type="submit" class="btn-pink" style="padding: 8px 16px;">Senden</button>
+                    </form>
+                </div>
+
             </section>
         </main>
     </div>
@@ -139,7 +149,7 @@
         </section>
     </div>
 
-    <!-- TAB 4: GALERIE (Verlinkung oder Vorschau) -->
+    <!-- TAB 4: GALERIE -->
     <div id="tab-galerie" class="tab-content">
         <section class="column full-width" style="text-align: center; padding: 40px 20px;">
             <h3>🖼️ Katzen-Galerie</h3>
