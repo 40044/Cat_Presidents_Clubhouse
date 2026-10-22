@@ -192,6 +192,10 @@ function initFirebaseChat() {
                                     icon: "club_logo.webp"
                                 });
 
+                                // NEU: Nur für den Chat das Schnurren abspielen!
+                                const purrAudio = new Audio('Champi-Barometer_Songs/cat_purring_sound_short.mp3');
+                                purrAudio.play().catch(e => console.log("Audio-Wiedergabe blockiert:", e));
+
                                 notification.onclick = () => {
                                     window.focus();
                                     switchTab(null, 'chat');
