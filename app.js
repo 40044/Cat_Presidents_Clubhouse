@@ -1,7 +1,7 @@
 // Benachrichtigungs-Erlaubnis beim Browser anfordern
 function initNotifications() {
-    if (window.Notification && Notification.permission !== "granted") {
-        Notification.requestPermission();
+    if (window.Notification && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
     }
 }
 
@@ -18,11 +18,30 @@ const firebaseConfig = {
 };
 
 // Firebase initialisieren
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.firestore();
 
 // Variable für Initial-Ladezustand
 let initialLoadComplete = false;
+
+// Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
+function scrollChatToBottom() {
+    const chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) return;
+
+    // Sofortiger Scroll-Versuch
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Render-Cycle & Layout absichern (z.B. nach Tab-Wechsel display: none -> display: block)
+    requestAnimationFrame(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 50);
+    });
+}
 
 // ==========================================
 // 2. GLOBALE VARIABLEN & INITIALISIERUNG
@@ -76,7 +95,8 @@ function initFirebaseChat() {
     if (chatForm) {
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const messageText = chatInput.value.trim();
+            initNotifications();
+            const messageText = chatInput ? chatInput.value.trim() : '';
             const username = chatUsername ? chatUsername.value.trim() : 'Anonym';
 
             if (messageText !== '' && username !== '') {
@@ -89,7 +109,8 @@ function initFirebaseChat() {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 })
                     .then(() => {
-                        chatInput.value = '';
+                        if (chatInput) chatInput.value = '';
+                        scrollChatToBottom();
                     })
                     .catch((error) => {
                         console.error("Fehler beim Senden: ", error);
@@ -106,33 +127,40 @@ function initFirebaseChat() {
                 chatMessages.innerHTML = ''; // Container zurücksetzen
 
                 let hasNewMessage = false;
-                let latestMessageData = null; // Speichert die Daten der neuesten Nachricht
+                let latestMessageData = null; // Speichert die Daten der neuesten hinzugefügten Nachricht
 
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         hasNewMessage = true;
+                        latestMessageData = change.doc.data();
                     }
                 });
 
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    latestMessageData = data; // Letzte Nachricht merken
 
                     const messageElement = document.createElement('div');
+                    messageElement.className = 'chat-message';
                     messageElement.style.marginBottom = '8px';
                     messageElement.style.padding = '8px 12px';
                     messageElement.style.background = 'rgba(255, 255, 255, 0.1)';
                     messageElement.style.color = '#ffffff';
-                    messageElement.style.fontSize = '13px'; // <-- Hier die Schriftgröße anpassen (z. B. 13px oder 14px)
+                    messageElement.style.fontSize = '13px'; // Schriftgröße kompakt bei 13px
+                    messageElement.style.lineHeight = '1.4';
                     messageElement.style.borderRadius = '6px';
                     messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+                    messageElement.style.wordBreak = 'break-word';
 
                     // Name fett hervorheben & Nachricht anzeigen
                     const nameSpan = document.createElement('strong');
+                    nameSpan.className = 'chat-message-author';
                     nameSpan.style.color = '#ff9ebb'; // Schickes Club-Rosa für den Namen
+                    nameSpan.style.fontSize = '13px';
                     nameSpan.textContent = (data.username || 'Anonym') + ': ';
 
                     const textSpan = document.createElement('span');
+                    textSpan.className = 'chat-message-text';
+                    textSpan.style.fontSize = '13px';
                     textSpan.textContent = data.text || '';
 
                     messageElement.appendChild(nameSpan);
@@ -141,28 +169,44 @@ function initFirebaseChat() {
                     chatMessages.appendChild(messageElement);
                 });
 
-                // Nach unten scrollen
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                // Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
+                scrollChatToBottom();
 
                 // Roter Punkt & Desktop Benachrichtigung Logik
                 if (initialLoadComplete && hasNewMessage && latestMessageData) {
                     const chatTabContent = document.getElementById('tab-chat');
-                    const isChatActive = chatTabContent && chatTabContent.classList.contains('active-content');
+                    const isChatTabActive = chatTabContent && chatTabContent.classList.contains('active-content');
+                    const isWindowFocused = document.hasFocus() && !document.hidden;
 
-                    if (!isChatActive) {
+                    // Inaktiver Chat-Tab: roten Punkt (.has-unread) am Tab-Button anzeigen
+                    if (!isChatTabActive) {
                         setChatUnread(true);
+                    }
 
-                        // Desktop Pop-up auslösen
+                    // Desktop Pop-up abfeuern, wenn Chat-Tab inaktiv ist ODER Browserfenster im Hintergrund ist
+                    if (!isChatTabActive || !isWindowFocused) {
                         if (window.Notification && Notification.permission === "granted") {
-                            new Notification("Cat Presidents Clubhouse 🐾", {
-                                body: `${latestMessageData.username || 'Jemand'}: ${latestMessageData.text}`,
-                                icon: "club_logo.webp"
-                            });
+                            try {
+                                const notification = new Notification("Cat Presidents Clubhouse 🐾", {
+                                    body: `${latestMessageData.username || 'Jemand'}: ${latestMessageData.text || ''}`,
+                                    icon: "club_logo.webp"
+                                });
+
+                                notification.onclick = () => {
+                                    window.focus();
+                                    switchTab(null, 'chat');
+                                    notification.close();
+                                };
+                            } catch (e) {
+                                console.warn("Desktop-Benachrichtigung konnte nicht ausgelöst werden:", e);
+                            }
                         }
                     }
                 }
 
                 initialLoadComplete = true;
+            }, (error) => {
+                console.error("Fehler beim Abrufen der Chat-Nachrichten: ", error);
             });
     }
 }
@@ -184,6 +228,7 @@ async function loadSongs() {
 }
 
 function enableAudio() {
+    initNotifications();
     if (!audioEnabled) {
         audioEnabled = true;
         const status = document.getElementById('sound-status');
@@ -466,6 +511,7 @@ function initTabNavigation() {
     tabButtons.forEach(button => {
         if (!button.hasAttribute('onclick')) {
             button.addEventListener('click', (evt) => {
+                initNotifications();
                 const dataTab = button.getAttribute('data-tab');
                 if (dataTab) {
                     switchTab(evt, dataTab);
@@ -496,9 +542,10 @@ function switchTab(evt, tabName) {
         currentBtn.classList.add('active');
     }
 
-    // Wenn der Chat-Reiter aufgerufen wird: roten Punkt entfernen
+    // Wenn der Chat-Reiter aufgerufen wird: roten Punkt entfernen & automatisch nach ganz unten scrollen
     if (cleanTabName === 'chat') {
         setChatUnread(false);
+        scrollChatToBottom();
     }
 }
 
@@ -513,6 +560,25 @@ function setChatUnread(hasUnread) {
     }
 }
 
+// Bei Fokus oder Sichtbarkeit den roten Punkt entfernen, falls der Chat-Tab aktiv ist
+window.addEventListener('focus', () => {
+    const chatTabContent = document.getElementById('tab-chat');
+    if (chatTabContent && chatTabContent.classList.contains('active-content')) {
+        setChatUnread(false);
+        scrollChatToBottom();
+    }
+});
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        const chatTabContent = document.getElementById('tab-chat');
+        if (chatTabContent && chatTabContent.classList.contains('active-content')) {
+            setChatUnread(false);
+            scrollChatToBottom();
+        }
+    }
+});
+
 // Global für HTML-Inline-Events verfügbar machen
 window.enableAudio = enableAudio;
 window.onFilterChange = onFilterChange;
@@ -520,3 +586,4 @@ window.playSongByIndex = playSongByIndex;
 window.toggleFavorite = toggleFavorite;
 window.switchTab = switchTab;
 window.setChatUnread = setChatUnread;
+window.scrollChatToBottom = scrollChatToBottom;

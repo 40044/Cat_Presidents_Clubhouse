@@ -585,73 +585,6 @@ audio {
 }
 
 /* ==========================================
-   TAWK.TO CHAT CONTAINER & WIDGET
-   ========================================== */
-#tawk-chat-container {
-    width: 100%;
-    min-height: 550px;
-    height: 550px;
-    position: relative;
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    background-color: var(--bg-subcard);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-#tawk-chat-container iframe {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 550px !important;
-    border: none !important;
-    position: static !important;
-    display: block !important;
-    border-radius: var(--border-radius-md);
-}
-
-#tawk-chat-container > div,
-#tawk-chat-container .widget-visible {
-    width: 100% !important;
-    height: 100% !important;
-    position: static !important;
-    max-height: none !important;
-    max-width: none !important;
-}
-
-.tawk-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 30px;
-    color: var(--text-main);
-}
-
-.tawk-placeholder-icon {
-    font-size: 3em;
-    margin-bottom: 10px;
-}
-
-.tawk-placeholder-hint {
-    font-size: 0.9em;
-    color: var(--text-dim);
-    max-width: 480px;
-    margin-top: 8px;
-    line-height: 1.4;
-}
-
-.tawk-placeholder code {
-    background-color: var(--bg-card);
-    color: var(--accent-pink);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.9em;
-}
-
-/* ==========================================
    ROTER BENACHRICHTIGUNGS-PUNKT (CHAT UNREAD)
    ========================================== */
 .tab-btn.has-unread::after {
@@ -674,3 +607,103 @@ audio {
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
 }
 
+/* ==========================================
+   FIREBASE CHAT CONTAINER & NACHRICHTEN-BOX
+   ========================================== */
+#chat-container {
+    width: 100%;
+}
+
+#chat-messages {
+    height: 400px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 12px;
+    padding-right: 8px;
+    margin-bottom: 15px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius-sm);
+    font-size: 13px;
+    scroll-behavior: auto;
+}
+
+/* Scrollbar für das Chat-Fenster */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 4px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 133, 162, 0.5);
+    border-radius: 4px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-pink);
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.4;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.chat-message:last-child {
+    margin-bottom: 0;
+}
+
+.chat-message-author {
+    color: var(--accent-pink-hover);
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.chat-message-text {
+    color: #ffffff;
+    font-size: 13px;
+}
+
+#chat-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+#chat-username {
+    width: 130px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(15, 23, 42, 0.8);
+    color: #ffffff;
+    font-size: 13px;
+}
+
+#chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(15, 23, 42, 0.8);
+    color: #ffffff;
+    font-size: 13px;
+}
+
+#chat-username:focus,
+#chat-input:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+}
