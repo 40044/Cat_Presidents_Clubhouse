@@ -87,6 +87,29 @@ function initFirebaseChat() {
     const chatUsername = document.getElementById('chat-username');
     const chatMessages = document.getElementById('chat-messages');
 
+    // Automatisch Nachrichten löschen, die älter als 30 Tage sind
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    db.collection('messages')
+        .where('timestamp', '<', thirtyDaysAgo)
+        .get()
+        .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const batch = db.batch();
+                querySnapshot.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+                return batch.commit();
+            }
+        })
+        .then(() => {
+            // Optional: console.log("Alte Chat-Last erfolgreich aufgeräumt.");
+        })
+        .catch((error) => {
+            console.error("Fehler beim Aufräumen alter Nachrichten: ", error);
+        });
+
     // Gespeicherten Namen automatisch laden
     if (chatUsername && localStorage.getItem('chat_username')) {
         chatUsername.value = localStorage.getItem('chat_username');
@@ -162,8 +185,6 @@ function initFirebaseChat() {
                     textSpan.className = 'chat-message-text';
                     textSpan.style.fontSize = '13px';
                     textSpan.textContent = data.text || '';
-
-                    messageElement.appendChild(nameSpan);
                     messageElement.appendChild(textSpan);
 
                     chatMessages.appendChild(messageElement);
@@ -214,6 +235,8 @@ function initFirebaseChat() {
             });
     }
 }
+                    messageElement.appendChild(nameSpan);
+                   
 
 // ==========================================
 // 4. JUKEBOX & BAROMETER
