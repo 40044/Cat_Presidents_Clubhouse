@@ -185,6 +185,7 @@ function initFirebaseChat() {
                     textSpan.className = 'chat-message-text';
                     textSpan.style.fontSize = '13px';
                     textSpan.textContent = data.text || '';
+                    messageElement.appendChild(nameSpan);
                     messageElement.appendChild(textSpan);
 
                     chatMessages.appendChild(messageElement);
@@ -235,8 +236,7 @@ function initFirebaseChat() {
             });
     }
 }
-                    messageElement.appendChild(nameSpan);
-                   
+
 
 // ==========================================
 // 4. JUKEBOX & BAROMETER
