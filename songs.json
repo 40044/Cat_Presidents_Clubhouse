@@ -1,4 +1,12 @@
 [
+  { "titel": "Star Stable Forever", "datei": "Star_Stable_Forever.mp3", "band": "js" },
+  { "titel": "Weg zum Hexenkessel", "datei": "Weg_zum_Hexenkessel.mp3", "band": "js" },
+  { "titel": "Profil Pop up Chaos", "datei": "Profil_Pop_up_Chaos.mp3", "band": "js" },
+  { "titel": "Atme meinen Staub", "datei": "Atme_meinen_Staub.mp3", "band": "js" },
+  { "titel": "Jaspers Erntefeuer", "datei": "Jaspers_Erntefeuer.mp3", "band": "js" },
+  { "titel": "Schönheitswahn", "datei": "Schönheitswahn.mp3", "band": "vbis" },
+  { "titel": "Pass auf dich auf", "datei": "Pass_auf_dich_auf.mp3", "band": "vbis" },
+  { "titel": "Hinter der Maske", "datei": "Hinter_der_Maske.mp3", "band": "bpp" },
   { "titel": "Scheiss drauf ich reite", "datei": "Scheiss_drauf_ich_reite.mp3", "band": "vbis" },
   { "titel": "Piraten-Chaos", "datei": "Piraten-Chaos.mp3", "band": "bpp" },
   { "titel": "Werwolf-Pferd", "datei": "Werwolf-Pferd.mp3", "band": "bpp" },
