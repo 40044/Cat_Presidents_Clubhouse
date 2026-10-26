@@ -123,6 +123,9 @@ function initFirebaseChat() {
             const username = chatUsername ? chatUsername.value.trim() : 'Anonym';
 
             if (messageText !== '' && username !== '') {
+                // 1. Sofort das Eingabefeld leeren, damit man nicht noch mal Enter drücken kann!
+                if (chatInput) chatInput.value = '';
+
                 // Namen im Browser merken
                 localStorage.setItem('chat_username', username);
 
@@ -132,11 +135,12 @@ function initFirebaseChat() {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 })
                     .then(() => {
-                        if (chatInput) chatInput.value = '';
                         scrollChatToBottom();
                     })
                     .catch((error) => {
                         console.error("Fehler beim Senden: ", error);
+                        // Falls ein Fehler auftritt, kannst du den Text optional wieder reinsetzen:
+                        // if (chatInput) chatInput.value = messageText;
                     });
             }
         });
