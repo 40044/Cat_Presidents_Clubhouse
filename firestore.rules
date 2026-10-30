@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =============================================
+    // Chat-Nachrichten – Sicherheitsregeln
+    // =============================================
+    match /messages/{messageId} {
+
+      // Jeder darf Chat-Nachrichten lesen
+      allow read: if true;
+
+      // Neue Nachrichten erstellen:
+      //  - Nutzer muss authentifiziert sein
+      //  - Nachrichtentext darf maximal 500 Zeichen lang sein
+      //  - Pflichtfelder müssen vorhanden sein
+      allow create: if request.auth != null
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500
+                    && request.resource.data.username is string
+                    && request.resource.data.username.size() > 0
+                    && request.resource.data.timestamp == request.time;
+
+      // Nachrichten aktualisieren:
+      //  - Nur der ursprüngliche Absender darf seine eigene Nachricht bearbeiten
+      //  - Text darf auch beim Update maximal 500 Zeichen lang sein
+      allow update: if request.auth != null
+                    && resource.data.senderId == request.auth.uid
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() <= 500;
+
+      // Nachrichten löschen:
+      //  - Nur der Original-Absender (senderId == auth.uid) ODER
+      //  - Ein Admin (Custom Claim: admin == true)
+      //  - Verhindert unauthorisierte Client-seitige Löschungen / Datenbank-Wipes
+      allow delete: if request.auth != null
+                    && (
+                         resource.data.senderId == request.auth.uid
+                         || request.auth.token.admin == true
+                       );
+    }
+  }
+}

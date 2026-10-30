@@ -26,21 +26,60 @@ const db = firebase.firestore();
 // Variable für Initial-Ladezustand
 let initialLoadComplete = false;
 
+// Set zum Tracken bereits gerenderter Nachrichten-IDs (für inkrementelles Rendering)
+const renderedMessageIds = new Set();
+
 // Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
 function scrollChatToBottom() {
     const chatMessages = document.getElementById('chat-messages');
     if (!chatMessages) return;
 
-    // Sofortiger Scroll-Versuch
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Beim initialen Laden sofort springen, danach smooth scrollen
+    const behavior = initialLoadComplete ? 'smooth' : 'auto';
+
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior });
 
     // Render-Cycle & Layout absichern (z.B. nach Tab-Wechsel display: none -> display: block)
     requestAnimationFrame(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior });
         setTimeout(() => {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior });
         }, 50);
     });
+}
+
+// Einzelne Chat-Nachricht als DOM-Element erzeugen und an den Container anhängen
+function appendChatMessage(container, docId, data) {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'chat-message';
+    messageElement.setAttribute('data-msg-id', docId);
+    messageElement.style.marginBottom = '8px';
+    messageElement.style.padding = '8px 12px';
+    messageElement.style.background = 'rgba(255, 255, 255, 0.1)';
+    messageElement.style.color = '#ffffff';
+    messageElement.style.fontSize = '13px';
+    messageElement.style.lineHeight = '1.4';
+    messageElement.style.borderRadius = '6px';
+    messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+    messageElement.style.wordBreak = 'break-word';
+
+    // Name fett hervorheben & Nachricht anzeigen
+    const nameSpan = document.createElement('strong');
+    nameSpan.className = 'chat-message-author';
+    nameSpan.style.color = '#ff9ebb'; // Schickes Club-Rosa für den Namen
+    nameSpan.style.fontSize = '13px';
+    nameSpan.textContent = (data.username || 'Anonym') + ': ';
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'chat-message-text';
+    textSpan.style.fontSize = '13px';
+    textSpan.textContent = data.text || '';
+
+    messageElement.appendChild(nameSpan);
+    messageElement.appendChild(textSpan);
+
+    container.appendChild(messageElement);
+    renderedMessageIds.add(docId);
 }
 
 // ==========================================
@@ -151,48 +190,38 @@ function initFirebaseChat() {
         db.collection('messages')
             .orderBy('timestamp', 'asc')
             .onSnapshot((snapshot) => {
-                chatMessages.innerHTML = ''; // Container zurücksetzen
-
                 let hasNewMessage = false;
                 let latestMessageData = null; // Speichert die Daten der neuesten hinzugefügten Nachricht
 
+                // Inkrementelles Rendering: nur geänderte Nachrichten verarbeiten
                 snapshot.docChanges().forEach((change) => {
-                    if (change.type === "added") {
+                    const docId = change.doc.id;
+                    const data = change.doc.data();
+
+                    if (change.type === 'added') {
+                        // Nur anhängen, wenn noch nicht gerendert
+                        if (!renderedMessageIds.has(docId)) {
+                            appendChatMessage(chatMessages, docId, data);
+                        }
                         hasNewMessage = true;
-                        latestMessageData = change.doc.data();
+                        latestMessageData = data;
+
+                    } else if (change.type === 'modified') {
+                        // Bestehende Nachricht im DOM aktualisieren
+                        const existing = chatMessages.querySelector(`[data-msg-id="${docId}"]`);
+                        if (existing) {
+                            const textSpan = existing.querySelector('.chat-message-text');
+                            if (textSpan) textSpan.textContent = data.text || '';
+                            const nameSpan = existing.querySelector('.chat-message-author');
+                            if (nameSpan) nameSpan.textContent = (data.username || 'Anonym') + ': ';
+                        }
+
+                    } else if (change.type === 'removed') {
+                        // Nachricht aus dem DOM entfernen
+                        const existing = chatMessages.querySelector(`[data-msg-id="${docId}"]`);
+                        if (existing) existing.remove();
+                        renderedMessageIds.delete(docId);
                     }
-                });
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'chat-message';
-                    messageElement.style.marginBottom = '8px';
-                    messageElement.style.padding = '8px 12px';
-                    messageElement.style.background = 'rgba(255, 255, 255, 0.1)';
-                    messageElement.style.color = '#ffffff';
-                    messageElement.style.fontSize = '13px'; // Schriftgröße kompakt bei 13px
-                    messageElement.style.lineHeight = '1.4';
-                    messageElement.style.borderRadius = '6px';
-                    messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-                    messageElement.style.wordBreak = 'break-word';
-
-                    // Name fett hervorheben & Nachricht anzeigen
-                    const nameSpan = document.createElement('strong');
-                    nameSpan.className = 'chat-message-author';
-                    nameSpan.style.color = '#ff9ebb'; // Schickes Club-Rosa für den Namen
-                    nameSpan.style.fontSize = '13px';
-                    nameSpan.textContent = (data.username || 'Anonym') + ': ';
-
-                    const textSpan = document.createElement('span');
-                    textSpan.className = 'chat-message-text';
-                    textSpan.style.fontSize = '13px';
-                    textSpan.textContent = data.text || '';
-                    messageElement.appendChild(nameSpan);
-                    messageElement.appendChild(textSpan);
-
-                    chatMessages.appendChild(messageElement);
                 });
 
                 // Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
