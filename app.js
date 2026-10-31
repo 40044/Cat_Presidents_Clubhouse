@@ -1,7 +1,7 @@
 // Benachrichtigungs-Erlaubnis beim Browser anfordern
 function initNotifications() {
     if (window.Notification && Notification.permission === "default") {
-        Notification.requestPermission().catch(() => {});
+        Notification.requestPermission().catch(() => { });
     }
 }
 
@@ -34,12 +34,10 @@ function scrollChatToBottom() {
     const chatMessages = document.getElementById('chat-messages');
     if (!chatMessages) return;
 
-    // Beim initialen Laden sofort springen, danach smooth scrollen
     const behavior = initialLoadComplete ? 'smooth' : 'auto';
 
     chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior });
 
-    // Render-Cycle & Layout absichern (z.B. nach Tab-Wechsel display: none -> display: block)
     requestAnimationFrame(() => {
         chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior });
         setTimeout(() => {
@@ -63,10 +61,10 @@ function appendChatMessage(container, docId, data) {
     messageElement.style.border = '1px solid rgba(255, 255, 255, 0.15)';
     messageElement.style.wordBreak = 'break-word';
 
-    // Name fett hervorheben & Nachricht anzeigen
+    // Sicheres Rendern via textContent (Schutz vor XSS)
     const nameSpan = document.createElement('strong');
     nameSpan.className = 'chat-message-author';
-    nameSpan.style.color = '#ff9ebb'; // Schickes Club-Rosa für den Namen
+    nameSpan.style.color = '#ff9ebb';
     nameSpan.style.fontSize = '13px';
     nameSpan.textContent = (data.username || 'Anonym') + ': ';
 
@@ -90,7 +88,6 @@ let audioEnabled = false;
 let lastPlayed = "";
 const tage = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
 
-// Leeres Array für die Songs aus songs.json
 let songListe = [];
 
 if (document.readyState === 'loading') {
@@ -118,36 +115,13 @@ async function init() {
 }
 
 // ==========================================
-// 3. FIREBASE CHAT LOGIK & ROTER PUNKT & POP-UP
+// 3. FIREBASE CHAT LOGIK & SPAM-SCHUTZ
 // ==========================================
 function initFirebaseChat() {
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatUsername = document.getElementById('chat-username');
     const chatMessages = document.getElementById('chat-messages');
-
-    // Automatisch Nachrichten löschen, die älter als 30 Tage sind
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    db.collection('messages')
-        .where('timestamp', '<', thirtyDaysAgo)
-        .get()
-        .then((querySnapshot) => {
-            if (!querySnapshot.empty) {
-                const batch = db.batch();
-                querySnapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-                return batch.commit();
-            }
-        })
-        .then(() => {
-            // Optional: console.log("Alte Chat-Last erfolgreich aufgeräumt.");
-        })
-        .catch((error) => {
-            console.error("Fehler beim Aufräumen alter Nachrichten: ", error);
-        });
 
     // Gespeicherten Namen automatisch laden
     if (chatUsername && localStorage.getItem('chat_username')) {
@@ -158,15 +132,24 @@ function initFirebaseChat() {
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             initNotifications();
+
             const messageText = chatInput ? chatInput.value.trim() : '';
             const username = chatUsername ? chatUsername.value.trim() : 'Anonym';
+            const submitBtn = chatForm.querySelector('button[type="submit"]');
 
             if (messageText !== '' && username !== '') {
-                // 1. Sofort das Eingabefeld leeren, damit man nicht noch mal Enter drücken kann!
+                // 1. Eingabefeld leeren
                 if (chatInput) chatInput.value = '';
 
-                // Namen im Browser merken
+                // 2. Namen im Browser speichern
                 localStorage.setItem('chat_username', username);
+
+                // 3. SPAM-SCHUTZ: Button für 3 Sekunden deaktivieren
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.innerText = 'Warten...';
+                }
 
                 db.collection('messages').add({
                     username: username,
@@ -178,8 +161,16 @@ function initFirebaseChat() {
                     })
                     .catch((error) => {
                         console.error("Fehler beim Senden: ", error);
-                        // Falls ein Fehler auftritt, kannst du den Text optional wieder reinsetzen:
-                        // if (chatInput) chatInput.value = messageText;
+                    })
+                    .finally(() => {
+                        // Nach 3 Sekunden Freischaltung
+                        setTimeout(() => {
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.style.opacity = '1';
+                                submitBtn.innerText = 'Senden';
+                            }
+                        }, 3000);
                     });
             }
         });
@@ -191,15 +182,13 @@ function initFirebaseChat() {
             .orderBy('timestamp', 'asc')
             .onSnapshot((snapshot) => {
                 let hasNewMessage = false;
-                let latestMessageData = null; // Speichert die Daten der neuesten hinzugefügten Nachricht
+                let latestMessageData = null;
 
-                // Inkrementelles Rendering: nur geänderte Nachrichten verarbeiten
                 snapshot.docChanges().forEach((change) => {
                     const docId = change.doc.id;
                     const data = change.doc.data();
 
                     if (change.type === 'added') {
-                        // Nur anhängen, wenn noch nicht gerendert
                         if (!renderedMessageIds.has(docId)) {
                             appendChatMessage(chatMessages, docId, data);
                         }
@@ -207,7 +196,6 @@ function initFirebaseChat() {
                         latestMessageData = data;
 
                     } else if (change.type === 'modified') {
-                        // Bestehende Nachricht im DOM aktualisieren
                         const existing = chatMessages.querySelector(`[data-msg-id="${docId}"]`);
                         if (existing) {
                             const textSpan = existing.querySelector('.chat-message-text');
@@ -217,28 +205,23 @@ function initFirebaseChat() {
                         }
 
                     } else if (change.type === 'removed') {
-                        // Nachricht aus dem DOM entfernen
                         const existing = chatMessages.querySelector(`[data-msg-id="${docId}"]`);
                         if (existing) existing.remove();
                         renderedMessageIds.delete(docId);
                     }
                 });
 
-                // Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
                 scrollChatToBottom();
 
-                // Roter Punkt & Desktop Benachrichtigung Logik
                 if (initialLoadComplete && hasNewMessage && latestMessageData) {
                     const chatTabContent = document.getElementById('tab-chat');
                     const isChatTabActive = chatTabContent && chatTabContent.classList.contains('active-content');
                     const isWindowFocused = document.hasFocus() && !document.hidden;
 
-                    // Inaktiver Chat-Tab: roten Punkt (.has-unread) am Tab-Button anzeigen
                     if (!isChatTabActive) {
                         setChatUnread(true);
                     }
 
-                    // Desktop Pop-up abfeuern, wenn Chat-Tab inaktiv ist ODER Browserfenster im Hintergrund ist
                     if (!isChatTabActive || !isWindowFocused) {
                         if (window.Notification && Notification.permission === "granted") {
                             try {
@@ -247,7 +230,6 @@ function initFirebaseChat() {
                                     icon: "club_logo.webp"
                                 });
 
-                                // NEU: Nur für den Chat das Schnurren abspielen!
                                 const purrAudio = new Audio('Champi-Barometer_Songs/cat_purring_sound_short.mp3');
                                 purrAudio.play().catch(e => console.log("Audio-Wiedergabe blockiert:", e));
 
@@ -270,7 +252,6 @@ function initFirebaseChat() {
     }
 }
 
-
 // ==========================================
 // 4. JUKEBOX & BAROMETER
 // ==========================================
@@ -283,7 +264,6 @@ async function loadSongs() {
         songListe = await response.json();
     } catch (error) {
         console.error("Fehler beim Laden der songs.json.", error);
-        alert("Fehler beim Laden der Songs! Bitte sicherstellen, dass die Seite über einen lokalen Server (http://localhost...) aufgerufen wird.");
     }
 }
 
@@ -602,14 +582,12 @@ function switchTab(evt, tabName) {
         currentBtn.classList.add('active');
     }
 
-    // Wenn der Chat-Reiter aufgerufen wird: roten Punkt entfernen & automatisch nach ganz unten scrollen
     if (cleanTabName === 'chat') {
         setChatUnread(false);
         scrollChatToBottom();
     }
 }
 
-// Steuerung des Benachrichtigungspunkts (roter Punkt am Chat-Button)
 function setChatUnread(hasUnread) {
     const chatBtn = document.querySelector('.tab-btn[data-tab="chat"]');
     if (!chatBtn) return;
@@ -620,7 +598,6 @@ function setChatUnread(hasUnread) {
     }
 }
 
-// Bei Fokus oder Sichtbarkeit den roten Punkt entfernen, falls der Chat-Tab aktiv ist
 window.addEventListener('focus', () => {
     const chatTabContent = document.getElementById('tab-chat');
     if (chatTabContent && chatTabContent.classList.contains('active-content')) {
@@ -639,7 +616,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Global für HTML-Inline-Events verfügbar machen
+// Global verfügbar machen
 window.enableAudio = enableAudio;
 window.onFilterChange = onFilterChange;
 window.playSongByIndex = playSongByIndex;
