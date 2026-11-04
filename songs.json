@@ -1,4 +1,8 @@
 [
+  { "titel": "See im Staub", "datei": "See_im_Staub.mp3", "band": "vbis" },
+  { "titel": "Chat-Zensur", "datei": "Chat-Zensur.mp3", "band": "bpp" },
+  { "titel": "Kein Club", "datei": "Kein_Club.mp3", "band": "bpp" },
+  { "titel": "Lattenzaunrennen", "datei": "Lattenzaunrennen.mp3", "band": "js" },
   { "titel": "Error im System", "datei": "Error_im_System.mp3", "band": "bpp" },
   { "titel": "Zügel-Panik!", "datei": "Zügel-Panik!.mp3", "band": "bpp" },
   { "titel": "Luxus-Pferd", "datei": "Luxus-Pferd.mp3", "band": "js" },
