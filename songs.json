@@ -1,4 +1,6 @@
 [
+  { "titel": "Le Goon", "datei": "Le_Goon.mp3", "band": "js" },
+  { "titel": "Notstrom im Schädel", "datei": "Notstrom_im_Schädel.mp3", "band": "bpp" },
   { "titel": "See im Staub", "datei": "See_im_Staub.mp3", "band": "vbis" },
   { "titel": "Chat-Zensur", "datei": "Chat-Zensur.mp3", "band": "bpp" },
   { "titel": "Kein Club", "datei": "Kein_Club.mp3", "band": "bpp" },
