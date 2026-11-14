@@ -29,6 +29,24 @@ let initialLoadComplete = false;
 // Set zum Tracken bereits gerenderter Nachrichten-IDs (für inkrementelles Rendering)
 const renderedMessageIds = new Set();
 
+// Zeitstempel einer Nachricht sicher als Millisekunden extrahieren
+function getMessageTimestamp(data) {
+    if (!data || !data.timestamp) return Date.now();
+    if (typeof data.timestamp.toMillis === 'function') {
+        return data.timestamp.toMillis();
+    }
+    if (typeof data.timestamp.toDate === 'function') {
+        return data.timestamp.toDate().getTime();
+    }
+    if (typeof data.timestamp.seconds === 'number') {
+        return data.timestamp.seconds * 1000;
+    }
+    if (typeof data.timestamp === 'number') {
+        return data.timestamp;
+    }
+    return Date.now();
+}
+
 // Automatisch nach ganz unten scrollen (zu den neuesten Nachrichten)
 function scrollChatToBottom() {
     const chatMessages = document.getElementById('chat-messages');
@@ -141,8 +159,9 @@ function initFirebaseChat() {
                 // 1. Eingabefeld leeren
                 if (chatInput) chatInput.value = '';
 
-                // 2. Namen im Browser speichern
+                // 2. Namen im Browser speichern & Chat als gelesen vermerken
                 localStorage.setItem('chat_username', username);
+                localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
 
                 // 3. SPAM-SCHUTZ: Button für 3 Sekunden deaktivieren
                 if (submitBtn) {
@@ -181,19 +200,36 @@ function initFirebaseChat() {
         db.collection('messages')
             .orderBy('timestamp', 'asc')
             .onSnapshot((snapshot) => {
-                let hasNewMessage = false;
+                const isFirstLoad = !initialLoadComplete;
+                let hasNewLiveMessage = false;
                 let latestMessageData = null;
+                let maxTimestampInBatch = 0;
+                const currentUsername = (localStorage.getItem('chat_username') || '').trim();
+                const lastReadTimestamp = parseInt(localStorage.getItem('chat_last_read_timestamp') || '0', 10);
 
                 snapshot.docChanges().forEach((change) => {
                     const docId = change.doc.id;
                     const data = change.doc.data();
+                    const isPending = change.doc.metadata && change.doc.metadata.hasPendingWrites;
+                    const msgTime = getMessageTimestamp(data);
+                    if (msgTime > maxTimestampInBatch) {
+                        maxTimestampInBatch = msgTime;
+                    }
 
                     if (change.type === 'added') {
-                        if (!renderedMessageIds.has(docId)) {
+                        const isAlreadyRendered = renderedMessageIds.has(docId);
+                        if (!isAlreadyRendered) {
                             appendChatMessage(chatMessages, docId, data);
                         }
-                        hasNewMessage = true;
-                        latestMessageData = data;
+
+                        // Als neue Nachricht behandeln, wenn noch nicht gerendert und nicht lokaler Pending-Write
+                        if (!isAlreadyRendered && !isPending) {
+                            const isOwn = currentUsername && data.username && data.username.trim() === currentUsername;
+                            if (!isOwn && initialLoadComplete) {
+                                hasNewLiveMessage = true;
+                                latestMessageData = data;
+                            }
+                        }
 
                     } else if (change.type === 'modified') {
                         const existing = chatMessages.querySelector(`[data-msg-id="${docId}"]`);
@@ -213,13 +249,30 @@ function initFirebaseChat() {
 
                 scrollChatToBottom();
 
-                if (initialLoadComplete && hasNewMessage && latestMessageData) {
-                    const chatTabContent = document.getElementById('tab-chat');
-                    const isChatTabActive = chatTabContent && chatTabContent.classList.contains('active-content');
-                    const isWindowFocused = document.hasFocus() && !document.hidden;
+                const chatTabContent = document.getElementById('tab-chat');
+                const isChatTabActive = chatTabContent && chatTabContent.classList.contains('active-content');
+                const isWindowFocused = document.hasFocus() && !document.hidden;
 
+                if (isFirstLoad) {
+                    if (isChatTabActive) {
+                        // Falls der Chat-Tab direkt aktiv ist: als gelesen markieren
+                        setChatUnread(false);
+                        localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
+                    } else if (lastReadTimestamp > 0) {
+                        // Prüfen, ob nach dem letzten Besuch noch ungelesene Nachrichten eingetroffen sind
+                        if (maxTimestampInBatch > lastReadTimestamp) {
+                            setChatUnread(true);
+                        }
+                    } else {
+                        // Erstmaliger Seitenbesuch: aktuellen Zeitstempel merken, damit alte Historie nicht stört
+                        localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
+                    }
+                } else if (hasNewLiveMessage && latestMessageData) {
+                    // Echte neue Live-Nachricht empfangen
                     if (!isChatTabActive) {
                         setChatUnread(true);
+                    } else {
+                        localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
                     }
 
                     if (!isChatTabActive || !isWindowFocused) {
@@ -584,6 +637,7 @@ function switchTab(evt, tabName) {
 
     if (cleanTabName === 'chat') {
         setChatUnread(false);
+        localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
         scrollChatToBottom();
     }
 }
@@ -602,6 +656,7 @@ window.addEventListener('focus', () => {
     const chatTabContent = document.getElementById('tab-chat');
     if (chatTabContent && chatTabContent.classList.contains('active-content')) {
         setChatUnread(false);
+        localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
         scrollChatToBottom();
     }
 });
@@ -611,7 +666,19 @@ document.addEventListener('visibilitychange', () => {
         const chatTabContent = document.getElementById('tab-chat');
         if (chatTabContent && chatTabContent.classList.contains('active-content')) {
             setChatUnread(false);
+            localStorage.setItem('chat_last_read_timestamp', Date.now().toString());
             scrollChatToBottom();
+        }
+    }
+});
+
+// Tab-übergreifende Synchronisierung (wenn in einem anderen Tab der Chat gelesen wurde)
+window.addEventListener('storage', (e) => {
+    if (e.key === 'chat_last_read_timestamp') {
+        const chatTabContent = document.getElementById('tab-chat');
+        const isChatTabActive = chatTabContent && chatTabContent.classList.contains('active-content');
+        if (isChatTabActive) {
+            setChatUnread(false);
         }
     }
 });
