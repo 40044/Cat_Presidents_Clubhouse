@@ -671,6 +671,19 @@ audio {
     font-size: 13px;
 }
 
+.chat-timestamp {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-left: 6px;
+    font-weight: normal;
+}
+
+.chat-message-separator {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    margin-right: 2px;
+}
+
 .chat-message-text {
     color: #ffffff;
     font-size: 13px;

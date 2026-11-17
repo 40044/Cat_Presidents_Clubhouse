@@ -64,6 +64,71 @@ function scrollChatToBottom() {
     });
 }
 
+// Hilfsfunktion: Firestore-Timestamp oder Datum formatieren
+function formatChatTimestamp(timestamp) {
+    if (!timestamp) {
+        return 'Gerade eben';
+    }
+
+    let date;
+    if (typeof timestamp.toDate === 'function') {
+        date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+        date = timestamp;
+    } else if (timestamp.seconds !== undefined) {
+        date = new Date(timestamp.seconds * 1000);
+    } else if (typeof timestamp === 'number') {
+        date = new Date(timestamp);
+    } else {
+        date = new Date(timestamp);
+    }
+
+    if (isNaN(date.getTime())) {
+        return 'Gerade eben';
+    }
+
+    const now = new Date();
+    const isToday = date.getDate() === now.getDate() &&
+                    date.getMonth() === now.getMonth() &&
+                    date.getFullYear() === now.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
+    if (isToday) {
+        return timeStr;
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    if (date.getFullYear() === now.getFullYear()) {
+        return `${day}.${month}. ${timeStr}`;
+    } else {
+        const year = String(date.getFullYear()).slice(-2);
+        return `${day}.${month}.${year} ${timeStr}`;
+    }
+}
+
+// Hilfsfunktion: Vollständiges Datum & Uhrzeit für Tooltip
+function getTimestampTooltip(timestamp) {
+    if (!timestamp) return '';
+    let date;
+    if (typeof timestamp.toDate === 'function') {
+        date = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+        date = timestamp;
+    } else if (timestamp.seconds !== undefined) {
+        date = new Date(timestamp.seconds * 1000);
+    } else if (typeof timestamp === 'number') {
+        date = new Date(timestamp);
+    } else {
+        date = new Date(timestamp);
+    }
+    return isNaN(date.getTime()) ? '' : date.toLocaleString('de-DE');
+}
+
 // Einzelne Chat-Nachricht als DOM-Element erzeugen und an den Container anhängen
 function appendChatMessage(container, docId, data) {
     const messageElement = document.createElement('div');
@@ -84,7 +149,21 @@ function appendChatMessage(container, docId, data) {
     nameSpan.className = 'chat-message-author';
     nameSpan.style.color = '#ff9ebb';
     nameSpan.style.fontSize = '13px';
-    nameSpan.textContent = (data.username || 'Anonym') + ': ';
+    nameSpan.textContent = data.username || 'Anonym';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'chat-timestamp';
+    timeSpan.style.fontSize = '11px';
+    timeSpan.style.color = 'rgba(255, 255, 255, 0.45)';
+    timeSpan.style.marginLeft = '6px';
+    timeSpan.style.fontWeight = 'normal';
+    timeSpan.textContent = formatChatTimestamp(data.timestamp);
+    const tooltip = getTimestampTooltip(data.timestamp);
+    if (tooltip) timeSpan.title = tooltip;
+
+    const separatorSpan = document.createElement('span');
+    separatorSpan.className = 'chat-message-separator';
+    separatorSpan.textContent = ': ';
 
     const textSpan = document.createElement('span');
     textSpan.className = 'chat-message-text';
@@ -92,6 +171,8 @@ function appendChatMessage(container, docId, data) {
     textSpan.textContent = data.text || '';
 
     messageElement.appendChild(nameSpan);
+    messageElement.appendChild(timeSpan);
+    messageElement.appendChild(separatorSpan);
     messageElement.appendChild(textSpan);
 
     container.appendChild(messageElement);
@@ -237,7 +318,13 @@ function initFirebaseChat() {
                             const textSpan = existing.querySelector('.chat-message-text');
                             if (textSpan) textSpan.textContent = data.text || '';
                             const nameSpan = existing.querySelector('.chat-message-author');
-                            if (nameSpan) nameSpan.textContent = (data.username || 'Anonym') + ': ';
+                            if (nameSpan) nameSpan.textContent = data.username || 'Anonym';
+                            const timeSpan = existing.querySelector('.chat-timestamp');
+                            if (timeSpan && data.timestamp) {
+                                timeSpan.textContent = formatChatTimestamp(data.timestamp);
+                                const tooltip = getTimestampTooltip(data.timestamp);
+                                if (tooltip) timeSpan.title = tooltip;
+                            }
                         }
 
                     } else if (change.type === 'removed') {
